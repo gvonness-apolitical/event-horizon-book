@@ -34,3 +34,23 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/book.pdf
+
+      - name: Publish PDF to event-horizon repo
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.EVENT_HORIZON_TOKEN }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          REPO="gvonness/event-horizon"
+          TAG="book"
+          TITLE="Event Horizon — Companion Textbook"
+          NOTES="PDF of *Event Horizon: A Computational Journey into Black Hole Physics* (${VERSION})."
+          PDF="build/book.pdf"
+
+          if gh release view "$TAG" --repo "$REPO" &>/dev/null; then
+            gh release upload "$TAG" "$PDF" --repo "$REPO" --clobber
+            gh release edit "$TAG" --repo "$REPO" --notes "$NOTES"
+          else
+            gh release create "$TAG" "$PDF" --repo "$REPO" \
+              --title "$TITLE" --notes "$NOTES" --latest=false
+          fi

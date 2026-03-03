@@ -1,0 +1,62 @@
+% ch23 — Discontinuous Galerkin Methods ★
+\chapter{Discontinuous Galerkin Methods\starmark{}}
+\label{ch:dg-methods}
+
+Discontinuous Galerkin (DG) methods combine the high-order accuracy of spectral
+methods with the geometric flexibility and shock-capturing ability of finite
+volumes. This advanced chapter develops the DG framework as implemented in the
+codebase and applies it to wave propagation and the CCZ4 system.
+
+\section{Weak Form of Conservation Laws}
+\label{sec:dg-weak}
+\coderef{dg}{rs}
+
+We derive the weak (variational) form of a hyperbolic conservation law on a
+single element, introducing test functions and integration by parts to produce
+the volume and surface integral terms.
+
+\section{Legendre-Gauss-Lobatto Basis}
+\label{sec:dg-lgl}
+
+We construct the nodal DG basis using Lagrange polynomials on LGL nodes,
+connect to the spectral-element mass and stiffness matrices, and exploit
+the diagonal mass-lumping approximation.
+
+\section{Rusanov (Local Lax-Friedrichs) Numerical Flux}
+\label{sec:dg-rusanov}
+
+We define the Rusanov numerical flux at element interfaces, estimate the
+maximum wave speed, and discuss its role in providing upwind dissipation
+for stability.
+
+\section{\texorpdfstring{$hp$}{hp}-Adaptivity}
+\label{sec:dg-hp}
+\coderef{dg\_hp}{rs}
+
+We describe the $hp$-refinement strategy that adapts both the mesh size $h$
+and the polynomial order $p$ based on a smoothness indicator, concentrating
+degrees of freedom where they are most needed.
+
+\section{Mortar Elements}
+\label{sec:dg-mortar}
+\coderef{dg\_mortar}{rs}
+
+We introduce mortar elements as the coupling mechanism between non-conforming
+element interfaces that arise from $h$-refinement, ensuring conservation
+across hanging nodes.
+
+\section{Cubed-Sphere Grids\starmark{}}
+\label{sec:dg-cubed-sphere}
+\coderef{dg\_cubed\_sphere}{rs}
+
+We describe the cubed-sphere coordinate mapping that avoids polar singularities
+for problems on spherical domains, and show how it integrates with the DG
+framework for wave-extraction spheres.
+
+\paragraph{Key References.}
+The DG formulation follows \cite{HesthavenWarburton2008,Kopriva2009};
+$hp$-adaptivity follows \cite{Mavriplis1994}; mortar elements follow
+\cite{Kopriva1996}; the cubed-sphere mapping draws on
+\cite{Ronchi1996}; the CCZ4 application follows \cite{Dumbser2018}.
+\coderef{dg\_wave}{rs}
+\coderef{dg\_ccz4}{rs}

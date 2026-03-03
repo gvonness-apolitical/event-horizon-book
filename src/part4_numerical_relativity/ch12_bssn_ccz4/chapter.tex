@@ -1,0 +1,49 @@
+% ch12 — BSSN and CCZ4 Formulations
+\chapter{BSSN and CCZ4 Formulations}
+\label{ch:bssn-ccz4}
+
+The raw ADM equations are only weakly hyperbolic and therefore unsuitable for
+stable long-term numerical evolution. This chapter develops the two strongly
+hyperbolic reformulations implemented in the codebase: the BSSN conformal
+decomposition and the CCZ4 constraint-damping system.
+
+\section{Why ADM Is Ill-Posed for Numerics}
+\label{sec:bssn-adm-illposed}
+
+We demonstrate the weak hyperbolicity of the ADM system by examining its
+principal symbol and show how constraint-violating modes can grow without bound.
+
+\section{BSSN Conformal Decomposition}
+\label{sec:bssn-conformal}
+\coderef{bssn}{rs}
+
+We introduce the 24-field BSSN system: conformal factor $\phi$, conformal metric
+$\tilde\gamma_{ij}$, trace-free extrinsic curvature $\tilde A_{ij}$, trace $K$,
+and conformal connection functions $\tilde\Gamma^i$, and derive the evolution
+equations.
+
+\section{CCZ4 Constraint Damping}
+\label{sec:ccz4-damping}
+\coderef{ccz4}{rs}
+
+We extend the Z4 system to its conformal-covariant form CCZ4, introducing the
+28-field system with constraint-damping parameters $\kappa_1$ and $\kappa_2$
+that exponentially suppress constraint violations.
+
+\section{Gauge Conditions}
+\label{sec:bssn-gauge}
+\coderef{gauge}{rs}
+
+We present the 1+log slicing condition for the lapse and the Gamma-driver
+condition for the shift, explaining how these choices avoid coordinate
+singularities and slice-stretching instabilities.
+
+\section{Boundary Conditions}
+\label{sec:bssn-boundary}
+
+We discuss Sommerfeld (radiative) outgoing boundary conditions and the practical
+issues of applying them on a finite computational domain.
+
+\paragraph{Key References.}
+The BSSN formulation follows \cite{Shibata1995,Baumgarte1999}; CCZ4 follows
+\cite{Alic2012}; gauge conditions draw on \cite{Bona1995,Alcubierre2003}.

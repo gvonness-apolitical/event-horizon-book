@@ -1,0 +1,73 @@
+% ch17 — Binary Black Hole Simulations
+\chapter{Binary Black Hole Simulations}
+\label{ch:binary-black-holes}
+
+This chapter brings together the machinery of the preceding chapters ---
+initial data, BSSN/CCZ4 evolution, AMR, gauge conditions, wave extraction,
+and horizon finding --- to simulate the inspiral, merger, and ringdown of
+binary black hole systems. It serves as both a capstone for Part~IV and a
+practical guide to running and validating full numerical relativity
+simulations.
+
+\section{Orbital Dynamics and the PN--NR Interface}
+\label{sec:bbh-orbits}
+
+We review the three phases of binary evolution --- inspiral, merger,
+ringdown --- and discuss where post-Newtonian (PN) approximations hand off
+to full numerical evolution, motivating the need for NR simulations.
+
+\section{Binary Puncture Initial Data}
+\label{sec:bbh-initial-data}
+\coderef{initial\_data}{rs}
+
+We construct Bowen--York initial data for two boosted, spinning punctures,
+compute the ADM mass and momenta, and discuss quasi-circular orbit
+parameters from effective-potential methods.
+
+\section{Evolution Setup and Gauge Choices}
+\label{sec:bbh-evolution}
+\coderef{bssn}{rs}
+\coderef{gauge}{rs}
+
+We configure the BSSN or CCZ4 evolution with 1+log slicing and
+Gamma-driver shift for a binary system, discussing puncture tracking,
+AMR box placement around each black hole, and Courant factor selection.
+
+\section{Merger Dynamics}
+\label{sec:bbh-merger}
+
+We describe the phenomenology of the plunge and merger: common apparent
+horizon formation, the transition from two individual horizons to one,
+and the ringdown to a final Kerr black hole characterised by mass and
+spin.
+
+\section{Convergence Testing and Richardson Extrapolation}
+\label{sec:bbh-convergence}
+
+We demonstrate self-convergence of the waveform at multiple resolutions,
+apply Richardson extrapolation to estimate the continuum limit, and
+compute the convergence order to validate the numerical scheme.
+
+\section{Waveform Analysis}
+\label{sec:bbh-waveform}
+\coderef{wave\_extraction}{rs}
+\coderef{WaveExtraction}{hs}
+
+We extract the dominant $(2,2)$ mode of $\Psi_4$, integrate to obtain
+strain, compute radiated energy and final spin, and compare with
+semi-analytic predictions from the test-particle limit and surrogate
+models.
+
+\section{Parameter Space: Mass Ratio and Spin}
+\label{sec:bbh-parameter-space}
+
+We survey how the dynamics and waveforms change across the binary
+parameter space --- mass ratio $q$, spin magnitudes $\chi_i$, and spin
+orientations --- highlighting precession, recoil kicks, and spin-orbit
+coupling.
+
+\paragraph{Key References.}
+The moving-puncture breakthrough follows \cite{Campanelli2006}; initial
+data and quasi-circular parameters draw on \cite{Cook2000,Bowen1980};
+convergence testing follows \cite{Baumgarte2010}; the CCZ4 formulation
+follows \cite{Alic2012}.

@@ -1,0 +1,62 @@
+% ch22 — Color Science and Post-Processing
+\chapter{Color Science and Post-Processing}
+\label{ch:color-science}
+
+The raw output of the ray tracer is a map of spectral intensities; turning
+these into a displayable image requires a careful colour pipeline. This chapter
+develops the physics of blackbody radiation, CIE colour matching, and the
+tone-mapping and post-processing stages that produce the final render.
+
+\section{Blackbody Radiation and the Planck Spectrum}
+\label{sec:col-blackbody}
+\coderef{Render.Blackbody}{hs}
+
+We derive the Planck spectral radiance, compute the effective temperature from
+the accretion-disk emissivity, and sample the spectrum at discrete wavelengths
+for colour integration.
+
+\section{CIE Colour Matching Functions}
+\label{sec:col-cie}
+\coderef{Render.Color}{hs}
+
+We introduce the CIE 1931 standard observer, define the colour matching
+functions $\bar{x}(\lambda)$, $\bar{y}(\lambda)$, $\bar{z}(\lambda)$, and
+compute tristimulus values by integrating the spectral radiance against them.
+
+\section{Spectral Integration}
+\label{sec:col-spectral}
+
+We describe the quadrature scheme that integrates the product of the Planck
+function and the colour matching functions over the visible spectrum, balancing
+accuracy against the number of wavelength samples.
+
+\section{XYZ to sRGB Conversion}
+\label{sec:col-xyz-srgb}
+
+We apply the linear transformation from CIE XYZ to the sRGB colour space,
+perform gamut clipping, and apply the sRGB gamma transfer function.
+
+\section{ACES Tone Mapping}
+\label{sec:col-tonemapping}
+
+We implement the Academy Color Encoding System (ACES) tone-mapping curve that
+compresses the high dynamic range of astrophysical intensities into the
+displayable $[0,1]$ range while preserving perceptual contrast.
+
+\section{Bloom, Glare, and Photon-Ring Smoothing}
+\label{sec:col-bloom}
+
+We describe the post-processing convolution filters that simulate optical
+bloom and glare, and the targeted smoothing applied to photon-ring artefacts.
+
+\section{GPU Shaders\starmark{}}
+\label{sec:col-gpu-shaders}
+\coderef{eh-gpu}{shaders}
+
+We outline the fragment and compute shaders that perform tone mapping and
+post-processing on the GPU, enabling real-time interactive exploration.
+
+\paragraph{Key References.}
+Blackbody physics follows \cite{Rybicki1979}; CIE colour science follows
+\cite{Wyszecki1982}; ACES tone mapping follows the Academy specification
+\cite{ACES2014}; bloom filters draw on \cite{Pharr2016}.

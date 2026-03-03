@@ -1,0 +1,43 @@
+% ch18 — GRMHD
+\chapter{General-Relativistic MHD}
+\label{ch:grmhd}
+
+With the flat-space MHD machinery in hand, we now couple the fluid to a
+dynamical or fixed curved-spacetime background. This chapter develops the
+Valencia formulation of GRMHD, the metric coupling strategy, and the
+practical atmosphere treatment required for vacuum regions.
+
+\section{Valencia Formulation}
+\label{sec:grmhd-valencia}
+\coderef{mhd\_grid}{rs}
+
+We write the GRMHD equations in the Valencia form, identifying the conserved
+variables, fluxes, and geometric source terms that arise from the
+non-vanishing Christoffel symbols.
+
+\section{Metric Coupling}
+\label{sec:grmhd-metric}
+\coderef{mhd\_metric}{rs}
+
+We explain how the spatial metric, lapse, and shift enter the MHD fluxes
+and source terms, and describe the data flow between the spacetime evolution
+and the MHD solver.
+
+\section{Atmosphere Treatment}
+\label{sec:grmhd-atmosphere}
+
+We describe the artificial atmosphere floor applied in near-vacuum regions
+to prevent negative densities and conservative-to-primitive failures, and
+discuss the criteria for atmosphere activation.
+
+\section{Method of Lines with RK4\starmark{}}
+\label{sec:grmhd-mol}
+
+We present the method-of-lines semi-discretisation that decouples spatial and
+temporal integration, and detail the fourth-order Runge-Kutta time stepper
+used for the combined spacetime--matter system.
+
+\paragraph{Key References.}
+The Valencia formulation follows \cite{Banyuls1997,Font2008}; the atmosphere
+treatment draws on \cite{Etienne2015}; the method of lines follows
+\cite{Hesthaven2007}.

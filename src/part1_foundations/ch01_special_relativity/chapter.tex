@@ -1,0 +1,36 @@
+% ch01 — Special Relativity: A Working Primer
+\chapter{Special Relativity: A Working Primer}
+\label{ch:special-relativity}
+
+This chapter reviews the formalism of special relativity that underpins
+everything that follows. We establish the index notation, metric signature, and
+observer-decomposition techniques used throughout the book, with particular
+emphasis on the null vectors and tetrad constructions that reappear in the ray
+tracer's camera model.
+
+\section{The Minkowski Metric, Four-Vectors, and Index Gymnastics}
+\label{sec:sr-minkowski}
+
+We introduce the Minkowski metric $\eta_{\mu\nu}$ in the $({-}{+}{+}{+})$
+convention, define four-vectors, and establish the index-raising and -lowering
+operations that generalise to curved spacetime in later chapters.
+
+\section{Lorentz Transformations, Boosts, and Observer Tetrads}
+\label{sec:sr-lorentz}
+\coderef{Spacetime}{Minkowski}
+
+We derive the Lorentz group from the invariance of the interval, specialise to
+boosts, and construct the orthonormal tetrad of an arbitrary inertial observer
+--- the same construction used to define the ray tracer's camera frame.
+
+\section{Light Cones, Causal Structure, and Null Vectors}
+\label{sec:sr-causal}
+
+We define the causal structure of Minkowski spacetime, classify vectors as
+timelike, spacelike, or null, and show how null vectors parametrise the
+directions on an observer's sky --- the starting point for ray tracing.
+
+\paragraph{Key References.}
+The index-notation conventions follow \cite{MTW1973}; the tetrad formalism
+draws on \cite{Wald1984}. The camera-tetrad construction is described in
+\cite{James2015}.

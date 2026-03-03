@@ -1,0 +1,135 @@
+%% ehcommands.tex — Custom macros for Event Horizon
+%%
+
+% ============================================================
+%  Physics — tensor notation
+% ============================================================
+
+% Metric tensor
+\newcommand{\metric}{g_{\mu\nu}}
+\newcommand{\inversemetric}{g^{\mu\nu}}
+
+% Connection coefficients (Christoffel symbols)
+\newcommand{\christoffel}[3]{\Gamma^{#1}{}_{#2 #3}}
+
+% Riemann curvature tensor
+\newcommand{\riemann}[4]{R^{#1}{}_{#2 #3 #4}}
+
+% Ricci tensor and scalar
+\newcommand{\ricci}{R_{\mu\nu}}
+\newcommand{\ricciscalar}{R}
+
+% Einstein tensor
+\newcommand{\einstein}{G_{\mu\nu}}
+
+% Weyl tensor
+\newcommand{\weyl}[4]{C^{#1}{}_{#2 #3 #4}}
+
+% Stress-energy tensor
+\newcommand{\stressenergy}{T_{\mu\nu}}
+
+% ============================================================
+%  Index notation helpers
+% ============================================================
+
+% Partial derivatives
+\newcommand{\pu}[1]{\partial^{#1}}           % partial upper index
+\newcommand{\pd}[1]{\partial_{#1}}           % partial lower index
+
+% Covariant derivative
+\newcommand{\cd}[1]{\nabla_{#1}}
+
+% ============================================================
+%  Differential operators
+% ============================================================
+
+\newcommand{\laplacian}{\nabla^{2}}
+\newcommand{\dalembertian}{\Box}
+\newcommand{\lie}[1]{\mathcal{L}_{#1}}      % Lie derivative
+
+% ============================================================
+%  ADM decomposition
+% ============================================================
+
+\newcommand{\lapse}{\alpha}                  % lapse function
+\newcommand{\shift}{\beta^{i}}               % shift vector
+\newcommand{\spatialmetric}{\gamma_{ij}}     % spatial 3-metric
+\newcommand{\inversespatialmetric}{\gamma^{ij}}
+\newcommand{\extrinsic}{K_{ij}}              % extrinsic curvature
+\newcommand{\meanextrinsic}{K}               % trace of extrinsic curvature
+\newcommand{\spatialchristoffel}[3]{{}^{(3)}\!\Gamma^{#1}{}_{#2 #3}}
+\newcommand{\spatialricci}{{}^{(3)}\!R_{ij}}
+\newcommand{\spatialricciscalar}{{}^{(3)}\!R}
+
+% ============================================================
+%  BSSN / CCZ4 variables
+% ============================================================
+
+\newcommand{\conformal}{\chi}                % conformal factor
+\newcommand{\conformalmetric}{\tilde{\gamma}_{ij}}
+\newcommand{\tracefreecurvature}{\tilde{A}_{ij}}  % trace-free extrinsic curvature
+\newcommand{\conformalconnection}{\tilde{\Gamma}^{i}}  % conformal connection functions
+\newcommand{\bssnphi}{\phi}                 % BSSN log conformal factor
+\newcommand{\bssnW}{W}                      % BSSN W variant
+
+% ============================================================
+%  GRMHD
+% ============================================================
+
+\newcommand{\lorentz}{W}                     % Lorentz factor
+\newcommand{\restmassdensity}{\rho_{0}}
+\newcommand{\specificenthalpy}{h}
+\newcommand{\magneticfield}[1]{B^{#1}}
+\newcommand{\electricfield}[1]{E^{#1}}
+
+% ============================================================
+%  Codebase cross-references
+% ============================================================
+
+% \coderef{module}{symbol} — margin note linking to code
+\newcommand{\coderef}[2]{%
+  \marginnote{%
+    \textcolor{EHAccretionGold}{\rule{12pt}{1pt}}\\[2pt]%
+    {\footnotesize\ttfamily\color{EHMarginGray}%
+    #1\linebreak\mbox{}\quad::\,#2}%
+  }%
+}
+
+% \codemodule{module} — inline monospace module reference
+\newcommand{\codemodule}[1]{{\small\ttfamily\color{EHMarginGray}#1}}
+
+% ============================================================
+%  Optional sections
+% ============================================================
+
+% Crimson star marker for optional/advanced sections
+% Safe for use in section/chapter titles (hyperref-compatible)
+\newcommand{\starmark}{\texorpdfstring{{\color{EHHorizonCrimson}\(\bigstar\)}}{*}}
+
+% ============================================================
+%  Convenience
+% ============================================================
+
+% Four-velocity
+\newcommand{\fourvel}{u^{\mu}}
+
+% Determinant of metric
+\newcommand{\detmetric}{\sqrt{-g}}
+
+% d-dimensional volume element
+\newcommand{\vol}[1]{\mathrm{d}^{#1}x}
+
+% Order notation
+\newcommand{\order}[1]{\mathcal{O}\!\left(#1\right)}
+
+% Differential
+\renewcommand{\d}{\mathrm{d}}
+
+% Absolute value / norm
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+% Inner product
+\newcommand{\inner}[2]{\left\langle #1,\, #2 \right\rangle}
+
+\endinput

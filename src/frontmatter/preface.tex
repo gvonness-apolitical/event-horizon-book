@@ -1,0 +1,41 @@
+% preface.tex — Book preface
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+This book is a guided tour through the physics, mathematics, and numerical
+methods needed to understand---and contribute to---the \texttt{event-horizon}
+codebase, a relativistic ray tracer for black hole visualisation. Rather than
+treating general relativity and numerical computation as separate disciplines,
+we develop them together, showing how every equation maps to running code.
+
+\paragraph{Prerequisites.}
+We assume the reader has completed a standard course in special relativity and
+is comfortable with linear algebra, multivariable calculus, and basic
+differential equations. No prior exposure to general relativity or numerical
+methods is required.
+
+\paragraph{Structure.}
+The book is organised in seven parts:
+\begin{enumerate}
+  \item \textbf{Foundations} --- special relativity, differential geometry, and
+        the Einstein equations.
+  \item \textbf{Black Hole Spacetimes} --- Schwarzschild, Kerr, and geodesic
+        motion.
+  \item \textbf{Numerical Methods} --- finite differences, ODE integration,
+        automatic differentiation, and spectral methods.
+  \item \textbf{Numerical Relativity} --- the ADM formalism and the BSSN
+        evolution system.
+  \item \textbf{GRMHD} --- general-relativistic magnetohydrodynamics and
+        conservative schemes.
+  \item \textbf{Visualisation} --- ray tracing, radiative transfer, and
+        rendering.
+  \item \textbf{Advanced Topics} --- extensions, optimisations, and open
+        problems.
+\end{enumerate}
+
+\paragraph{Notation.}
+We use the $({-}{+}{+}{+})$ metric signature throughout. Greek indices
+$\mu,\nu,\ldots$ run over spacetime dimensions $0$--$3$; Latin indices
+$i,j,\ldots$ run over spatial dimensions $1$--$3$. We work in geometrised
+units where $G = c = 1$ unless otherwise stated. Sections marked with a
+$\star$ are optional or advanced and may be skipped on a first reading.

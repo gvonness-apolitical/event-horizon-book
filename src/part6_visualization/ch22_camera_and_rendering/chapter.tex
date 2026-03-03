@@ -1,0 +1,55 @@
+% ch21 — Camera Models and 3D Rendering
+\chapter{Camera Models and 3D Rendering}
+\label{ch:camera-rendering}
+
+Before rays enter curved spacetime they must be generated from a camera model,
+and after integration the resulting intensities must be assembled into a final
+image. This chapter bridges classical 3D rendering with the relativistic ray
+tracer.
+
+\section{Homogeneous Coordinates and View Transformations}
+\label{sec:cam-homogeneous}
+\coderef{Camera.Model}{hs}
+
+We review homogeneous coordinates in projective space and construct the
+model-view-projection matrix chain that positions and orients the virtual
+camera.
+
+\section{Field of View and Perspective Projection}
+\label{sec:cam-fov}
+
+We define the field-of-view angle, derive the perspective projection matrix,
+and map from clip coordinates to pixel coordinates for image generation.
+
+\section{Lorentz Boost of the Camera Frame}
+\label{sec:cam-lorentz}
+
+We apply a Lorentz boost to the observer tetrad to model a camera in orbital
+motion, accounting for aberration and the relativistic headlight effect.
+
+\section{Supersampling and Halton Sequences}
+\label{sec:cam-supersampling}
+
+We describe anti-aliasing via supersampling with low-discrepancy Halton
+sequences, achieving smooth edges and accurate sub-pixel integration.
+
+\section{Star Catalogues\starmark{}}
+\label{sec:cam-stars}
+\coderef{star\_catalog}{rs}
+
+We discuss the integration of real star-catalogue data (Hipparcos/Tycho) to
+render a realistic background sky that is gravitationally lensed by the black
+hole.
+
+\section{Procedural Textures\starmark{}}
+\label{sec:cam-textures}
+\coderef{noise}{rs}
+
+We implement Perlin and simplex noise to generate procedural textures for
+accretion disk turbulence and background nebulae.
+
+\paragraph{Key References.}
+The camera model follows standard computer-graphics treatments
+\cite{Marschner2016}; the Lorentz-boosted camera draws on \cite{James2015};
+Halton sequences follow \cite{Halton1964}; procedural textures follow
+\cite{Perlin1985}.

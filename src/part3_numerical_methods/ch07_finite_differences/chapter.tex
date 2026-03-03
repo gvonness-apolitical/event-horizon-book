@@ -1,0 +1,47 @@
+% ch07 — Finite Difference Methods
+\chapter{Finite Difference Methods}
+\label{ch:finite-differences}
+
+Finite differences are the simplest tool for discretising derivatives on a
+grid. This chapter derives the standard stencils used in the codebase,
+analyses their truncation error, introduces Kreiss-Oliger dissipation for
+stability, and sets up the convergence-testing framework applied throughout
+the numerical-methods chapters.
+
+\section{Finite Difference Stencil Derivation}
+\label{sec:fd-stencils}
+\coderef{stencils}{rs}
+
+We derive centred finite difference stencils from Taylor expansion and show
+how the codebase generates them for arbitrary order.
+
+\section{Second- and Fourth-Order Differences}
+\label{sec:fd-orders}
+
+We write out the explicit second- and fourth-order stencils for first and
+second derivatives, comparing their accuracy per grid point.
+
+\section{Truncation Error Analysis}
+\label{sec:fd-truncation}
+
+We define the local truncation error, relate it to the stencil order, and
+show how Richardson extrapolation can improve accuracy.
+
+\section{Kreiss-Oliger Dissipation}
+\label{sec:fd-dissipation}
+\coderef{dissipation}{rs}
+
+We introduce Kreiss-Oliger artificial dissipation as a mechanism to damp
+high-frequency grid noise without degrading the convergence order of the
+scheme.
+
+\section{Convergence Testing}
+\label{sec:fd-convergence}
+
+We describe the method of manufactured solutions and self-convergence tests,
+establishing the verification methodology used in later chapters.
+
+\paragraph{Key References.}
+Stencil derivation and error analysis follow \cite{LeVeque2007};
+Kreiss-Oliger dissipation is discussed in \cite{Gustafsson1995};
+convergence testing follows \cite{Roache1998}.

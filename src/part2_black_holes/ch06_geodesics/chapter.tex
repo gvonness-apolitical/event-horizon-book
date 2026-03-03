@@ -1,0 +1,66 @@
+% ch06 — Geodesic Motion
+\chapter{Geodesic Motion}
+\label{ch:geodesics}
+
+Geodesics are the trajectories of freely falling particles and photons---the
+central objects computed by the ray tracer. This chapter develops both the
+Lagrangian and Hamiltonian formulations, derives the constants of motion, and
+describes the numerical strategies used in the codebase for integration,
+conservation monitoring, and ray termination.
+
+\section{Lagrangian and Hamiltonian Formulations}
+\label{sec:geo-formulations}
+
+We derive the geodesic equations from the Euler-Lagrange equations and
+recast them in Hamiltonian form using the super-Hamiltonian
+$\mathcal{H} = \tfrac{1}{2}\,g^{\mu\nu} p_\mu p_\nu$.
+
+\section{Constants of Motion}
+\label{sec:geo-constants}
+
+We identify the conserved energy, angular momentum, and (in Kerr) Carter
+constant from Killing vectors and the Killing tensor, reducing the equations
+of motion.
+
+\section{Null Geodesics}
+\label{sec:geo-null}
+\coderef{Geodesic}{Hamiltonian}
+
+We specialise to null geodesics ($\mathcal{H} = 0$), the light rays traced
+by the renderer, and discuss the constraint-preserving properties of the
+Hamiltonian formulation.
+
+\section{Timelike Geodesics}
+\label{sec:geo-timelike}
+
+We treat massive-particle orbits, including circular orbits and their
+stability, connecting to accretion disc physics.
+
+\section{Hamiltonian Ray Tracing}
+\label{sec:geo-raytracing}
+
+We describe the first-order Hamiltonian system integrated by the codebase,
+including the choice of affine parameter and the role of the metric inverse.
+
+\section{Conservation Monitoring}
+\label{sec:geo-conservation}
+
+We explain how the codebase monitors the Hamiltonian constraint and conserved
+quantities during integration to detect numerical error accumulation.
+
+\section{Termination Conditions}
+\label{sec:geo-termination}
+
+We catalogue the stopping criteria---horizon crossing, escape to infinity,
+disc intersection---and their implementation.
+
+\section{Photon Rings and Bound Orbits\starmark{}}
+\label{sec:geo-photon-rings}
+
+We discuss the structure of bound null orbits around Kerr black holes and
+the resulting photon-ring substructure visible in high-resolution images.
+
+\paragraph{Key References.}
+The Hamiltonian formulation follows \cite{MTW1973}; the Carter constant and
+Kerr geodesics are treated in \cite{Chandrasekhar1983}; photon rings are
+discussed in \cite{Johnson2020}.

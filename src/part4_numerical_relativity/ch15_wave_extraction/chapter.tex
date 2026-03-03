@@ -1,0 +1,53 @@
+% ch15 — Gravitational Wave Extraction
+\chapter{Gravitational Wave Extraction}
+\label{ch:wave-extraction}
+
+The ultimate observable of a numerical relativity simulation is the
+gravitational waveform radiated to future null infinity. This chapter develops
+the Newman-Penrose formalism for extracting waveforms from the evolved
+spacetime and decomposing them into spin-weighted spherical harmonics.
+
+\section{Newman-Penrose Formalism and Weyl Scalars}
+\label{sec:we-np}
+\coderef{wave\_extraction}{rs}
+
+We introduce the null tetrad, define the five Weyl scalars, and explain why
+$\Psi_4$ encodes the outgoing gravitational radiation.
+
+\section{Spin-Weighted Spherical Harmonics}
+\label{sec:we-swsh}
+
+We define the spin-weighted spherical harmonics ${}_{s}Y_{\ell m}$ and their
+orthogonality relations, providing the angular basis for mode decomposition.
+
+\section{Mode Decomposition of \texorpdfstring{$\Psi_4$}{Psi4}}
+\label{sec:we-modes}
+
+We project $\Psi_4$ onto the ${}_{-2}Y_{\ell m}$ basis on coordinate spheres of
+finite extraction radius and discuss the convergence with $\ell_{\max}$.
+
+\section{Strain Integration}
+\label{sec:we-strain}
+
+We recover the gravitational-wave strain $h = h_+ - i h_\times$ by a
+fixed-frequency integration of $\Psi_4$ and address the low-frequency
+drift problem.
+
+\section{Radiated Energy, Momentum, and Angular Momentum}
+\label{sec:we-radiated}
+\coderef{WaveExtraction}{hs}
+
+We derive the formulae for radiated energy, linear momentum (recoil), and
+angular momentum from the mode amplitudes, connecting simulations to
+astrophysical observables.
+
+\section{Gravitational-Wave Memory\starmark{}}
+\label{sec:we-memory}
+
+We introduce the displacement and spin memory effects as DC offsets in the
+strain and discuss their extraction from numerical data.
+
+\paragraph{Key References.}
+The Newman-Penrose formalism follows \cite{Newman1962,Wald1984}; extraction
+techniques follow \cite{Reisswig2011}; memory effects draw on
+\cite{Christodoulou1991,Favata2010}.

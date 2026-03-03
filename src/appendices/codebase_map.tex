@@ -1,0 +1,42 @@
+% Appendix C — The event-horizon Codebase
+\chapter{The \texttt{event-horizon} Codebase}
+\label{app:codebase}
+
+This appendix provides a map of the companion codebase, its architecture, and
+instructions for building and running the software. The codebase is the
+executable companion to the book: every algorithm derived in the text has a
+corresponding implementation.
+
+\section{Architecture: Haskell, Rust, and WGSL}
+\label{sec:code-architecture}
+
+The codebase is a multi-language project. Haskell provides the high-level
+orchestration, mathematical modelling, and ray-tracing pipeline. Rust
+implements performance-critical numerical kernels (evolution, solvers, MHD).
+WGSL compute shaders run the GPU-accelerated geodesic integrator and
+post-processing pipeline via wgpu.
+
+\section{Module Map}
+\label{sec:code-modules}
+
+% TODO: Generate a comprehensive module listing as the codebase evolves.
+A tabular module map will be provided here, listing each major module with its
+language, purpose, and the chapter(s) that discuss it. Margin notes throughout
+the book use \verb|\coderef{module}{symbol}| to link prose to source.
+
+\section{Building and Running}
+\label{sec:code-build}
+
+We provide step-by-step instructions for building the project with Cabal
+(Haskell), Cargo (Rust), and the wgpu shader pipeline, including the
+required toolchain versions and platform-specific notes.
+
+\section{Contributing}
+\label{sec:code-contributing}
+
+We outline the contribution workflow: branch conventions, code style, test
+expectations, and the CI pipeline that validates every pull request.
+
+\paragraph{Key References.}
+The project repository is hosted at the URL given in the front matter.
+Build toolchains: GHC \cite{GHC}, Cargo \cite{Cargo}, wgpu \cite{wgpu}.

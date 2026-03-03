@@ -1,0 +1,42 @@
+% ch11 — 3+1 ADM Decomposition
+\chapter{3+1 ADM Decomposition}
+\label{ch:adm-decomposition}
+
+The Arnowitt-Deser-Misner (ADM) formalism recasts Einstein's field equations as
+an initial-value problem by decomposing four-dimensional spacetime into a family
+of three-dimensional spatial hypersurfaces evolving in time. This chapter
+develops the 3+1 split that underpins every numerical relativity evolution scheme
+in the book.
+
+\section{Foliation of Spacetime}
+\label{sec:adm-foliation}
+
+We define a foliation as a one-parameter family of spacelike hypersurfaces
+$\Sigma_t$ and introduce the unit normal vector $n^\mu$ that threads them
+together.
+
+\section{Lapse, Shift, and the Spatial Metric}
+\label{sec:adm-lapse-shift}
+\coderef{ADMSpacetime}{typeclass}
+
+We decompose the line element into lapse function $\alpha$, shift vector
+$\beta^i$, and spatial three-metric $\gamma_{ij}$, explaining the gauge
+freedom each encodes.
+
+\section{Extrinsic Curvature}
+\label{sec:adm-extrinsic-curvature}
+
+We define the extrinsic curvature $K_{ij}$ as the Lie derivative of the spatial
+metric along the normal, and relate it to the time derivative of $\gamma_{ij}$.
+
+\section{The ADM Evolution and Constraint Equations}
+\label{sec:adm-equations}
+
+We derive the Hamiltonian constraint, momentum constraint, and the evolution
+equations for $\gamma_{ij}$ and $K_{ij}$, and discuss why the ADM system as
+written is only weakly hyperbolic.
+
+\paragraph{Key References.}
+The ADM formalism follows \cite{ADM1962} and the pedagogical treatment in
+\cite{Baumgarte2010}; the hyperbolicity discussion draws on
+\cite{Alcubierre2008}.

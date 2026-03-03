@@ -1,0 +1,47 @@
+% ch04 — The Schwarzschild Solution
+\chapter{The Schwarzschild Solution}
+\label{ch:schwarzschild}
+
+This chapter derives the unique spherically symmetric vacuum solution and
+explores its geometric structure. We pay special attention to the coordinate
+systems and characteristic radii that the ray tracer uses to set up initial
+conditions and detect termination events.
+
+\section{Derivation and Birkhoff's Theorem}
+\label{sec:schw-derivation}
+
+We derive the Schwarzschild metric from spherical symmetry and the vacuum
+Einstein equations, and state Birkhoff's theorem guaranteeing uniqueness.
+
+\section{Coordinate Systems and the Coordinate Singularity}
+\label{sec:schw-coordinates}
+\coderef{Spacetime}{Schwarzschild}
+
+We distinguish the coordinate singularity at $r = 2M$ from the physical
+singularity at $r = 0$, and introduce Eddington-Finkelstein and other
+horizon-penetrating coordinates.
+
+\section{Kerr-Schild Form}
+\label{sec:schw-kerr-schild}
+
+We write the Schwarzschild metric in Kerr-Schild form, which is regular at
+the horizon and serves as the foundation for the codebase's default coordinate
+choice.
+
+\section{Kruskal-Szekeres and Penrose Diagrams}
+\label{sec:schw-kruskal}
+
+We construct the maximal analytic extension and use Penrose diagrams to
+visualise the global causal structure.
+
+\section{Event Horizon, Photon Sphere, and ISCO}
+\label{sec:schw-orbits}
+
+We derive the three characteristic radii---the event horizon at $r = 2M$, the
+photon sphere at $r = 3M$, and the innermost stable circular orbit at
+$r = 6M$---that govern the ray tracer's termination conditions and accretion
+disc models.
+
+\paragraph{Key References.}
+The derivation follows \cite{Carroll2004}; Kerr-Schild coordinates are
+discussed in \cite{Visser2007}; the orbital analysis follows \cite{Wald1984}.

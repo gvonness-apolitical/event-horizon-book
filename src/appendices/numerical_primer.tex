@@ -1,0 +1,41 @@
+% Appendix B — Numerical Analysis Primer
+\chapter{Numerical Analysis Primer}
+\label{app:numerical-primer}
+
+This appendix reviews the numerical analysis foundations assumed by the main
+text, providing self-contained derivations for readers whose background is
+primarily in physics rather than computational mathematics.
+
+\section{Error Estimation and Convergence Order}
+\label{sec:num-error}
+
+We define truncation error, discretisation error, and the concept of
+convergence order, and show how Richardson extrapolation can be used to
+estimate the error from a sequence of grid resolutions.
+
+\section{The CFL Condition}
+\label{sec:num-cfl}
+
+We derive the Courant-Friedrichs-Lewy stability condition for explicit
+time-stepping schemes, relating the time step to the grid spacing and the
+fastest propagation speed in the system.
+
+\section{Lax Equivalence Theorem}
+\label{sec:num-lax}
+
+We state the Lax-Richtmyer equivalence theorem --- that for a consistent
+finite-difference scheme, stability is necessary and sufficient for
+convergence --- and discuss its implications for numerical relativity.
+
+\section{Floating-Point Arithmetic}
+\label{sec:num-floating-point}
+
+We review the IEEE 754 floating-point representation, define machine epsilon
+and unit roundoff, and discuss catastrophic cancellation and its mitigation
+through compensated summation and the double-single technique used in
+Chapter~\ref{ch:ray-tracing}.
+
+\paragraph{Key References.}
+Error analysis follows \cite{LeVeque2007}; the CFL condition follows
+\cite{Courant1928}; floating-point arithmetic follows \cite{Higham2002};
+the Lax equivalence theorem follows \cite{Lax1956,Richtmyer1967}.

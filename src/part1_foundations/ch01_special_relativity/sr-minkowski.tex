@@ -97,12 +97,15 @@ components from the metric.  But the operation $V^\mu = \eta^{\mu\nu}\,V_\nu$
 has the same structure in all cases: contract the metric (or its inverse) with
 the vector.
 
-Think of the metric as a translation dictionary between two dialects of the
-same language.  Contravariant and covariant components are two descriptions of
-the same physical vector: one suited to velocities ($\d x^\mu / \d\tau$), the
-other to gradients ($\partial_\mu \phi$).  The metric converts freely between
-them.  This analogy carries through to curved spacetime, where the dictionary
-changes from point to point but the concept of two representations persists.
+Think of the metric as a translation dictionary between two different
+languages.  Contravariant vectors and covariant covectors are different kinds of
+geometric object: a velocity $\d x^\mu / \d\tau$ lives in the tangent space,
+while a gradient $\partial_\mu \phi$ lives in the cotangent space.  They share
+the same representation---an ordered list of four numbers---but they transform
+differently and measure different things.  The metric provides an isomorphism
+between the two spaces, converting one into the other freely.  This carries
+through to curved spacetime, where the dictionary changes from point to point
+but the two-space structure persists.
 \xrefnote{In curved spacetime (\cref{ch:differential-geometry}),
 $\eta_{\mu\nu}$ generalises to $\metric$ and the components become
 functions of position.  The index operations look identical.}
@@ -164,19 +167,15 @@ space precisely as fast as it moves through time.}
 
 \paragraph{A worked example.}
 
-Consider a photon emitted at the surface of a $10\,M_\odot$ black hole (at the
-Schwarzschild radius $r_s = 2GM/c^2$; in geometrised units, $r_s = 2M
-\approx \SI{29.5}{\kilo\metre}$) and detected by a distant observer.  In flat
-spacetime---which is a reasonable approximation far from the hole---the
-photon's displacement four-vector over a coordinate time $\Delta t$ is
+Consider a photon travelling in the $x$-direction.  Over a coordinate time
+interval $\Delta t$, its displacement four-vector is
 %
 \begin{equation}
   \Delta x^\mu = (\Delta t,\, \Delta t,\, 0,\, 0) \,,
   \label{eq:photon-displacement}
 \end{equation}
 %
-for a photon travelling in the $x$-direction (recall $c = 1$).
-The interval is
+where we use $c = 1$.  Contract with the metric:
 %
 \begin{equation}
   \Delta s^2
@@ -193,13 +192,21 @@ propagating this constraint through curved spacetime, where the metric changes
 from $\eta_{\mu\nu}$ to $\metric$ and the algebra becomes a system of
 differential equations.
 
-Now consider a massive particle---say, a test mass in a circular orbit at $r =
-6M \approx \SI{88.6}{\kilo\metre}$ (the innermost stable circular orbit in
-Schwarzschild).  Over a small proper-time interval $\Delta\tau$, the
-displacement satisfies $\Delta s^2 = -\Delta\tau^2 < 0$: timelike, as it must
-be for a massive particle.
-\xrefnote{Circular orbits and the ISCO are treated properly in
-\cref{sec:geo-timelike}.}
+Now consider a massive particle moving in the $x$-direction at speed $v < 1$.
+Over a coordinate time $\Delta t$, the displacement is $\Delta x^\mu = (\Delta
+t,\, v\,\Delta t,\, 0,\, 0)$, giving
+%
+\begin{equation}
+  \Delta s^2
+    = -(1 - v^2)\,(\Delta t)^2
+    < 0 \,.
+  \label{eq:timelike-interval}
+\end{equation}
+%
+The interval is negative: the displacement is timelike.  The quantity
+$\Delta\tau = \sqrt{-\Delta s^2}$ is the proper time elapsed on the particle's
+own clock, always less than the coordinate time $\Delta t$ by the familiar
+Lorentz factor.
 
 \paragraph{Looking ahead.}
 

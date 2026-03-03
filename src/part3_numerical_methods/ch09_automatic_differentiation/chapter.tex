@@ -1,0 +1,44 @@
+% ch09 — Automatic Differentiation
+\chapter{Automatic Differentiation}
+\label{ch:autodiff}
+
+Computing Christoffel symbols requires derivatives of the metric components.
+Rather than hand-deriving and hard-coding these derivatives for each spacetime,
+the codebase uses forward-mode automatic differentiation (AD) with dual
+numbers. This chapter explains the technique, compares it with finite
+differences and analytic expressions, and briefly surveys reverse-mode AD.
+
+\section{Forward-Mode AD and Dual Numbers}
+\label{sec:ad-forward}
+\coderef{Spacetime}{AutoDiff}
+
+We define the dual-number algebra $a + b\,\varepsilon$ with
+$\varepsilon^2 = 0$, show how arithmetic operations propagate derivatives
+exactly, and demonstrate the implementation in the codebase's \texttt{AutoDiff}
+module.
+
+\section{AD for Christoffel Symbols}
+\label{sec:ad-christoffels}
+
+We show how seeding the metric function with dual numbers automatically
+produces the metric derivatives needed to compute Christoffel symbols,
+eliminating the need for analytic derivative expressions.
+
+\section{Comparison: AD, Finite Differences, and Analytic Derivatives}
+\label{sec:ad-comparison}
+
+We compare the three approaches in terms of accuracy, computational cost, and
+implementation effort, demonstrating that AD achieves machine-precision
+derivatives at a modest overhead.
+
+\section{Reverse-Mode AD\starmark{}}
+\label{sec:ad-reverse}
+
+We outline reverse-mode (adjoint) AD for completeness, noting its advantages
+for functions with many inputs and few outputs, and discuss potential
+applications in gradient-based optimisation of spacetime parameters.
+
+\paragraph{Key References.}
+The dual-number approach follows \cite{Griewank2008}; the application to
+GR is discussed in \cite{Liska2018}; reverse-mode AD is surveyed in
+\cite{Baydin2018}.

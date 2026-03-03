@@ -1,0 +1,70 @@
+% ch21 — Ray Tracing in Curved Spacetime
+\chapter{Ray Tracing in Curved Spacetime}
+\label{ch:ray-tracing}
+
+The centrepiece of the visualisation pipeline is the backward ray tracer that
+integrates null geodesics from an observer's camera through the curved
+spacetime to build an image. This chapter develops the algorithm from
+initial-condition setup through GPU-accelerated integration.
+
+\section{Backward Ray Tracing}
+\label{sec:rt-backward}
+
+We explain the backward ray-tracing paradigm: launching rays from each image
+pixel back into the spacetime, rather than forward from luminous sources,
+and justify its efficiency for image synthesis.
+
+\section{Observer Tetrad and Initial Conditions}
+\label{sec:rt-tetrad}
+\coderef{Camera.Model}{hs}
+\coderef{Camera.RayGenerator}{hs}
+
+We construct the orthonormal tetrad of a stationary or orbiting observer,
+map pixel coordinates to initial four-momenta on the observer's sky, and
+normalise to the null condition $g_{\mu\nu} k^\mu k^\nu = 0$.
+
+\section{Geodesic Integration}
+\label{sec:rt-integration}
+
+We formulate the geodesic equation as an ODE system for $(x^\mu, k_\mu)$
+and integrate with the adaptive RK45 stepper developed in Chapter~8,
+discussing step-size control and error tolerances.
+
+\section{Termination Conditions}
+\label{sec:rt-termination}
+
+We define the stopping criteria: capture by the event horizon, escape to a
+celestial sphere, maximum affine parameter, and intersection with a disk
+or other emitting surface.
+
+\section{GPU Acceleration with WGSL and wgpu}
+\label{sec:rt-gpu}
+\coderef{eh-gpu}{geodesic.wgsl}
+
+We describe the port of the geodesic integrator to a WebGPU compute shader,
+covering workgroup layout, buffer management, and the performance gains
+from massively parallel ray integration.
+
+\section{Double-Single Arithmetic}
+\label{sec:rt-double-single}
+
+We implement double-single (DS) arithmetic that achieves near-double precision
+on GPU hardware limited to 32-bit floating point, and quantify the accuracy
+improvement for long-integration geodesics.
+
+\section{Geodesic Deviation and Ray Bundles\starmark{}}
+\label{sec:rt-deviation}
+
+We derive the geodesic deviation equation and show how it can be integrated
+alongside the fiducial geodesic to propagate a ray bundle --- a small beam of
+neighbouring geodesics represented by a Jacobian matrix. The beam
+cross-section encodes the solid angle subtended by each pixel, enabling
+gravitational lensing magnification estimates, adaptive supersampling in
+regions of high demagnification, and correct flux weighting for extended
+emitting sources.
+
+\paragraph{Key References.}
+Backward ray tracing follows \cite{James2015,Chan2013}; the observer-tetrad
+construction draws on \cite{MTW1973}; double-single arithmetic follows
+\cite{Thall2006}; GPU geodesic integration draws on \cite{Verbraeck2021};
+ray-bundle transport follows \cite{Pretorius2009}.

@@ -1,0 +1,38 @@
+% ch19 — Accretion Disk Physics
+\chapter{Accretion Disk Physics}
+\label{ch:accretion}
+
+With the GRMHD solver operational, we turn to the astrophysical initial
+conditions and emissivity models that produce the images of accreting black
+holes. This chapter covers analytic disk models and the radiation-transport
+ingredients needed for visualisation.
+
+\section{Novikov-Thorne Thin Disk}
+\label{sec:acc-novikov-thorne}
+\coderef{AccretionDisk}{hs}
+
+We derive the Novikov-Thorne model for a geometrically thin, optically thick
+disk: the radial profile of angular velocity, specific energy, flux, and
+effective temperature as functions of the Kerr spin parameter.
+
+\section{Fishbone-Moncrief Torus}
+\label{sec:acc-torus}
+\coderef{torus}{rs}
+
+We construct the Fishbone-Moncrief equilibrium torus as initial data for
+GRMHD simulations, specifying the constant angular momentum distribution and
+inner edge location.
+
+\section{Emissivity Models}
+\label{sec:acc-emissivity}
+\coderef{emissivity}{rs}
+
+We implement bremsstrahlung and synchrotron emissivity formulae, combine them
+via Kirchhoff's law for thermal emission, and discuss the integration of the
+radiative transfer equation along geodesics for image rendering.
+
+\paragraph{Key References.}
+The Novikov-Thorne model follows \cite{Novikov1973,Page1974}; the
+Fishbone-Moncrief torus follows \cite{Fishbone1976}; synchrotron emissivity
+draws on \cite{Leung2011}; the radiative transfer integration follows
+\cite{Dexter2009}.

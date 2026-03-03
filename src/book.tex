@@ -1,0 +1,95 @@
+%% book.tex — Root document for Event Horizon: A Computational Journey
+%% into Black Hole Physics
+%%
+%% Compile with: latexmk (configured for LuaLaTeX in .latexmkrc)
+%%
+\documentclass{ehbook}
+
+\input{ehcommands}
+\addbibresource{references.bib}
+
+% ---- Metadata ----
+\title{Event Horizon}
+\newcommand{\booksubtitle}{A Computational Journey into Black Hole Physics}
+\author{Gavin Nicol}
+\date{2025}
+
+\begin{document}
+
+% ================================================================
+%  FRONT MATTER
+% ================================================================
+\frontmatter
+
+\include{frontmatter/titlepage}
+\include{frontmatter/preface}
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ================================================================
+%  MAIN MATTER
+% ================================================================
+\mainmatter
+
+% ---- Part I: Foundations ----
+\part{Foundations}
+\include{part1_foundations/ch01_special_relativity/chapter}
+\include{part1_foundations/ch02_differential_geometry/chapter}
+\include{part1_foundations/ch03_general_relativity/chapter}
+
+% ---- Part II: Black Holes ----
+\part{Black Holes}
+\include{part2_black_holes/ch04_schwarzschild/chapter}
+\include{part2_black_holes/ch05_kerr/chapter}
+\include{part2_black_holes/ch06_geodesics/chapter}
+
+% ---- Part III: Numerical Methods ----
+\part{Numerical Methods}
+\include{part3_numerical_methods/ch07_finite_differences/chapter}
+\include{part3_numerical_methods/ch08_ode_integration/chapter}
+\include{part3_numerical_methods/ch09_automatic_differentiation/chapter}
+\include{part3_numerical_methods/ch10_spectral_methods/chapter}
+
+% ---- Part IV: Numerical Relativity ----
+\part{Numerical Relativity}
+\include{part4_numerical_relativity/ch11_adm_decomposition/chapter}
+\include{part4_numerical_relativity/ch12_bssn_ccz4/chapter}
+\include{part4_numerical_relativity/ch13_initial_data/chapter}
+\include{part4_numerical_relativity/ch14_amr/chapter}
+\include{part4_numerical_relativity/ch15_wave_extraction/chapter}
+\include{part4_numerical_relativity/ch16_horizons/chapter}
+\include{part4_numerical_relativity/ch17_binary_black_holes/chapter}
+
+% ---- Part V: GRMHD ----
+\part{General-Relativistic Magnetohydrodynamics}
+\include{part5_grmhd/ch18_ideal_mhd/chapter}
+\include{part5_grmhd/ch19_grmhd/chapter}
+\include{part5_grmhd/ch20_accretion/chapter}
+
+% ---- Part VI: Visualization ----
+\part{Visualization and Rendering}
+\include{part6_visualization/ch21_ray_tracing/chapter}
+\include{part6_visualization/ch22_camera_and_rendering/chapter}
+\include{part6_visualization/ch23_color_science/chapter}
+
+% ---- Part VII: Advanced Topics ----
+\part{Advanced Topics}
+\include{part7_advanced/ch24_dg_methods/chapter}
+
+% ================================================================
+%  APPENDICES
+% ================================================================
+\appendix
+\include{appendices/notation}
+\include{appendices/numerical_primer}
+\include{appendices/codebase_map}
+
+% ================================================================
+%  BACK MATTER
+% ================================================================
+\backmatter
+
+\printbibliography[heading=bibintoc, title={Bibliography}]
+
+\end{document}

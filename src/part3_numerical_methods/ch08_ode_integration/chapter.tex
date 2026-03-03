@@ -1,0 +1,48 @@
+% ch08 — ODE Integration (Runge-Kutta)
+\chapter{ODE Integration: Runge-Kutta Methods}
+\label{ch:ode-integration}
+
+The ray tracer advances geodesics by integrating a system of ordinary
+differential equations. This chapter covers the Runge-Kutta family of
+explicit integrators, from fixed-step RK4 through the adaptive
+Dormand-Prince method used in the codebase, with attention to the practical
+details of step-size control and error estimation.
+
+\section{Explicit Runge-Kutta Methods and Butcher Tableaux}
+\label{sec:rk-butcher}
+
+We define the general $s$-stage explicit Runge-Kutta method via its Butcher
+tableau and derive the classical RK4 scheme as a special case.
+
+\section{The Dormand-Prince RK45 Pair}
+\label{sec:rk-dormand-prince}
+\coderef{Geodesic}{Solver}
+
+We present the Dormand-Prince 4(5) embedded pair, which provides a
+fourth-order solution and a fifth-order error estimate from the same set of
+stage evaluations.
+
+\section{First Same As Last (FSAL)}
+\label{sec:rk-fsal}
+
+We explain the FSAL optimisation that reuses the last stage of one step as
+the first stage of the next, saving one function evaluation per step.
+
+\section{Adaptive Step-Size Control}
+\label{sec:rk-adaptive}
+\coderef{rk4}{rs}
+
+We describe the PI controller for step-size adaptation, including tolerance
+specification, step rejection, and safety factors.
+
+\section{Application: Geodesic Integration}
+\label{sec:rk-geodesic-application}
+
+We show how the abstract ODE integrator is applied to the Hamiltonian
+geodesic system, connecting the solver parameters to physical accuracy
+requirements.
+
+\paragraph{Key References.}
+The Butcher-tableau formalism follows \cite{HairerNorsettWanner1993};
+Dormand-Prince is from \cite{DormandPrince1980}; adaptive control follows
+\cite{HairerWanner1996}.

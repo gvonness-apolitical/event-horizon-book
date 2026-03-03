@@ -1,0 +1,42 @@
+% ch16 — Apparent Horizon Finding
+\chapter{Apparent Horizon Finding}
+\label{ch:horizons}
+
+Locating apparent horizons during a simulation provides real-time diagnostics:
+black-hole masses, spins, and positions. This chapter develops the
+expansion-scalar formulation for apparent horizons and the spectral
+Newton-iteration algorithm that finds them.
+
+\section{Trapped Surfaces and the Expansion Scalar}
+\label{sec:ah-trapped}
+
+We define marginally outer trapped surfaces (MOTS) via the vanishing of the
+outgoing null expansion $\Theta_{(\ell)} = 0$ and explain their role as the
+quasi-local boundary of a black hole.
+
+\section{Spectral Parametrisation of the Horizon Surface}
+\label{sec:ah-spectral}
+\coderef{horizon\_finder}{rs}
+
+We parametrise the horizon as a star-shaped surface $r = h(\theta,\phi)$
+expanded in spherical harmonics, reducing the PDE to a finite set of spectral
+coefficients.
+
+\section{Newton Iteration}
+\label{sec:ah-newton}
+
+We linearise the expansion equation about a trial surface and solve the
+resulting linear system by Newton-Raphson iteration, discussing convergence
+criteria and the Jacobian structure.
+
+\section{Horizon Properties: Mass, Spin, and Coordinate Centre}
+\label{sec:ah-properties}
+
+We compute the irreducible mass from the horizon area, extract the
+dimensionless spin from the polar/equatorial circumferences, and track the
+coordinate centroid for mesh-refinement box tracking.
+
+\paragraph{Key References.}
+The expansion-scalar formulation follows \cite{Thornburg2007}; the spectral
+finder draws on \cite{Lin2007}; horizon diagnostics follow
+\cite{Dreyer2003,Campanelli2006}.

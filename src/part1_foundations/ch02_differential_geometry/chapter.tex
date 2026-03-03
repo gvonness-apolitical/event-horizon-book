@@ -1,0 +1,48 @@
+% ch02 — Differential Geometry for GR
+\chapter{Differential Geometry for General Relativity}
+\label{ch:differential-geometry}
+
+This chapter develops the differential-geometric machinery required to
+formulate general relativity. We move from the abstract definition of a
+manifold to the concrete tools---covariant derivatives, Christoffel symbols,
+and curvature tensors---that appear directly in the codebase's metric and
+geodesic modules.
+
+\section{Manifolds, Tangent Spaces, and One-Forms}
+\label{sec:dg-manifolds}
+
+We define smooth manifolds, tangent vectors as directional derivatives, and
+dual one-forms, establishing the arena on which tensor fields live.
+
+\section{The Metric Tensor and Index Operations}
+\label{sec:dg-metric}
+\coderef{Math.Tensor}{MetricTensor}
+
+We introduce the metric tensor as the object that defines distances, angles,
+and the musical isomorphism between vectors and one-forms.
+
+\section{Covariant Derivatives and Christoffel Symbols}
+\label{sec:dg-covariant}
+\coderef{Math.Tensor}{Christoffel}
+
+We define the Levi-Civita connection, derive the Christoffel symbols from the
+metric, and show how covariant differentiation generalises partial
+differentiation to curved spaces.
+
+\section{The Geodesic Equation}
+\label{sec:dg-geodesic}
+
+We derive the geodesic equation from parallel transport and from the
+variational principle, connecting the geometry to the equations of motion
+integrated by the ray tracer.
+
+\section{Curvature Tensors}
+\label{sec:dg-curvature}
+
+We define the Riemann tensor via the commutator of covariant derivatives,
+contract it to obtain the Ricci tensor and scalar, and state the symmetries
+that reduce the number of independent components.
+
+\paragraph{Key References.}
+The presentation follows \cite{Carroll2004} and \cite{Wald1984}; notation
+conventions are consistent with \cite{MTW1973}.

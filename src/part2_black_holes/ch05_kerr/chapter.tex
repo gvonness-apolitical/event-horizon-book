@@ -1,0 +1,56 @@
+% ch05 — The Kerr Solution
+\chapter{The Kerr Solution}
+\label{ch:kerr}
+
+Astrophysical black holes carry angular momentum. This chapter presents the
+Kerr metric, its horizon and ergosphere structure, and the coordinate systems
+used in the codebase. We also derive the ISCO formulae that set the inner edge
+of accretion disc models and briefly discuss the Morris-Thorne wormhole as an
+alternative spacetime.
+
+\section{Boyer-Lindquist Coordinates}
+\label{sec:kerr-bl}
+\coderef{Spacetime}{Kerr}
+
+We write the Kerr metric in Boyer-Lindquist form, identify the coordinate
+singularities, and define the functions $\Delta$, $\Sigma$, and $A$ that
+recur throughout the chapter.
+
+\section{Kerr-Schild Form}
+\label{sec:kerr-ks}
+
+We transform to Kerr-Schild coordinates, which are horizon-penetrating and
+used as the codebase's default representation for ray tracing through the
+ergosphere.
+
+\section{The Boyer-Lindquist Radius Quartic}
+\label{sec:kerr-bl-quartic}
+
+We derive the quartic equation that converts between Kerr-Schild and
+Boyer-Lindquist radial coordinates and discuss its numerical solution.
+
+\section{Horizons, Ergosphere, and Frame Dragging}
+\label{sec:kerr-horizons}
+
+We locate the inner and outer horizons, define the ergosphere, and quantify
+frame dragging through the angular velocity of zero-angular-momentum
+observers.
+
+\section{ISCO Formulae}
+\label{sec:kerr-isco}
+
+We derive the spin-dependent ISCO radius for prograde and retrograde orbits,
+connecting to the accretion disc inner edge used by the renderer.
+
+\section{The Morris-Thorne Wormhole\starmark{}}
+\label{sec:kerr-wormhole}
+\coderef{Spacetime}{MorrisThorne}
+
+We briefly present the Morris-Thorne traversable wormhole metric as an example
+of a non-black-hole spacetime implemented in the codebase, discussing its
+throat geometry and geodesic structure.
+
+\paragraph{Key References.}
+The Kerr metric treatment follows \cite{Visser2007} and \cite{Wald1984}; ISCO
+formulae are from \cite{Bardeen1972}; the wormhole section draws on
+\cite{MorrisThorne1988}.

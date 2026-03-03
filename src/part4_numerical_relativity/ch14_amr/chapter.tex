@@ -1,0 +1,46 @@
+% ch14 — Adaptive Mesh Refinement
+\chapter{Adaptive Mesh Refinement}
+\label{ch:amr}
+
+Binary black-hole simulations span length scales from the near-horizon region
+to the wave zone, requiring vastly different resolutions. This chapter develops
+the Berger-Oliger adaptive mesh refinement (AMR) framework that places
+fine grids only where needed.
+
+\section{Fixed Mesh Hierarchy}
+\label{sec:amr-hierarchy}
+\coderef{amr}{rs}
+
+We describe the nested box-in-box grid hierarchy with 2:1 refinement ratios,
+define the level structure, and explain how grids are centred on each black
+hole.
+
+\section{Prolongation}
+\label{sec:amr-prolongation}
+
+We detail the interpolation (prolongation) operators that fill fine-grid ghost
+zones from coarse-grid data, covering both polynomial and WENO options.
+
+\section{Restriction}
+\label{sec:amr-restriction}
+
+We describe the restriction (averaging) operators that project fine-grid
+solutions back onto the coarse grid to maintain consistency across levels.
+
+\section{Subcycling in Time}
+\label{sec:amr-subcycling}
+
+We explain the recursive Berger-Oliger time-stepping algorithm that advances
+fine levels with smaller time steps, synchronising at coarse-fine boundaries.
+
+\section{Ghost Zones and Boundary Communication}
+\label{sec:amr-ghost-zones}
+
+We discuss the ghost-zone filling strategy, including inter-level and
+intra-level communication patterns, and the special treatment required at
+outer boundaries.
+
+\paragraph{Key References.}
+The AMR framework follows \cite{Berger1984,Berger1989}; the numerical relativity
+application draws on \cite{Schnetter2004} and the Carpet driver
+documentation; the prolongation operators follow \cite{Baumgarte2010}.

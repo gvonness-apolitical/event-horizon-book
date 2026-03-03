@@ -1,0 +1,51 @@
+% ch13 — Initial Data
+\chapter{Initial Data}
+\label{ch:initial-data}
+
+A valid initial-data set must satisfy the Hamiltonian and momentum constraints
+on the initial hypersurface. This chapter develops the conformal decomposition
+that converts the constraint equations into solvable elliptic PDEs and constructs
+the black-hole initial data used in the simulations.
+
+\section{The Constraint Equations}
+\label{sec:id-constraints}
+
+We state the Hamiltonian and momentum constraints as elliptic equations on the
+initial slice and explain why free evolution schemes require they be solved
+exactly at $t=0$.
+
+\section{Conformal Flatness and the Lichnerowicz Equation}
+\label{sec:id-conformal-flat}
+\coderef{initial\_data}{rs}
+
+We adopt a conformally flat spatial metric and derive the Lichnerowicz equation
+for the conformal factor $\psi$, reducing the Hamiltonian constraint to a
+single nonlinear elliptic PDE.
+
+\section{Isotropic Schwarzschild and Brill-Lindquist Data}
+\label{sec:id-brill-lindquist}
+
+We construct isotropic Schwarzschild initial data for a single black hole,
+then generalise to the Brill-Lindquist superposition for multiple momentarily
+stationary holes.
+
+\section{Bowen-York Data}
+\label{sec:id-bowen-york}
+
+We add linear and angular momentum via the Bowen-York extrinsic curvature
+ansatz and solve the resulting coupled system for spinning and boosted
+black holes.
+
+\section{XCTS Formulation\starmark{}}
+\label{sec:id-xcts}
+\coderef{xcts}{rs}
+
+We present the extended conformal thin-sandwich decomposition, which provides
+greater physical control over the initial slice, and outline the GMRES-based
+solver used in the codebase.
+\coderef{gmres}{rs}
+
+\paragraph{Key References.}
+The conformal decomposition follows \cite{York1979,Cook2000}; Bowen-York data
+follows \cite{Bowen1980}; XCTS follows \cite{Pfeiffer2003}; the solver
+strategy draws on \cite{Baumgarte2010}.

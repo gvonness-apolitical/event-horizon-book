@@ -1,0 +1,61 @@
+% ch10 — Spectral Methods
+\chapter{Spectral Methods}
+\label{ch:spectral-methods}
+
+Spectral methods achieve exponential convergence for smooth problems by
+representing functions as global polynomial expansions. This chapter develops
+the Chebyshev and Legendre frameworks used in the codebase's discontinuous
+Galerkin solver, covering interpolation, differentiation matrices, quadrature,
+and the modal-nodal duality.
+
+\section{Polynomial Interpolation}
+\label{sec:spec-interpolation}
+
+We review Lagrange interpolation on general node sets, introduce the Runge
+phenomenon, and motivate the use of clustered node distributions.
+
+\section{Chebyshev Polynomials and Gauss-Lobatto Nodes}
+\label{sec:spec-chebyshev}
+\coderef{spectral}{rs}
+
+We define the Chebyshev polynomials of the first kind, derive the
+Gauss-Lobatto node distribution, and show that it near-optimally suppresses
+interpolation error.
+
+\section{Differentiation Matrices}
+\label{sec:spec-diffmat}
+
+We construct the polynomial differentiation matrix that maps function values
+at collocation nodes to derivative values, and discuss its conditioning.
+
+\section{Legendre Polynomials and Gaussian Quadrature}
+\label{sec:spec-legendre}
+
+We introduce Legendre polynomials, derive Gauss and Gauss-Lobatto quadrature
+rules, and establish the exactness conditions for polynomial integrands.
+
+\section{Spectral Convergence}
+\label{sec:spec-convergence}
+
+We state and illustrate the exponential convergence theorem for spectral
+methods applied to smooth functions, contrasting with the algebraic
+convergence of finite differences.
+
+\section{Legendre-Gauss-Lobatto Quadrature}
+\label{sec:spec-lgl}
+\coderef{dg}{rs}
+
+We detail the LGL quadrature rule and its role in the mass-lumping
+approximation used by the discontinuous Galerkin scheme.
+
+\section{Vandermonde Matrices and Modal-Nodal Representations}
+\label{sec:spec-vandermonde}
+
+We define the Vandermonde matrix that transforms between modal (expansion
+coefficient) and nodal (point value) representations, and discuss its use in
+filtering and limiting.
+
+\paragraph{Key References.}
+The spectral-methods framework follows \cite{Hesthaven2007} and
+\cite{Kopriva2009}; Chebyshev theory draws on \cite{Trefethen2000};
+the DG application follows \cite{HesthavenWarburton2008}.

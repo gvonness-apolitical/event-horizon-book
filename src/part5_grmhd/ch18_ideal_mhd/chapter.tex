@@ -1,0 +1,63 @@
+% ch17 — Ideal MHD
+\chapter{Ideal MHD}
+\label{ch:ideal-mhd}
+
+Before coupling to curved spacetime, we develop the equations and numerical
+methods of ideal magnetohydrodynamics in flat space. This chapter covers the
+conservative formulation, Riemann solvers, reconstruction, and the
+conservative-to-primitive inversion that dominates the computational cost.
+
+\section{Conservation Laws of Ideal MHD}
+\label{sec:mhd-conservation}
+\coderef{mhd}{rs}
+
+We write the ideal MHD system in conservation form $\partial_t \mathbf{U} +
+\partial_i \mathbf{F}^i = 0$, identifying the conserved density, momentum,
+energy, and magnetic field variables.
+
+\section{Primitive and Conservative Variables}
+\label{sec:mhd-variables}
+
+We define the primitive variables $(\rho, v^i, p, B^i)$ and the conservative
+variables $(\mathcal{D}, S_i, \tau, B^i)$, and explain why the evolution
+proceeds in conservative form while physics is expressed in primitives.
+
+\section{Equation of State}
+\label{sec:mhd-eos}
+\coderef{eos}{rs}
+
+We implement the ideal-gas EOS $p = (\Gamma - 1)\rho\epsilon$ and discuss
+tabulated EOS extensions for neutron-star applications.
+
+\section{HLL Riemann Solver}
+\label{sec:mhd-hll}
+\coderef{hll}{rs}
+
+We derive the Harten-Lax-van Leer (HLL) approximate Riemann solver, estimate
+the fastest wave speeds, and compute the inter-cell flux.
+
+\section{PLM Reconstruction}
+\label{sec:mhd-reconstruction}
+\coderef{reconstruct}{rs}
+
+We describe piecewise-linear reconstruction with slope limiters (minmod, MC)
+that achieves second-order accuracy while suppressing spurious oscillations.
+
+\section{Conservative-to-Primitive Inversion}
+\label{sec:mhd-con2prim}
+\coderef{con2prim}{rs}
+
+We detail the Newton-Raphson root-finding procedure that recovers primitive
+variables from conserved ones, including the robust handling of failures in
+low-density regions.
+
+\section{Divergence Cleaning}
+\label{sec:mhd-divclean}
+
+We introduce the hyperbolic divergence-cleaning technique of Dedner et al.\
+that controls the $\nabla \cdot \mathbf{B} = 0$ constraint numerically.
+
+\paragraph{Key References.}
+The conservative formulation follows \cite{Font2008}; the HLL solver follows
+\cite{Harten1983}; divergence cleaning follows \cite{Dedner2002};
+reconstruction follows \cite{vanLeer1979,Toro2009}.

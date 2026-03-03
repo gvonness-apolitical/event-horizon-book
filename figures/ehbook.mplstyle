@@ -1,0 +1,56 @@
+# ehbook.mplstyle — Matplotlib style for Event Horizon book figures
+#
+# Usage: matplotlib.style.use('figures/ehbook.mplstyle')
+# Companion: figures/ehplot.py (sets pgf preamble with fontspec fonts)
+#
+# Font configuration and backend selection are NOT here — the pgf backend
+# requires fontspec commands in pgf.preamble, which must be set in Python
+# code. See figures/ehplot.py for backend and font setup.
+
+# ---- Accretion Disk colour palette ----
+axes.prop_cycle: cycler('color', ['C48E36', '406699', '9E302C', '6E6C76'])
+
+# ---- Figure size (inches) ----
+# Text width: 104mm = 4.094in, margin width: 42mm = 1.654in
+figure.figsize: 4.094, 2.528
+figure.dpi: 150
+
+# ---- Axes ----
+axes.labelsize: 9
+axes.titlesize: 10
+axes.linewidth: 0.6
+axes.grid: False
+axes.spines.top: False
+axes.spines.right: False
+
+# ---- Ticks ----
+xtick.labelsize: 8
+ytick.labelsize: 8
+xtick.direction: in
+ytick.direction: in
+xtick.major.width: 0.5
+ytick.major.width: 0.5
+xtick.minor.width: 0.3
+ytick.minor.width: 0.3
+xtick.major.size: 3
+ytick.major.size: 3
+xtick.minor.visible: True
+ytick.minor.visible: True
+
+# ---- Lines ----
+lines.linewidth: 1.2
+lines.markersize: 4
+
+# ---- Legend ----
+legend.fontsize: 8
+legend.frameon: False
+legend.borderpad: 0.3
+
+# ---- Grid ----
+grid.color: CCCCCC
+grid.linewidth: 0.4
+grid.alpha: 0.6
+
+# ---- Saving ----
+savefig.bbox: tight
+savefig.pad_inches: 0.02

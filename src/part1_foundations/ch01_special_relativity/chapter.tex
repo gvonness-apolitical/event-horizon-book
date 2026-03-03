@@ -2,19 +2,36 @@
 \chapter{Special Relativity: A Working Primer}
 \label{ch:special-relativity}
 
-This chapter reviews the formalism of special relativity that underpins
-everything that follows. We establish the index notation, metric signature, and
-observer-decomposition techniques used throughout the book, with particular
-emphasis on the null vectors and tetrad constructions that reappear in the ray
-tracer's camera model.
+Everything in this book---the geodesic integrator, the metric functions, the
+camera model, the accretion disc renderer---rests on a handful of structures
+from special relativity: four-vectors, the Minkowski metric, and the causal
+distinction between timelike, null, and spacelike directions.  This
+chapter builds those structures from first principles, establishing the index
+notation and conventions that we'll use without further ceremony for the
+remaining seven hundred-odd pages.
+\histnote{Einstein's 1905 paper derived the Lorentz transformations from two
+postulates.  We take the geometric view instead: define the metric, and let the
+symmetries follow.}
 
-\section{The Minkowski Metric, Four-Vectors, and Index Gymnastics}
-\label{sec:sr-minkowski}
+The emphasis is deliberately computational.  We won't trace the historical
+path from Michelson--Morley through Einstein's postulates to the Lorentz
+transformations---excellent accounts exist elsewhere
+\cite{Carroll2004,MTW1973}.  Instead, we'll work in geometrised units ($c = G
+= 1$) from the start and focus on the tensorial machinery that appears
+directly in the codebase: the metric as a matrix, index operations as linear
+algebra, and null vectors as the starting data for ray tracing.
 
-We introduce the Minkowski metric $\eta_{\mu\nu}$ in the $({-}{+}{+}{+})$
-convention, define four-vectors, and establish the index-raising and -lowering
-operations that generalise to curved spacetime in later chapters.
+Readers comfortable with special relativity may wish to skim this chapter for
+notation and proceed to \cref{ch:differential-geometry}, where we generalise
+to curved spacetime.  But the tetrad construction in \cref{sec:sr-lorentz} and
+the null-vector parametrisation in \cref{sec:sr-causal} reappear verbatim in
+the camera model of \cref{ch:camera-rendering}, so they're worth a careful
+look even for the experienced reader.
 
+% ---- Drafted sections ----
+\input{part1_foundations/ch01_special_relativity/sr-minkowski}
+
+% ---- Stubs (to be drafted) ----
 \section{Lorentz Transformations, Boosts, and Observer Tetrads}
 \label{sec:sr-lorentz}
 \coderef{Spacetime}{Minkowski}

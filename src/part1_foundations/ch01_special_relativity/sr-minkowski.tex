@@ -1,0 +1,215 @@
+% sec:sr-minkowski — The Minkowski Metric, Four-Vectors, and Index Gymnastics
+\section{The Minkowski Metric, Four-Vectors, and Index Gymnastics}
+\label{sec:sr-minkowski}
+
+The geometry of flat spacetime is entirely encoded in a single object: the
+metric.  Every interval, every dot product, every index-raising operation in
+the codebase passes through it.  In curved spacetime the metric will vary from
+point to point---that's the content of general relativity---but the algebraic
+operations are identical.  Learning them here, where the metric is constant, is
+like learning matrix multiplication with numbers before doing it with
+functions.
+
+\paragraph{Events and coordinates.}
+
+An \emph{event} is a point in spacetime: a place and a time.  We label events
+by four coordinates $x^\mu = (x^0, x^1, x^2, x^3) = (t, x, y, z)$, where the
+index $\mu$ runs over $0, 1, 2, 3$.
+\physnote{The superscript on $x^\mu$ is an \emph{index}, not an exponent.
+Context always makes this clear.}
+The coordinates themselves aren't physical---different observers may use
+different labels for the same event---but the relationships between events
+\emph{are} physical, and the metric is what makes them precise.
+
+\paragraph{The Minkowski metric.}
+
+The \emph{Minkowski metric} $\eta_{\mu\nu}$ assigns a notion of ``interval''
+to pairs of nearby events.  In Cartesian coordinates, it takes the form
+%
+\begin{equation}
+  \eta_{\mu\nu}
+    = \operatorname{diag}(-1,\, +1,\, +1,\, +1) \,,
+  \label{eq:minkowski-metric}
+\end{equation}
+%
+so that the spacetime interval between two infinitesimally separated events is
+%
+\begin{equation}
+  \d s^2
+    = \eta_{\mu\nu}\,\d x^\mu\,\d x^\nu
+    = -\d t^2 + \d x^2 + \d y^2 + \d z^2 \,.
+  \label{eq:minkowski-interval}
+\end{equation}
+%
+The crucial feature is the minus sign on $\d t^2$.  Without it, spacetime would
+be four-dimensional Euclidean space and there would be no distinction between
+time and space, no light cones, and no causality.  With it, we get the
+three-way classification of directions that underpins all of relativistic
+physics.
+\warnnote{The other common convention is $(+{-}{-}{-})$.  We use $(-{+}{+}{+})$
+throughout, following \cite{MTW1973}.  Formulae from sources using the opposite
+convention will differ by an overall sign in certain places.}
+
+We've used the \emph{Einstein summation convention}: any index appearing once
+as a superscript and once as a subscript in a single term is summed over all
+four values $0, 1, 2, 3$.  The expression $\eta_{\mu\nu}\,\d x^\mu\,\d
+x^\nu$ therefore stands for the double sum
+%
+\begin{equation*}
+  \eta_{\mu\nu}\,\d x^\mu\,\d x^\nu
+    \;\equiv\;
+    \sum_{\mu=0}^{3}\sum_{\nu=0}^{3}
+    \eta_{\mu\nu}\,\d x^\mu\,\d x^\nu \,.
+\end{equation*}
+%
+We will use this convention without further comment throughout the book.
+
+\paragraph{Contravariant and covariant components.}
+
+A \emph{four-vector} $V$ can be expressed in two equivalent ways.  The
+\emph{contravariant} components $V^\mu$ carry upper indices; the
+\emph{covariant} components $V_\mu$ carry lower indices.  The metric
+translates between them.  Lowering an index:
+%
+\begin{equation}
+  V_\mu = \eta_{\mu\nu}\, V^\nu \,.
+  \label{eq:index-lowering}
+\end{equation}
+%
+Since $\eta_{\mu\nu}$ is diagonal with entries $(-1, +1, +1, +1)$, this
+operation has a simple effect on the components: the spatial components are
+unchanged, and the time component picks up a minus sign.  Explicitly,
+$V_0 = -V^0$ while $V_i = V^i$ for $i = 1, 2, 3$.
+
+Raising works with the \emph{inverse metric} $\eta^{\mu\nu}$, defined by the
+condition $\eta^{\mu\alpha}\,\eta_{\alpha\nu} = \delta^\mu{}_\nu$.  For
+Minkowski spacetime, the inverse has the same components as the metric itself:
+%
+\begin{equation}
+  \eta^{\mu\nu}
+    = \operatorname{diag}(-1,\, +1,\, +1,\, +1) \,.
+  \label{eq:minkowski-inverse}
+\end{equation}
+%
+This is a coincidence of flat spacetime in Cartesian coordinates---for the
+Schwarzschild or Kerr metrics, the inverse metric will have very different
+components from the metric.  But the operation $V^\mu = \eta^{\mu\nu}\,V_\nu$
+has the same structure in all cases: contract the metric (or its inverse) with
+the vector.
+
+Think of the metric as a translation dictionary between two dialects of the
+same language.  Contravariant and covariant components are two descriptions of
+the same physical vector: one suited to velocities ($\d x^\mu / \d\tau$), the
+other to gradients ($\partial_\mu \phi$).  The metric converts freely between
+them.  This analogy carries through to curved spacetime, where the dictionary
+changes from point to point but the concept of two representations persists.
+\xrefnote{In curved spacetime (\cref{ch:differential-geometry}),
+$\eta_{\mu\nu}$ generalises to $\metric$ and the components become
+functions of position.  The index operations look identical.}
+
+\paragraph{The inner product and vector classification.}
+
+The metric defines an inner product between any two four-vectors $A^\mu$ and
+$B^\mu$:
+%
+\begin{equation}
+  A \cdot B
+    = \eta_{\mu\nu}\, A^\mu\, B^\nu
+    = -A^0 B^0 + A^1 B^1 + A^2 B^2 + A^3 B^3 \,.
+  \label{eq:minkowski-inner-product}
+\end{equation}
+%
+Unlike the Euclidean dot product, this can be negative, zero, or positive.  The
+sign of a vector's ``squared norm'' $V^2 \equiv \eta_{\mu\nu}\,V^\mu\,V^\nu$
+classifies it into one of three types:
+%
+\begin{itemize}
+  \item \textbf{Timelike} ($V^2 < 0$): the vector points more into the future
+    (or past) than into space.  Massive particles travel along timelike
+    worldlines.
+  \item \textbf{Null} ($V^2 = 0$): the vector lies exactly on the light cone.
+    Photons travel along null geodesics---these are the trajectories that the
+    ray tracer computes, millions of them per image.
+  \item \textbf{Spacelike} ($V^2 > 0$): the vector points more into space
+    than into time.  No massive particle or photon can travel along a spacelike
+    direction.
+\end{itemize}
+%
+This classification is \emph{invariant}: all observers agree on whether a
+vector is timelike, null, or spacelike, regardless of their relative motion.
+The metric makes this possible by providing an observer-independent notion of
+``norm''.
+\physnote{The null condition $V^2 = 0$ doesn't mean the vector is zero---it
+means the time and space contributions cancel exactly.  A photon moves through
+space precisely as fast as it moves through time.}
+
+% FIGURE PLACEHOLDER
+% Description: A 1+1 spacetime diagram (t vs x) showing the light cone
+%   (two 45-degree lines from the origin), with a timelike vector inside
+%   the future cone, a spacelike vector outside, and a null vector along
+%   the cone edge. Shaded future/past regions.
+% Source: tikz diagram
+% Parameters: Standard axes, t vertical, x horizontal. Light cone at 45 deg.
+%   Gold vector (timelike, V^2 < 0) inside future cone. Blue vector
+%   (spacelike, V^2 > 0) roughly horizontal. Crimson vector (null, V^2 = 0)
+%   along cone edge. Use EH colour palette.
+% Caption draft: Spacetime diagram of 1+1 Minkowski space, showing the
+%   three causal classes of four-vectors. Timelike vectors (gold) lie inside
+%   the light cone and have negative norm $\eta_{\mu\nu} V^\mu V^\nu < 0$;
+%   spacelike vectors (blue) lie outside and have positive norm; null
+%   vectors (crimson) lie exactly on the cone with vanishing norm. The
+%   photon trajectories computed by the ray tracer are always null---they
+%   live on this cone and its curved-spacetime generalisation.
+% Label: fig:minkowski-lightcone
+
+\paragraph{A worked example.}
+
+Consider a photon emitted at the surface of a $10\,M_\odot$ black hole (at the
+Schwarzschild radius $r_s = 2GM/c^2$; in geometrised units, $r_s = 2M
+\approx \SI{29.5}{\kilo\metre}$) and detected by a distant observer.  In flat
+spacetime---which is a reasonable approximation far from the hole---the
+photon's displacement four-vector over a coordinate time $\Delta t$ is
+%
+\begin{equation}
+  \Delta x^\mu = (\Delta t,\, \Delta t,\, 0,\, 0) \,,
+  \label{eq:photon-displacement}
+\end{equation}
+%
+for a photon travelling in the $x$-direction (recall $c = 1$).
+The interval is
+%
+\begin{equation}
+  \Delta s^2
+    = \eta_{\mu\nu}\,\Delta x^\mu\, \Delta x^\nu
+    = -(\Delta t)^2 + (\Delta t)^2 + 0 + 0
+    = 0 \,.
+  \label{eq:photon-interval}
+\end{equation}
+%
+The interval vanishes: the displacement is null, exactly as required for a
+photon.  This isn't a derived result---it's the \emph{definition} of what it
+means to travel at the speed of light.  The entire ray tracer is built on
+propagating this constraint through curved spacetime, where the metric changes
+from $\eta_{\mu\nu}$ to $\metric$ and the algebra becomes a system of
+differential equations.
+
+Now consider a massive particle---say, a test mass in a circular orbit at $r =
+6M \approx \SI{88.6}{\kilo\metre}$ (the innermost stable circular orbit in
+Schwarzschild).  Over a small proper-time interval $\Delta\tau$, the
+displacement satisfies $\Delta s^2 = -\Delta\tau^2 < 0$: timelike, as it must
+be for a massive particle.
+\xrefnote{Circular orbits and the ISCO are treated properly in
+\cref{sec:geo-timelike}.}
+
+\paragraph{Looking ahead.}
+
+Everything we've done in this section generalises directly.  When we move to
+curved spacetime in \cref{ch:differential-geometry}, the constant matrix
+$\eta_{\mu\nu}$ is replaced by a position-dependent tensor field $\metric$,
+the interval becomes $\d s^2 = \metric\,\d x^\mu\,\d x^\nu$, and the index
+operations acquire exactly the same form but with $\metric$ and $\inversemetric$
+in place of $\eta_{\mu\nu}$ and $\eta^{\mu\nu}$.  The classification of
+vectors into timelike, null, and spacelike is unchanged---only the specific
+components of the metric are different.  This is why we invest in learning the
+index machinery here: it's the same machinery everywhere, and once it's
+automatic, the physics of curved spacetime is free to take centre stage.

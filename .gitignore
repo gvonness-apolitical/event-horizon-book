@@ -33,5 +33,6 @@ Thumbs.db
 *.swo
 *~
 
-# Claude Code
-.claude/
+# Claude Code — keep .claude/ tracked (has project-specific skills)
+# but ignore ephemeral state
+.claude/settings.local.json

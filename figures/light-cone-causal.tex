@@ -1,0 +1,92 @@
+% light-cone-causal.tex — 2+1 light cone with causal regions
+% Inputable TikZ fragment for fig:light-cone-causal
+% Requires: tikz with calc, arrows.meta, decorations.markings (loaded by ehbook.cls)
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  \def\h{2.2}     % cone height
+  \def\rx{1.65}   % ellipse semi-major (x direction)
+  \def\ry{0.55}   % ellipse semi-minor (perspective depth)
+
+  % Tangent points: lines from apex (0,0) tangent to ellipse at height h.
+  %   tx = rx·sqrt(h²-ry²)/h,  ty = (h²-ry²)/h,  tangle = acos(tx/rx)
+  \pgfmathsetmacro{\tx}{\rx*sqrt(\h*\h - \ry*\ry)/\h}
+  \pgfmathsetmacro{\ty}{(\h*\h - \ry*\ry)/\h}
+  \pgfmathsetmacro{\tangle}{acos(\tx/\rx)}
+
+  % ── Past cone ─────────────────────────────────────────────────────
+
+  % Back arc of past ellipse (dashed)
+  \draw[EHMarginGray, thin, densely dashed]
+    (-\tx,-\ty) arc ({180-\tangle}:{360+\tangle}:{\rx} and {\ry});
+
+  % Past cone fill (very light)
+  \fill[EHJetBlue, fill opacity=0.05]
+    (0,0) -- (\tx,-\ty) arc ({\tangle}:{180-\tangle}:{\rx} and {\ry}) -- cycle;
+
+  % Past cone surface lines
+  \draw[EHMarginGray, thin] (0,0) -- (-\tx,-\ty);
+  \draw[EHMarginGray, thin] (0,0) -- ( \tx,-\ty);
+
+  % Front arc of past ellipse
+  \draw[EHMarginGray, thin]
+    (\tx,-\ty) arc ({\tangle}:{180-\tangle}:{\rx} and {\ry});
+
+  % ── Axes (behind future cone) ─────────────────────────────────────
+
+  \draw[->, thick, EHMarginGray] (-2.6,0) -- (2.6,0)
+    node[right, font=\small] {$x$};
+  \draw[->, thick, EHMarginGray] (0,0) -- (-0.85,-0.5)
+    node[below left, font=\small] {$y$};
+
+  % ── Future cone ───────────────────────────────────────────────────
+
+  % Back arc of future ellipse (dashed)
+  \draw[EHHorizonCrimson!50, thin, densely dashed]
+    (\tx,\ty) arc ({-\tangle}:{180+\tangle}:{\rx} and {\ry});
+
+  % Future cone interior fill — I^+(p)
+  \fill[EHAccretionGold, fill opacity=0.10]
+    (0,0) -- (-\tx,\ty)
+      arc ({180+\tangle}:{360-\tangle}:{\rx} and {\ry}) -- cycle;
+
+  % Cone surface lines — boundary of J^+(p)
+  \draw[EHHorizonCrimson, thick] (0,0) -- (-\tx,\ty);
+  \draw[EHHorizonCrimson, thick] (0,0) -- ( \tx,\ty);
+
+  % Front arc of future ellipse
+  \draw[EHHorizonCrimson, thick]
+    (-\tx,\ty) arc ({180+\tangle}:{360-\tangle}:{\rx} and {\ry});
+
+  % ── t-axis (drawn last so it's on top) ────────────────────────────
+
+  \draw[->, thick, EHMarginGray] (0,-2.8) -- (0,2.8)
+    node[above, font=\small] {$t$};
+
+  % ── Event p ────────────────────────────────────────────────────────
+
+  \fill (0,0) circle (1.5pt);
+  \node[below right=1pt, font=\small] at (0,0) {$p$};
+
+  % ── Timelike worldline (gold, through cone interior) ──────────────
+
+  \draw[very thick, EHAccretionGold,
+        decoration={markings, mark=at position 0.72 with {\arrow{>}}},
+        postaction={decorate}]
+    (0.15,-1.5) .. controls (0.05,-0.5) and (-0.1,0.5) .. (-0.25,1.8);
+
+  % ── Spacelike separation (blue, outside cone) ─────────────────────
+
+  \draw[->, very thick, EHJetBlue]
+    (0,0) -- (2.1,0.2);
+
+  % ── Labels ─────────────────────────────────────────────────────────
+
+  \node[text=EHAccretionGold!85!black] at (0.4,1.15) {$I^+(p)$};
+  \node[text=EHHorizonCrimson!85!black, right=1pt] at (\tx,\ty) {$J^+(p)$};
+  \node[text=EHJetBlue!85!black, above=1pt] at (2.1,0.2) {elsewhere};
+
+\end{tikzpicture}

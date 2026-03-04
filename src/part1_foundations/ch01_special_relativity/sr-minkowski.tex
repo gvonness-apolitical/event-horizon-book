@@ -148,24 +148,18 @@ The metric makes this possible by providing an observer-independent notion of
 means the time and space contributions cancel exactly.  A photon moves through
 space precisely as fast as it moves through time.}
 
-% FIGURE PLACEHOLDER
-% Description: A 1+1 spacetime diagram (t vs x) showing the light cone
-%   (two 45-degree lines from the origin), with a timelike vector inside
-%   the future cone, a spacelike vector outside, and a null vector along
-%   the cone edge. Shaded future/past regions.
-% Source: tikz diagram
-% Parameters: Standard axes, t vertical, x horizontal. Light cone at 45 deg.
-%   Gold vector (timelike, V^2 < 0) inside future cone. Blue vector
-%   (spacelike, V^2 > 0) roughly horizontal. Crimson vector (null, V^2 = 0)
-%   along cone edge. Use EH colour palette.
-% Caption draft: Spacetime diagram of 1+1 Minkowski space, showing the
-%   three causal classes of four-vectors. Timelike vectors (gold) lie inside
-%   the light cone and have negative norm $\eta_{\mu\nu} V^\mu V^\nu < 0$;
-%   spacelike vectors (blue) lie outside and have positive norm; null
-%   vectors (crimson) lie exactly on the cone with vanishing norm. The
-%   photon trajectories computed by the ray tracer are always null---they
-%   live on this cone and its curved-spacetime generalisation.
-% Label: fig:minkowski-lightcone
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/minkowski-lightcone}
+  \caption{Spacetime diagram of 1+1 Minkowski space, showing the three causal
+    classes of four-vectors.  Timelike vectors (gold) lie inside the light cone
+    and have negative norm $\eta_{\mu\nu} V^\mu V^\nu < 0$; spacelike vectors
+    (blue) lie outside and have positive norm; null vectors (crimson) lie
+    exactly on the cone with vanishing norm.  The photon trajectories computed
+    by the ray tracer are always null---they live on this cone and its
+    curved-spacetime generalisation.}
+  \label{fig:minkowski-lightcone}
+\end{figure}
 
 \paragraph{A worked example.}
 

@@ -1,0 +1,48 @@
+% minkowski-lightcone.tex — Light cone and causal vector classes in 1+1 Minkowski space
+% Inputable TikZ fragment for fig:minkowski-lightcone
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  \def\axlen{2.8}     % axis half-length
+  \def\cone{2.4}      % light-cone extent along each ray
+
+  % ── Shaded future / past regions ──────────────────────────────────
+  \fill[EHAccretionGold, fill opacity=0.08]
+    (0,0) -- (-\cone,\cone) -- (\cone,\cone) -- cycle;
+  \fill[EHJetBlue, fill opacity=0.06]
+    (0,0) -- (-\cone,-\cone) -- (\cone,-\cone) -- cycle;
+
+  % Region labels
+  \node[font=\scriptsize, text=EHMarginGray] at (0, 1.7) {future};
+  \node[font=\scriptsize, text=EHMarginGray] at (0,-1.7) {past};
+
+  % ── Light-cone edges ──────────────────────────────────────────────
+  \draw[EHMarginGray, thin] (-\cone,\cone)  -- (0,0) -- (\cone,\cone);
+  \draw[EHMarginGray, thin] (-\cone,-\cone) -- (0,0) -- (\cone,-\cone);
+
+  % ── Axes ──────────────────────────────────────────────────────────
+  \draw[->, thick, EHMarginGray] (-\axlen,0) -- (\axlen,0)
+    node[right, font=\small] {$x$};
+  \draw[->, thick, EHMarginGray] (0,-\axlen) -- (0,\axlen)
+    node[above, font=\small] {$t$};
+
+  % ── Timelike vector (gold, inside future cone) ────────────────────
+  \draw[->, very thick, EHAccretionGold]
+    (0,0) -- (0.45,1.4)
+    node[left=2pt, text=EHAccretionGold!85!black] {timelike};
+
+  % ── Spacelike vector (blue, outside cone) ─────────────────────────
+  \draw[->, very thick, EHJetBlue]
+    (0,0) -- (1.9,0.4)
+    node[right=2pt, text=EHJetBlue!85!black] {spacelike};
+
+  % ── Null vector (crimson, along cone edge) ────────────────────────
+  \draw[->, very thick, EHHorizonCrimson]
+    (0,0) -- (1.55,1.55)
+    node[right=2pt, text=EHHorizonCrimson!85!black] {null};
+
+\end{tikzpicture}

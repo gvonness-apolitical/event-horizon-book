@@ -122,36 +122,38 @@
 
 % ---------- Margin notes ----------
 \RequirePackage{marginnote}
+\RequirePackage{marginfix}          % prevent \marginpar overflow at page bottom
 \renewcommand*{\marginfont}{\footnotesize\color{EHMarginGray}}
 
-% Margin note types
+% Margin note types — use \marginpar (handled by marginfix) for page-aware
+% placement; fall back to \marginnote only where \marginpar is unavailable.
 % Physics insight (jet blue accent)
 \newcommand{\physnote}[1]{%
-  \marginnote{\textcolor{EHJetBlue}{\rule{12pt}{1pt}}\\[2pt]%
+  \marginpar{\textcolor{EHJetBlue}{\rule{12pt}{1pt}}\\[2pt]%
   {\footnotesize\color{EHMarginGray}#1}}%
 }
 
 % Implementation detail (gold accent)
 \newcommand{\implnote}[1]{%
-  \marginnote{\textcolor{EHAccretionGold}{\rule{12pt}{1pt}}\\[2pt]%
+  \marginpar{\textcolor{EHAccretionGold}{\rule{12pt}{1pt}}\\[2pt]%
   {\footnotesize\color{EHMarginGray}#1}}%
 }
 
 % Historical context (crimson accent)
 \newcommand{\histnote}[1]{%
-  \marginnote{\textcolor{EHHorizonCrimson}{\rule{12pt}{1pt}}\\[2pt]%
+  \marginpar{\textcolor{EHHorizonCrimson}{\rule{12pt}{1pt}}\\[2pt]%
   {\footnotesize\color{EHMarginGray}#1}}%
 }
 
 % Cross-reference note (gray accent)
 \newcommand{\xrefnote}[1]{%
-  \marginnote{\textcolor{EHMarginGray}{\rule{12pt}{1pt}}\\[2pt]%
+  \marginpar{\textcolor{EHMarginGray}{\rule{12pt}{1pt}}\\[2pt]%
   {\footnotesize\color{EHMarginGray}#1}}%
 }
 
 % Warning/pitfall note (crimson, bold rule)
 \newcommand{\warnnote}[1]{%
-  \marginnote{\textcolor{EHHorizonCrimson}{\rule{12pt}{2pt}}\\[2pt]%
+  \marginpar{\textcolor{EHHorizonCrimson}{\rule{12pt}{2pt}}\\[2pt]%
   {\footnotesize\bfseries\color{EHHorizonCrimson}#1}}%
 }
 

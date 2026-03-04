@@ -56,26 +56,18 @@ tracing photons forward from every source and hoping some reach the camera.
 \cite{Marschner2016}; the relativistic version merely replaces straight lines
 with null geodesics.}
 
-% FIGURE PLACEHOLDER
-% Description: A 2+1 spacetime diagram (t vs x,y) showing the light cone at
-%   an event p, with the future cone (upward) and past cone (downward).
-%   A timelike worldline passes through the interior of the cone. A spacelike
-%   surface lies outside. The chronological future I^+(p) and causal future
-%   J^+(p) regions are shaded, with J^+ boundary = cone surface.
-% Source: tikz diagram or matplotlib 3D projection
-% Parameters: t vertical, x and y horizontal. Future cone above origin,
-%   past cone below. Shade I^+(p) in translucent gold, J^+(p) boundary
-%   (cone surface) in crimson. Show a timelike curve (gold) inside the cone
-%   and a spacelike separation (blue) outside. Label I^+(p), J^+(p), and
-%   the "elsewhere" (spacelike) region. Use EH colour palette.
-% Caption draft: The light cone at an event $p$ in Minkowski spacetime.
-%   The chronological future $I^+(p)$ (gold interior) contains all events
-%   reachable by timelike curves---massive particles.  The causal future
-%   $J^+(p)$ adds the cone boundary itself (crimson), reached by null
-%   geodesics---photons.  Events outside both cones are spacelike-separated
-%   from $p$: no signal can connect them.  The ray tracer works with the past
-%   light cone, tracing photons backward from the camera to their sources.
-% Label: fig:light-cone-causal
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/light-cone-causal}
+  \caption{The light cone at an event $p$ in Minkowski spacetime.  The
+    chronological future $I^+(p)$ (gold interior) contains all events
+    reachable by timelike curves---massive particles.  The causal future
+    $J^+(p)$ adds the cone boundary itself (crimson), reached by null
+    geodesics---photons.  Events outside both cones are spacelike-separated
+    from $p$: no signal can connect them.  The ray tracer works with the past
+    light cone, tracing photons backward from the camera to their sources.}
+  \label{fig:light-cone-causal}
+\end{figure}
 
 \paragraph{Causal structure.}
 

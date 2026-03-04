@@ -1,0 +1,262 @@
+% sec:sr-lorentz — Lorentz Transformations, Boosts, and Observer Tetrads
+\section{Lorentz Transformations, Boosts, and Observer Tetrads}
+\label{sec:sr-lorentz}
+
+Two physicists in relative motion measure the same pair of events and compute
+the spacetime interval.  Both must get the same answer---that is the content of
+the invariance principle from \cref{sec:sr-minkowski}.  But they use different
+coordinates, so their individual numbers for $\Delta t$ and $\Delta x$ differ.
+Which coordinate changes are compatible with this requirement?  The answer is
+the Lorentz group, and its most physically important elements---boosts---are
+the transformations that connect observers in relative motion.  The tetrad
+construction at the end of this section packages an observer's local frame into
+four vectors that generalise directly to curved spacetime, where they define the
+ray tracer's camera.
+
+\paragraph{The Lorentz group.}
+
+A \emph{Lorentz transformation} is a linear map $x'^\mu = \Lambda^\mu{}_\nu\,
+x^\nu$ that preserves the Minkowski interval.  The preservation condition is
+that for any pair of events,
+%
+\begin{equation}
+  \eta_{\mu\nu}\,\d x'^\mu\,\d x'^\nu
+    = \eta_{\mu\nu}\,\d x^\mu\,\d x^\nu \,.
+  \label{eq:interval-invariance}
+\end{equation}
+%
+Substituting $\d x'^\mu = \Lambda^\mu{}_\alpha\,\d x^\alpha$ and requiring this
+to hold for arbitrary $\d x^\alpha$, we obtain the defining condition
+%
+\begin{equation}
+  \eta_{\mu\nu}\,\Lambda^\mu{}_\alpha\,\Lambda^\nu{}_\beta
+    = \eta_{\alpha\beta} \,.
+  \label{eq:lorentz-condition}
+\end{equation}
+%
+Read this as a constraint on the matrix $\Lambda$: the Minkowski metric is
+``sandwiched'' between two copies of $\Lambda$ and must reproduce itself.  This
+is the hyperbolic analogue of the orthogonality condition $R^T R = I$ in
+Euclidean geometry---there, the identity matrix plays the role that $\eta$ plays
+here.  In matrix notation, \cref{eq:lorentz-condition} reads
+%
+\begin{equation}
+  \Lambda^{T}\!\eta\,\Lambda = \eta \,.
+  \label{eq:lorentz-matrix}
+\end{equation}
+%
+Any $4 \times 4$ real matrix satisfying this condition belongs to the
+\emph{Lorentz group} $O(1,3)$.
+\histnote{The group is named after Hendrik Lorentz, who derived the
+transformations in 1904.  Einstein's insight was that they express a physical
+symmetry, not merely a mathematical convenience.}
+
+Taking the determinant of both sides of \cref{eq:lorentz-matrix} gives
+$(\det\Lambda)^2 = 1$, so $\det\Lambda = \pm 1$.  Setting $\alpha = \beta = 0$
+in \cref{eq:lorentz-condition} gives
+$-(\Lambda^0{}_0)^2 + \sum_i (\Lambda^i{}_0)^2 = -1$; since the spatial sum
+$\sum_i (\Lambda^i{}_0)^2$ is non-negative, it follows that
+$(\Lambda^0{}_0)^2 \geq 1$.  The \emph{proper orthochronous} Lorentz group
+$SO^+(1,3)$ consists of those elements with $\det\Lambda = +1$ and
+$\Lambda^0{}_0 \geq 1$---these are the physically realisable transformations
+that preserve spatial orientation and the direction of time.  We restrict
+attention to this subgroup.
+
+\paragraph{Boosts.}
+
+The simplest proper orthochronous Lorentz transformations that mix space and
+time are \emph{boosts}.  Consider two observers: $S$, at rest, and $S'$, moving
+with velocity $v$ in the $x$-direction relative to $S$ (with $c = 1$, so
+$v \in [0,1)$).  The transformation connecting their coordinates must satisfy
+\cref{eq:lorentz-condition}, leave $y$ and $z$ unchanged, and reduce to the
+identity at $v = 0$.  The unique solution is
+%
+\begin{equation}
+  \Lambda^\mu{}_\nu
+    = \begin{pmatrix}
+        \gamma   & -v\gamma & 0 & 0 \\
+        -v\gamma & \gamma   & 0 & 0 \\
+        0        & 0        & 1 & 0 \\
+        0        & 0        & 0 & 1
+      \end{pmatrix} ,
+  \label{eq:boost-matrix}
+\end{equation}
+%
+where the \emph{Lorentz factor} is
+%
+\begin{equation}
+  \gamma = \frac{1}{\sqrt{1 - v^2}} \,.
+  \label{eq:lorentz-factor}
+\end{equation}
+%
+This is the passive transformation giving $S'$ coordinates in terms of $S$
+coordinates, with $S'$ moving at velocity $+v$ along $x$.  At $v = 0$ the
+matrix is the identity; as $v \to 1$ the off-diagonal entries diverge,
+reflecting the impossibility of boosting to the speed of light.
+\warnnote{The signs in \cref{eq:boost-matrix} depend on the signature
+convention.  In $(+{-}{-}{-})$ sources, the off-diagonal entries have
+the opposite sign.}
+
+It is worth verifying \cref{eq:lorentz-condition} explicitly.  The $(0,0)$
+component gives $-\gamma^2 + v^2\gamma^2 = -\gamma^2(1 - v^2) = -1$, which
+holds by definition of $\gamma$.  The $(0,1)$ component gives $v\gamma^2 -
+v\gamma^2 = 0$, confirming the off-diagonal entries of $\eta$ vanish.  The
+spatial block reduces to the identity since $\Lambda$ acts trivially on $y$ and
+$z$.
+
+\paragraph{Rapidity.}
+
+An alternative parametrisation replaces $v$ with the \emph{rapidity} $\phi$,
+defined by $v = \tanh\phi$ (equivalently, $\gamma = \cosh\phi$ and $v\gamma =
+\sinh\phi$).  The boost matrix becomes
+%
+\begin{equation}
+  \Lambda^\mu{}_\nu
+    = \begin{pmatrix}
+        \cosh\phi  & -\sinh\phi & 0 & 0 \\
+        -\sinh\phi & \cosh\phi  & 0 & 0 \\
+        0          & 0          & 1 & 0 \\
+        0          & 0          & 0 & 1
+      \end{pmatrix} .
+  \label{eq:boost-rapidity}
+\end{equation}
+%
+The payoff is that rapidities add: two successive collinear boosts with
+rapidities $\phi_1$ and $\phi_2$ compose to a single boost with rapidity
+$\phi_1 + \phi_2$.  This follows from the hyperbolic addition formula:
+$\cosh(\phi_1 + \phi_2) = \cosh\phi_1\cosh\phi_2 + \sinh\phi_1\sinh\phi_2$,
+which is exactly the $(0,0)$ entry of the matrix product
+$\Lambda(\phi_1)\,\Lambda(\phi_2)$.  Contrast this with the relativistic
+velocity-addition formula $w = (v_1 + v_2)/(1 + v_1 v_2)$---velocities compose
+nonlinearly, but their corresponding rapidities simply sum.  For non-collinear
+boosts, the composition also produces a spatial rotation (the Wigner rotation).
+\physnote{Rapidity is the hyperbolic analogue of the rotation angle.  Rotations
+compose by adding angles; boosts compose by adding rapidities.}
+
+\paragraph{Observer tetrads.}
+
+A Lorentz transformation connects two coordinate systems.  A \emph{tetrad}
+goes further: it is an observer's personal ruler-and-clock kit planted at a
+single point in spacetime.  One vector says ``this is my future direction,'' and
+three mutually perpendicular vectors say ``these are my spatial axes.''  The
+formal requirement is that these four vectors reproduce the Minkowski metric
+when measured against the background.
+
+An \emph{orthonormal tetrad} is a set of four vectors
+$e^\mu{}_{(a)}$, with $a = 0, 1, 2, 3$, satisfying
+%
+\begin{equation}
+  \eta_{\mu\nu}\, e^\mu{}_{(a)}\, e^\nu{}_{(b)}
+    = \eta_{ab} \,.
+  \label{eq:tetrad-orthonormality}
+\end{equation}
+%
+The parenthesised index $(a)$ is a \emph{frame index}: it labels which tetrad
+vector we are referring to, not a spacetime direction.  The notation
+$e^\mu{}_{(a)}$ carries one contravariant spacetime index $\mu$ (giving the
+vector's components in coordinates) and one covariant frame index $(a)$
+(labelling which basis vector); the inverse tetrad $e^{(a)}{}_\mu$ reverses
+these roles.  The orthonormality condition says that the timelike vector
+$e^\mu{}_{(0)}$ has norm $-1$ and is orthogonal to the three spacelike vectors
+$e^\mu{}_{(i)}$, each of norm $+1$.
+\warnnote{Tetrad indices $(a), (b), \ldots$ live in a \emph{local} Minkowski
+frame.  They are not raised or lowered with the spacetime metric---they use
+$\eta_{ab}$ directly.}
+
+For an observer at rest in the standard coordinates, the tetrad is trivial:
+%
+\begin{equation}
+  \begin{aligned}
+    e^\mu{}_{(0)} &= (1,0,0,0), \quad &
+    e^\mu{}_{(1)} &= (0,1,0,0), \\
+    e^\mu{}_{(2)} &= (0,0,1,0), \quad &
+    e^\mu{}_{(3)} &= (0,0,0,1) \,.
+  \end{aligned}
+  \label{eq:tetrad-rest}
+\end{equation}
+%
+This is the identity matrix---unsurprising, since the observer's frame
+coincides with the coordinate frame.  For an observer moving with velocity
+$v$ in the $x$-direction, we apply the inverse boost (replacing $v \to -v$ in
+\cref{eq:boost-matrix}) to the rest-frame tetrad vectors, transforming them
+from the moving observer's frame into $S$ coordinates:
+%
+\begin{equation}
+  e^\mu{}_{(0)} = (\gamma,\, v\gamma,\, 0,\, 0), \quad
+  e^\mu{}_{(1)} = (v\gamma,\, \gamma,\, 0,\, 0) \,.
+  \label{eq:tetrad-boosted}
+\end{equation}
+%
+The vectors $e^\mu{}_{(2)}$ and $e^\mu{}_{(3)}$ are unchanged.  The timelike
+tetrad vector $e^\mu{}_{(0)} = \fourvel$ is the observer's
+\emph{four-velocity}---this is not a coincidence but the formal definition of
+``the direction the observer moves through spacetime.''  The tetrad is a
+coordinate-free encoding of the observer's state of motion: it captures both
+their velocity (via $e^\mu{}_{(0)}$) and their spatial orientation (via
+$e^\mu{}_{(i)}$), which spans the observer's simultaneity surface and defines
+the directions they call ``right,'' ``up,'' and ``forward.''
+
+\paragraph{A worked example: camera frame at $v = 0.6$.}
+
+Consider an observer (a camera, in our context) moving at $v = 0.6$ in the
+$x$-direction.  The Lorentz factor is $\gamma = 1/\sqrt{1 - 0.36} = 1.25$.
+The timelike tetrad vector is
+$e^\mu{}_{(0)} = (1.25,\, 0.75,\, 0,\, 0)$,
+and we can verify its norm:
+$\eta_{\mu\nu}\,e^\mu{}_{(0)}\,e^\nu{}_{(0)} = -(1.25)^2 + (0.75)^2 =
+-1.5625 + 0.5625 = -1$.  The spatial vector
+$e^\mu{}_{(1)} = (0.75,\, 1.25,\, 0,\, 0)$ has norm
+$-(0.75)^2 + (1.25)^2 = -0.5625 + 1.5625 = +1$, and the inner product
+$\eta_{\mu\nu}\,e^\mu{}_{(0)}\,e^\nu{}_{(1)} = -(1.25)(0.75) + (0.75)(1.25)
+= 0$.  The tetrad is indeed orthonormal.
+
+% FIGURE PLACEHOLDER
+% Description: A 1+1 spacetime diagram (t vs x) showing two sets of coordinate
+%   axes: the lab frame S (vertical t, horizontal x) and the boosted frame S'
+%   (tilted axes).  The boosted observer's tetrad vectors e_{(0)} and e_{(1)}
+%   are drawn as arrows from the origin along the tilted axes. The light cone
+%   is shown at 45 degrees.
+% Source: tikz diagram
+% Parameters: Standard axes, t vertical, x horizontal. Light cone at 45 deg.
+%   Lab frame axes in grey. Boosted timelike tetrad vector e_{(0)} (gold)
+%   inside future cone. Boosted spatial tetrad vector e_{(1)} (blue) between
+%   cone and x-axis. Use v=0.6 so axes tilt at arctan(0.6) ~ 31 deg.
+%   Use EH colour palette.
+% Caption draft: Tetrad vectors for an observer moving at $v = 0.6$ in the
+%   $x$-direction. The timelike vector $e^\mu{}_{(0)}$ (gold) is the observer's
+%   four-velocity, tilted toward the $x$-axis by the boost. The spatial vector
+%   $e^\mu{}_{(1)}$ (blue) is the observer's $x'$-direction, tilted
+%   symmetrically toward the $t$-axis. Together they satisfy the orthonormality
+%   condition $\eta_{\mu\nu}\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab}$. In
+%   curved spacetime, the same construction defines the camera's local reference
+%   frame at any point.
+% Label: fig:boosted-tetrad
+
+\paragraph{From flat to curved.}
+\coderef{Spacetime}{Minkowski}
+
+In the codebase, the Minkowski metric is an instance of the \texttt{Spacetime}
+typeclass, with \texttt{metric4} returning \texttt{sym4Diag (-1) 1 1 1} and all
+Christoffel symbols set to zero.  The same typeclass provides Schwarzschild and
+Kerr metrics, and the camera's tetrad construction works identically for all of
+them---only the orthonormality condition changes from $\eta_{\mu\nu}$ to
+$\metric$.
+\implnote{The \texttt{Spacetime} typeclass abstracts over the specific metric,
+so the tetrad and ray-tracing code is metric-agnostic.}
+
+In curved spacetime, the tetrad condition generalises to
+%
+\begin{equation}
+  g_{\mu\nu}\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab} \,.
+  \label{eq:tetrad-curved}
+\end{equation}
+%
+The metric on the left is the curved-spacetime metric, but the right-hand side
+remains the flat Minkowski matrix.  The tetrad defines a locally Minkowski frame
+at each point, regardless of the background curvature.  The camera model in
+\cref{ch:camera-rendering} uses exactly this construction to define the
+observer's ``sky''---the directions from which photons arrive---at any point in
+any spacetime.
+\xrefnote{The tetrad reappears in the camera model of
+\cref{ch:camera-rendering}, where it defines the mapping from pixel
+coordinates to initial photon momenta.}

@@ -210,27 +210,20 @@ $-(0.75)^2 + (1.25)^2 = -0.5625 + 1.5625 = +1$, and the inner product
 $\eta_{\mu\nu}\,e^\mu{}_{(0)}\,e^\nu{}_{(1)} = -(1.25)(0.75) + (0.75)(1.25)
 = 0$.  The tetrad is indeed orthonormal.
 
-% FIGURE PLACEHOLDER
-% Description: A 1+1 spacetime diagram (t vs x) showing two sets of coordinate
-%   axes: the lab frame S (vertical t, horizontal x) and the boosted frame S'
-%   (tilted axes).  The boosted observer's tetrad vectors e_{(0)} and e_{(1)}
-%   are drawn as arrows from the origin along the tilted axes. The light cone
-%   is shown at 45 degrees.
-% Source: tikz diagram
-% Parameters: Standard axes, t vertical, x horizontal. Light cone at 45 deg.
-%   Lab frame axes in grey. Boosted timelike tetrad vector e_{(0)} (gold)
-%   inside future cone. Boosted spatial tetrad vector e_{(1)} (blue) between
-%   cone and x-axis. Use v=0.6 so axes tilt at arctan(0.6) ~ 31 deg.
-%   Use EH colour palette.
-% Caption draft: Tetrad vectors for an observer moving at $v = 0.6$ in the
-%   $x$-direction. The timelike vector $e^\mu{}_{(0)}$ (gold) is the observer's
-%   four-velocity, tilted toward the $x$-axis by the boost. The spatial vector
-%   $e^\mu{}_{(1)}$ (blue) is the observer's $x'$-direction, tilted
-%   symmetrically toward the $t$-axis. Together they satisfy the orthonormality
-%   condition $\eta_{\mu\nu}\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab}$. In
-%   curved spacetime, the same construction defines the camera's local reference
-%   frame at any point.
-% Label: fig:boosted-tetrad
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/boosted-tetrad}
+  \caption{Tetrad vectors for an observer moving at $v = 0.6$ in the
+    $x$-direction.  The timelike vector $e^\mu{}_{(0)}$ (gold) is the
+    observer's four-velocity, tilted toward the $x$-axis by the boost.  The
+    spatial vector $e^\mu{}_{(1)}$ (blue) is the observer's $x'$-direction,
+    tilted symmetrically toward the $t$-axis.  Together they satisfy the
+    orthonormality condition
+    $\eta_{\mu\nu}\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab}$.  In curved
+    spacetime, the same construction defines the camera's local reference
+    frame at any point.}
+  \label{fig:boosted-tetrad}
+\end{figure}
 
 \paragraph{From flat to curved.}
 \coderef{Spacetime}{Minkowski}

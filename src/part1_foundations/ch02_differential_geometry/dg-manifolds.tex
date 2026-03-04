@@ -1,0 +1,220 @@
+% sec:dg-manifolds — Manifolds, Tangent Spaces, and One-Forms
+\section{Manifolds, Tangent Spaces, and One-Forms}
+\label{sec:dg-manifolds}
+
+Try covering a sphere with a single coordinate grid.  Near any point, latitude
+and longitude work fine --- but at the poles, longitude degenerates to a point and
+the coordinate lines pile up.  No single set of coordinates can describe the
+entire sphere smoothly.  The same problem arises for any curved spacetime: the
+manifold might have topology that no single coordinate chart can cover.  The
+resolution is to work with patches --- overlapping coordinate systems, each
+covering part of the manifold, with smooth transition rules where they overlap.
+
+\paragraph{Smooth manifolds.}
+
+A \emph{smooth manifold} $\mathcal{M}$ of dimension $n$ is a topological space
+that is Hausdorff, second-countable, and locally homeomorphic to
+$\mathbb{R}^n$, equipped with a maximal collection of compatible coordinate
+charts.  A \emph{chart} $(U, \varphi)$ consists of an open set $U \subset
+\mathcal{M}$ and a homeomorphism $\varphi : U \to \varphi(U) \subset
+\mathbb{R}^n$ that assigns coordinates to each point.  Where two charts
+$(U, \varphi)$ and $(V, \psi)$ overlap, a natural question arises: how do the
+coordinates from one chart relate to the coordinates from the other?  The answer
+is the \emph{transition map}
+%
+\begin{equation}
+  \psi \circ \varphi^{-1} : \varphi(U \cap V) \to \psi(U \cap V) \,,
+  \label{eq:transition-map}
+\end{equation}
+%
+which is a map from one open subset of $\mathbb{R}^n$ to another --- ordinary
+multivariable calculus applies here, since both sides live in $\mathbb{R}^n$.
+The manifold is \emph{smooth} if every such transition map is infinitely
+differentiable ($C^\infty$).  An \emph{atlas} is a collection of charts whose
+domains cover $\mathcal{M}$; the \emph{maximal} atlas includes every chart
+compatible with the existing ones, ensuring that the smooth structure doesn't
+depend on a particular choice of initial charts.
+\histnote{The modern definition of a manifold was formalised by Whitney in the
+1930s, though the idea of working with local coordinate patches goes back to
+Riemann's 1854 Habilitationsschrift.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/manifold-charts}
+  \caption{Two overlapping charts on the two-sphere $S^2$.  The chart
+    $(U, \varphi)$ (gold) covers the northern hemisphere; $(V, \psi)$ (blue)
+    covers the southern hemisphere.  In the overlap region (shaded band near
+    the equator), the transition map $\psi \circ \varphi^{-1}$ translates
+    between the two coordinate representations.  The manifold is smooth
+    because this transition map is $C^\infty$.  No single chart covers the
+    entire sphere --- the coordinate singularity at the poles forces us to
+    use at least two patches.}
+  \label{fig:manifold-charts}
+\end{figure}
+
+For spacetime, $n = 4$: each chart assigns four coordinates $x^\mu =
+(x^0, x^1, x^2, x^3)$ to events in a patch, with the Einstein summation
+convention applying to repeated upper--lower index pairs as in
+\cref{ch:special-relativity}.  The coordinates used there --- Cartesian
+$(t, x, y, z)$ --- constitute a single chart that happens to cover all of
+Minkowski spacetime.  For Schwarzschild or Kerr spacetimes, a single chart is
+insufficient: the Boyer--Lindquist coordinates break down at the event horizon,
+and different patches (such as Eddington--Finkelstein coordinates) are needed to
+cover the full manifold.
+\xrefnote{Coordinate singularities at the horizon are discussed in
+\cref{ch:schwarzschild}.}
+
+\paragraph{Tangent vectors as directional derivatives.}
+
+In Euclidean space, a vector is an arrow: a displacement with magnitude and
+direction.  On a curved manifold, this picture fails --- there is no ambient
+space to embed arrows in, and ``displacing along a direction'' doesn't produce
+a unique result on a curved surface.  The modern resolution requires a genuine
+shift in perspective: we define tangent vectors not as arrows but as
+\emph{directional derivative operators}.  This is one of the conceptual leaps
+in differential geometry, and it deserves a careful look.
+
+At a point $p \in \mathcal{M}$, a \emph{tangent vector} $V$ is a linear map
+from smooth functions (more precisely, from germs of smooth functions at $p$)
+to real numbers that satisfies the Leibniz rule:
+%
+\begin{equation}
+  V(fg) = f(p)\,V(g) + g(p)\,V(f) \,.
+  \label{eq:tangent-vector-leibniz}
+\end{equation}
+%
+The germ condition means that $V$ depends only on the behaviour of $f$ in an
+arbitrarily small neighbourhood of $p$ --- if two functions agree near $p$,
+$V$ gives the same result on both.  Concretely, $V$ is the familiar
+directional derivative, promoted to a definition: a tangent vector tells you
+``if I move in this direction, how fast does the function $f$ change?''  The
+collection of all tangent vectors at $p$ forms a vector space called the
+\emph{tangent space} $T_p\mathcal{M}$.  For a four-dimensional manifold, the
+tangent space is four-dimensional.
+\physnote{A particle's four-velocity $\fourvel$ is a tangent vector to its
+worldline --- the derivative of the worldline's coordinate functions with
+respect to proper time $\tau$, normalised so that $g_{\mu\nu}\,u^\mu\,u^\nu
+= -1$ for massive particles.}
+
+Given coordinates $x^\mu$ in a chart containing $p$, the coordinate basis
+vectors for $T_p\mathcal{M}$ are the partial derivative operators:
+%
+\begin{equation}
+  \mathbf{e}_{(\mu)} = \frac{\partial}{\partial x^\mu}
+    \equiv \pd{\mu} \,.
+  \label{eq:coordinate-basis}
+\end{equation}
+%
+Any tangent vector can be expanded in this basis as $V = V^\mu\,\pd{\mu}$,
+where the $V^\mu$ are the contravariant components we used throughout
+\cref{ch:special-relativity}.  The basis depends on the coordinate chart --- a
+different chart gives different basis vectors --- but the tangent vector $V$
+itself is a geometric object, independent of coordinates.
+
+\paragraph{One-forms and the cotangent space.}
+
+For every tangent space $T_p\mathcal{M}$, there is a dual space: the
+\emph{cotangent space} $T^*_p\mathcal{M}$, consisting of linear maps from
+tangent vectors to real numbers.  An element $\omega \in T^*_p\mathcal{M}$ is
+called a \emph{one-form} or \emph{covector}.
+
+The coordinate basis for the cotangent space is the set of differentials
+$\{\d x^\mu\}$, defined by their action on the coordinate basis vectors:
+%
+\begin{equation}
+  \d x^\mu(\pd{\nu}) = \delta^\mu{}_\nu \,.
+  \label{eq:dual-basis}
+\end{equation}
+%
+This is the defining property of a dual basis: each basis one-form picks out
+the corresponding coordinate component and ignores the rest.  An arbitrary
+one-form can be expanded as $\omega = \omega_\mu\,\d x^\mu$, where the
+$\omega_\mu$ are the covariant components from \cref{sec:sr-minkowski}.
+
+The pairing of a one-form $\omega$ with a tangent vector $V$ is the natural
+contraction:
+%
+\begin{equation}
+  \omega(V) = \omega_\mu\, V^\mu \,.
+  \label{eq:covector-pairing}
+\end{equation}
+%
+This is the same index contraction we've been using since
+\cref{ch:special-relativity}, but now with a precise geometric meaning: the
+one-form $\omega$ eats a tangent vector $V$ and produces a number.  No metric
+is required for this operation --- it is purely algebraic.  The metric enters
+only when we want to convert between vectors and one-forms (raising and
+lowering indices), which is the subject of \cref{sec:dg-metric}.
+\warnnote{The pairing $\omega(V) = \omega_\mu V^\mu$ does not involve the
+metric.  This is a common source of confusion: contraction between upper and
+lower indices is an algebraic operation, not a geometric one.  The metric is
+needed only for \emph{raising} or \emph{lowering} indices.}
+
+\paragraph{Coordinate transformations.}
+
+Under a change of coordinates $x^\mu \to x'^\mu$, the basis vectors and basis
+one-forms transform inversely.  For the tangent vectors:
+%
+\begin{equation}
+  \pd{\mu'} = \frac{\partial x^\nu}{\partial x'^\mu}\,\pd{\nu} \,.
+  \label{eq:basis-transform}
+\end{equation}
+%
+This says that the new basis vector $\pd{\mu'}$ is a linear combination of the
+old basis vectors, with the coefficients given by the inverse Jacobian matrix
+$\partial x^\nu / \partial x'^\mu$.  For the basis one-forms, the
+transformation goes the other way:
+%
+\begin{equation}
+  \d x'^\mu = \frac{\partial x'^\mu}{\partial x^\nu}\,\d x^\nu \,.
+  \label{eq:cobasis-transform}
+\end{equation}
+%
+The coefficients here are the Jacobian matrix $\partial x'^\mu / \partial
+x^\nu$ --- the derivative of the coordinate transformation itself.  These two
+transformations are inverses of each other: the contravariant components
+$V^\mu$ transform with the Jacobian $\partial x'^\mu / \partial x^\nu$, while
+the covariant components $\omega_\mu$ transform with the inverse Jacobian
+$\partial x^\nu / \partial x'^\mu$.  This is precisely the transformation law
+that defines ``contravariant'' and ``covariant'' in the first place.  The
+scalar product $\omega_\mu V^\mu$ is invariant because the two
+transformations cancel, which is the coordinate-free content of the summation
+convention.
+\physnote{The Jacobian matrix $\partial x'^\mu / \partial x^\nu$ is the
+derivative (pushforward) of the transition map (\cref{eq:transition-map}).  It
+is a linear map between tangent spaces, not the transition map itself.  When
+the transition map is a Lorentz transformation, its derivative is the same
+Lorentz matrix, and we recover the transformation laws from
+\cref{sec:sr-lorentz}.}
+
+As a concrete example, consider polar coordinates $(r, \theta)$ related to
+Cartesian $(x, y)$ by $x = r\cos\theta$, $y = r\sin\theta$.  The Jacobian
+$\partial x^i / \partial x'^j$ has entries $\partial x / \partial r =
+\cos\theta$, $\partial x / \partial \theta = -r\sin\theta$,
+$\partial y / \partial r = \sin\theta$,
+$\partial y / \partial \theta = r\cos\theta$.  A vector $V$ with Cartesian
+components $V^x = 1$, $V^y = 0$ (pointing along the $x$-axis) has polar
+components $V^r = \cos\theta$, $V^\theta = -\sin\theta / r$ --- the components
+change, but the vector itself is the same geometric arrow.
+
+\paragraph{From components to geometry.}
+
+The tangent-space framework resolves a tension left open from
+\cref{ch:special-relativity}.  There, we introduced contravariant and
+covariant components as ``upper'' and ``lower'' indices, with transformation
+laws stated as rules.  Now we see the geometry behind those rules: upper-index
+objects $V^\mu$ are components of tangent vectors, lower-index objects
+$\omega_\mu$ are components of one-forms, and the two live in genuinely
+different vector spaces.  The metric provides a canonical isomorphism between
+them --- the ``translation dictionary'' of \cref{sec:sr-minkowski} --- but
+only when the metric is non-degenerate (as every physical spacetime metric is).
+Without the metric, the two spaces are distinct.
+\implnote{The codebase enforces this distinction at compile time.  The type
+\texttt{Vec4 'Contravariant} represents a tangent vector; \texttt{Vec4
+'Covariant} represents a one-form.  The phantom \texttt{Variance} parameter
+prevents mixing them without an explicit raising or lowering operation.}
+\coderef{Math.Tensor.Index}{Variance}
+
+The next section introduces the object that connects these two spaces: the
+metric tensor, which generalises the Minkowski metric $\eta_{\mu\nu}$ from
+flat spacetime to arbitrary curved manifolds.

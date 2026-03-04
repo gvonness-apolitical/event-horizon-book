@@ -1,0 +1,59 @@
+% boosted-tetrad.tex — Boosted tetrad vectors in 1+1 Minkowski space
+% Inputable TikZ fragment for fig:boosted-tetrad
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Boost v = 0.6 → γ = 1.25
+% e_{(0)} = (γ, γv) = (1.25, 0.75)   — timelike, tilted from t-axis
+% e_{(1)} = (γv, γ) = (0.75, 1.25)   — spacelike, tilted from x-axis
+% Tilt angle: arctan(0.6) ≈ 31°
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  \def\axlen{2.8}     % axis half-length
+  \def\cone{2.4}      % light-cone extent along each ray
+  \def\vecscale{1.4}  % scale factor for tetrad vectors
+
+  % ── Light-cone shading ────────────────────────────────────────────
+  \fill[EHMarginGray, fill opacity=0.05]
+    (0,0) -- (-\cone,\cone) -- (\cone,\cone) -- cycle;
+  \fill[EHMarginGray, fill opacity=0.05]
+    (0,0) -- (-\cone,-\cone) -- (\cone,-\cone) -- cycle;
+
+  % ── Light-cone edges ──────────────────────────────────────────────
+  \draw[EHMarginGray, thin] (-\cone,\cone)  -- (0,0) -- (\cone,\cone);
+  \draw[EHMarginGray, thin] (-\cone,-\cone) -- (0,0) -- (\cone,-\cone);
+
+  % ── Lab frame axes (S) ───────────────────────────────────────────
+  \draw[->, thick, EHMarginGray] (-\axlen,0) -- (\axlen,0)
+    node[right, font=\small] {$x$};
+  \draw[->, thick, EHMarginGray] (0,-\axlen) -- (0,\axlen)
+    node[above, font=\small] {$t$};
+
+  % ── Boosted axes (dashed, to show tilted coordinate grid) ────────
+  % t'-axis along e_{(0)} direction: slope = γ/(γv) = 1/v = 1/0.6
+  \draw[EHMarginGray, thin, densely dashed]
+    (0,0) -- ({0.6*\cone},\cone)
+    node[right, font=\scriptsize, text=EHMarginGray] {$t'$};
+  % x'-axis along e_{(1)} direction: slope = γv/γ = v = 0.6
+  \draw[EHMarginGray, thin, densely dashed]
+    (0,0) -- (\cone,{0.6*\cone})
+    node[above, font=\scriptsize, text=EHMarginGray] {$x'$};
+
+  % ── Timelike tetrad vector e_{(0)} (gold) ────────────────────────
+  % e_{(0)} = (γ, γv) = (1.25, 0.75), plotted as (x,t) = (0.75, 1.25)
+  \draw[->, very thick, EHAccretionGold]
+    (0,0) -- ({0.75*\vecscale},{1.25*\vecscale})
+    node[left=2pt, text=EHAccretionGold!85!black]
+      {$e^\mu{}_{(0)}$};
+
+  % ── Spacelike tetrad vector e_{(1)} (blue) ───────────────────────
+  % e_{(1)} = (γv, γ) = (0.75, 1.25), plotted as (x,t) = (1.25, 0.75)
+  \draw[->, very thick, EHJetBlue]
+    (0,0) -- ({1.25*\vecscale},{0.75*\vecscale})
+    node[right=2pt, text=EHJetBlue!85!black]
+      {$e^\mu{}_{(1)}$};
+
+\end{tikzpicture}

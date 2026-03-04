@@ -66,10 +66,11 @@ We will use this convention without further comment throughout the book.
 
 \paragraph{Contravariant and covariant components.}
 
-A \emph{four-vector} $V$ can be expressed in two equivalent ways.  The
-\emph{contravariant} components $V^\mu$ carry upper indices; the
-\emph{covariant} components $V_\mu$ carry lower indices.  The metric
-translates between them.  Lowering an index:
+A \emph{four-vector} $V$ lives in the tangent space and has
+\emph{contravariant} components $V^\mu$ (upper indices).  Its metric dual is a
+covector with \emph{covariant} components $V_\mu$ (lower indices).  These are
+geometrically distinct objects---the metric provides a canonical isomorphism
+between them, so we pass freely between the two.  Lowering an index:
 %
 \begin{equation}
   V_\mu = \eta_{\mu\nu}\, V^\nu \,.
@@ -83,7 +84,8 @@ $V_0 = -V^0$ while $V_i = V^i$ for $i = 1, 2, 3$.
 
 Raising works with the \emph{inverse metric} $\eta^{\mu\nu}$, defined by the
 condition $\eta^{\mu\alpha}\,\eta_{\alpha\nu} = \delta^\mu{}_\nu$.  For
-Minkowski spacetime, the inverse has the same components as the metric itself:
+Minkowski spacetime in Cartesian coordinates, the inverse happens to have the
+same component values as the metric itself:
 %
 \begin{equation}
   \eta^{\mu\nu}
@@ -112,8 +114,8 @@ functions of position.  The index operations look identical.}
 
 \paragraph{The inner product and vector classification.}
 
-The metric defines an inner product between any two four-vectors $A^\mu$ and
-$B^\mu$:
+The metric defines an inner product (indefinite, unlike the Euclidean case)
+between any two four-vectors $A^\mu$ and $B^\mu$:
 %
 \begin{equation}
   A \cdot B
@@ -192,6 +194,10 @@ propagating this constraint through curved spacetime, where the metric changes
 from $\eta_{\mu\nu}$ to $\metric$ and the algebra becomes a system of
 differential equations.
 
+For a spacelike example, take two events at the same coordinate time separated
+by a distance $d$: $\Delta x^\mu = (0,\, d,\, 0,\, 0)$.  Then $\Delta s^2 =
+d^2 > 0$---spacelike, as expected for a purely spatial separation.
+
 Now consider a massive particle moving in the $x$-direction at speed $v < 1$.
 Over a coordinate time $\Delta t$, the displacement is $\Delta x^\mu = (\Delta
 t,\, v\,\Delta t,\, 0,\, 0)$, giving
@@ -203,12 +209,18 @@ t,\, v\,\Delta t,\, 0,\, 0)$, giving
   \label{eq:timelike-interval}
 \end{equation}
 %
-The interval is negative: the displacement is timelike.  The quantity
+The interval is negative: the displacement is timelike.  For any timelike
+displacement ($\Delta s^2 < 0$), the quantity
 $\Delta\tau = \sqrt{-\Delta s^2}$ is the proper time elapsed on the particle's
-own clock, always less than the coordinate time $\Delta t$ by the familiar
-Lorentz factor.
+own clock---less than the coordinate time $\Delta t$ for any $v > 0$, and
+equal to it in the rest frame.
 
 \paragraph{Looking ahead.}
+
+The single minus sign in $\eta_{\mu\nu}$ is the source of all causal
+structure: it splits spacetime into timelike, null, and spacelike directions,
+gives us light cones, and makes the invariant interval possible.  Without it,
+there is no distinction between time and space---and no ray tracing.
 
 Everything we've done in this section generalises directly.  When we move to
 curved spacetime in \cref{ch:differential-geometry}, the constant matrix

@@ -49,3 +49,23 @@ Each drafted section lives in its own `.tex` file alongside `chapter.tex`. The f
 ## Related Codebase
 
 The companion code repository is at github.com/gvonness/event-horizon (Haskell + Rust).
+
+<!-- MEMORY_START -->
+## Memory Context
+
+## Recent Context
+- [03/03/2026] [User] I'm redesigning the draft-section skill for a LaTeX textbook project. The current skill has a single agent that drafts, self-reviews, and outputs. The new design adds an **editorial board** of ...
+- [03/03/2026] [Assistant] Now I have a thorough understanding of the entire project. Let me construct the detailed implementation plan.  ---  ## Implementation Plan: Editorial Board Review for `/draft-section`  ###...
+- [03/03/2026] [User] You are a plan critic. Read the plan at `/Users/gvn/.claude/plans/happy-hopping-manatee.md` and identify genuine improvements. The plan is for revising a LaTeX textbook drafting skill to includ...
+
+## Last Session (03/03/2026 22:37)
+- [User] Thoroughly explore the draft-section skill and its supporting infrastructure. I need to understand:  1. The full content of the skill definitio...
+- [Assistant] Perfect. I now have complete context. Let me provide you with a comprehensive summary of all the files:  ---  ## Comprehensive Exploration...
+
+### GRMHD Solver Development
+This conversation cluster is about the development and debugging of a general relativistic magnetohydrodynamics (GRMHD) solver, including the implementation of key components such as the curved spacetime metric, conversion between conservative and primitive variables, source term computations, and testing of a torus initialization and evolution.
+
+---
+*Memory summary: 1 topics, 3 recent items, last session included*
+
+<!-- MEMORY_END -->

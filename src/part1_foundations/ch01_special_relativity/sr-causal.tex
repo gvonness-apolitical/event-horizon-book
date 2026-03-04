@@ -1,0 +1,241 @@
+% sec:sr-causal — Light Cones, Causal Structure, and Null Vectors
+\section{Light Cones, Causal Structure, and Null Vectors}
+\label{sec:sr-causal}
+
+A ray tracer needs to answer one question for every pixel: given a camera at
+some event in spacetime, which direction does this pixel correspond to, and
+where does a photon from that direction originate?  The answer lives in the set
+of null vectors at the camera's location---the directions along which light can
+travel.  This set has a rich geometric structure: it forms a cone in the tangent
+space, and the spatial directions on that cone are in one-to-one correspondence
+with points on the observer's sky.  This section makes that correspondence
+precise.
+
+\paragraph{The light cone.}
+
+At any event $p$ in Minkowski spacetime, the \emph{light cone} is the set of
+all null directions---nonzero vectors $k^\mu$ satisfying
+%
+\begin{equation}
+  \eta_{\mu\nu}\, k^\mu\, k^\nu = 0 \,.
+  \label{eq:null-condition}
+\end{equation}
+%
+In \cref{sec:sr-minkowski} we classified individual vectors as timelike, null,
+or spacelike.  The light cone is the \emph{boundary} that separates the
+timelike region from the spacelike region: away from the vertex $k^\mu = 0$,
+it is a three-dimensional hypersurface in the four-dimensional tangent space
+at $p$.
+
+Expanding \cref{eq:null-condition} in Cartesian coordinates gives
+%
+\begin{equation}
+  -(k^0)^2 + (k^1)^2 + (k^2)^2 + (k^3)^2 = 0 \,,
+  \label{eq:null-expanded}
+\end{equation}
+%
+which rearranges to $(k^0)^2 = \abs{\mathbf{k}}^2$, where $\abs{\mathbf{k}}^2
+= (k^1)^2 + (k^2)^2 + (k^3)^2$ is the squared Euclidean norm of the spatial
+part.  This has two solutions: $k^0 = +\abs{\mathbf{k}}$ (future-directed) and
+$k^0 = -\abs{\mathbf{k}}$ (past-directed).  The light cone therefore splits
+into two halves:
+%
+\begin{itemize}
+  \item The \textbf{future light cone}: all null vectors with $k^0 > 0$.
+    These point toward the future---photons emitted from $p$ travel along
+    these directions.
+  \item The \textbf{past light cone}: all null vectors with $k^0 < 0$.
+    These point toward the past---photons arriving at $p$ came from
+    these directions.
+\end{itemize}
+%
+The ray tracer works with the past light cone: it traces photons backward in
+time from the camera to their sources, because that is far more efficient than
+tracing photons forward from every source and hoping some reach the camera.
+\physnote{Backward ray tracing is standard in computer graphics
+\cite{Marschner2016}; the relativistic version merely replaces straight lines
+with null geodesics.}
+
+% FIGURE PLACEHOLDER
+% Description: A 2+1 spacetime diagram (t vs x,y) showing the light cone at
+%   an event p, with the future cone (upward) and past cone (downward).
+%   A timelike worldline passes through the interior of the cone. A spacelike
+%   surface lies outside. The chronological future I^+(p) and causal future
+%   J^+(p) regions are shaded, with J^+ boundary = cone surface.
+% Source: tikz diagram or matplotlib 3D projection
+% Parameters: t vertical, x and y horizontal. Future cone above origin,
+%   past cone below. Shade I^+(p) in translucent gold, J^+(p) boundary
+%   (cone surface) in crimson. Show a timelike curve (gold) inside the cone
+%   and a spacelike separation (blue) outside. Label I^+(p), J^+(p), and
+%   the "elsewhere" (spacelike) region. Use EH colour palette.
+% Caption draft: The light cone at an event $p$ in Minkowski spacetime.
+%   The chronological future $I^+(p)$ (gold interior) contains all events
+%   reachable by timelike curves---massive particles.  The causal future
+%   $J^+(p)$ adds the cone boundary itself (crimson), reached by null
+%   geodesics---photons.  Events outside both cones are spacelike-separated
+%   from $p$: no signal can connect them.  The ray tracer works with the past
+%   light cone, tracing photons backward from the camera to their sources.
+% Label: fig:light-cone-causal
+
+\paragraph{Causal structure.}
+
+The light cone at an event $p$ divides the tangent space---and, by extension,
+the rest of spacetime---into causally distinct regions.  The \emph{chronological
+future} $I^+(p)$ is the set of events reachable from $p$ by timelike curves
+(massive particles).  The \emph{causal future} $J^+(p)$ includes both timelike
+and null curves---it adds the events connected to $p$ by light signals.  The
+boundary of $J^+(p)$ is precisely the future light cone of $p$.  Analogous
+definitions hold for the past: $I^-(p)$ and $J^-(p)$.
+
+Events outside $J^+(p) \cup J^-(p)$ are \emph{causally disconnected} from $p$:
+no signal, massive or massless, can travel between them.  The separation
+between $p$ and any such event is spacelike.  This is the geometric content of
+the statement that nothing travels faster than light---it is not a speed limit
+imposed from outside, but a consequence of the cone structure built into the
+metric.
+\histnote{Penrose's conformal diagrams \cite{TODO:Penrose1963} make the global
+causal structure of a spacetime visible at a glance.  We will not need them
+until \cref{ch:schwarzschild}, where the causal structure of the black hole
+interior becomes central.}
+
+\paragraph{Null vectors and the observer's sky.}
+
+The null condition \cref{eq:null-condition} reduces a vector from four
+components down to three free parameters.  But there is a further redundancy: if $k^\mu$ is
+null, so is $\lambda k^\mu$ for any $\lambda > 0$.  Rescaling a photon's
+four-momentum changes its energy but not its direction.  The physically
+distinct null directions therefore form a \emph{two}-parameter family---they
+are labelled by a point on a two-sphere.
+
+To see this explicitly, write a future-directed null vector as
+%
+\begin{equation}
+  k^\mu = E\,(1,\, \sin\theta\cos\varphi,\,
+               \sin\theta\sin\varphi,\, \cos\theta) \,,
+  \label{eq:null-parametrisation}
+\end{equation}
+%
+where $E > 0$ is the photon energy (the freedom we quotient out) and $(\theta,
+\varphi)$ are the standard spherical angles on $S^2$.  The two angles label the
+directions on the observer's \emph{celestial sphere}---the sky.  Each pixel in
+a rendered image corresponds to a specific $(\theta, \varphi)$, and therefore
+to a specific null direction $k^\mu$.  Substituting into
+\cref{eq:null-condition} confirms the null condition: $-E^2 + E^2(\sin^2\theta
+\cos^2\varphi + \sin^2\theta\sin^2\varphi + \cos^2\theta) = -E^2 + E^2 = 0$.
+
+This is the starting point for every ray trace: pick a pixel, compute
+the null vector, and propagate it through spacetime.
+\xrefnote{The camera model in \cref{ch:camera-rendering} maps pixel
+coordinates $(i, j)$ to angles $(\theta, \varphi)$ using the observer's
+tetrad from \cref{sec:sr-lorentz}.}
+
+\paragraph{The null covector and momentum.}
+
+Lowering the index on a null vector yields a covector, the photon's
+four-momentum $p_\mu$:
+%
+\begin{equation}
+  p_\mu = \eta_{\mu\nu}\, k^\nu \,.
+  \label{eq:photon-momentum}
+\end{equation}
+%
+With signature $(-,+,+,+)$, the time component changes sign:
+$p_0 = -k^0 = -E$, while the spatial components are unchanged in Cartesian
+coordinates: $p_i = k^i$.  The null condition expressed in terms of the
+covector is $\eta^{\mu\nu}\,p_\mu\,p_\nu = 0$, which reads
+%
+\begin{equation}
+  -(p_0)^2 + (p_1)^2 + (p_2)^2 + (p_3)^2 = 0 \,,
+  \label{eq:null-covector}
+\end{equation}
+%
+or equivalently $p_0 = -\abs{\mathbf{p}}$, where the sign reflects our choice
+that $p_0 < 0$ for a future-directed photon.  The covector form is the natural
+variable for the ray tracer: the time component $p_0 = -E$ is minus the photon
+energy as measured by a static observer, and the spatial components encode its
+direction of travel.
+\physnote{The minus sign on $p_0$ is a perennial source of sign errors.  In our
+$(-,+,+,+)$ convention, a physical photon has $p_0 < 0$ and $E = -p_0 > 0$.}
+
+The Hamiltonian ray tracer integrates the geodesic equations in terms of
+$p_\mu$ because the covariant components have simpler evolution equations in
+the presence of symmetry---along a geodesic, a Killing vector $\xi^\mu$ gives a
+conserved quantity $p_\mu\,\xi^\mu$ directly, without further metric
+contraction.
+
+\paragraph{A worked example: constructing a photon's initial data.}
+
+Suppose a camera at rest in Minkowski spacetime (so its tetrad is the identity)
+needs to trace a ray toward the direction $(\theta, \varphi) = (60°, 45°)$.
+The relevant trigonometric values are $\sin 60° = \sqrt{3}/2$,
+$\cos 60° = 1/2$, $\cos 45° = \sin 45° = 1/\sqrt{2}$, and
+$\sin 60°\cos 45° = \sqrt{3}/(2\sqrt{2}) = \sqrt{6}/4$.  The initial null
+vector is therefore
+%
+\begin{equation}
+  k^\mu = E\bigl(1,\, \tfrac{\sqrt{6}}{4},\,
+                     \tfrac{\sqrt{6}}{4},\, \tfrac{1}{2}\bigr) \,.
+  \label{eq:photon-example}
+\end{equation}
+%
+The covector is $p_\mu = (-E,\, E\sqrt{6}/4,\,
+E\sqrt{6}/4,\, E/2)$.  We can verify the null condition:
+$\eta^{\mu\nu} p_\mu p_\nu = -E^2 + 6E^2/16 + 6E^2/16 + E^2/4
+= -E^2 + 3E^2/8 + 3E^2/8 + 2E^2/8 = -E^2 + E^2 = 0$.
+
+The energy $E$ drops out of the geodesic equations for null rays (the
+trajectory depends only on direction, not on energy), so we can set $E = 1$
+without loss of generality.  This gives the concrete initial four-momentum
+$p_\mu = (-1,\, \sqrt{6}/4,\, \sqrt{6}/4,\, 1/2)$ that the integrator takes as
+input.
+\warnnote{Setting $E = 1$ is a choice of affine parametrisation, not a physical
+statement about the photon's energy.  Observables like redshift involve
+\emph{ratios} of energies measured by different observers, so the absolute
+normalisation is irrelevant.}
+
+\paragraph{From flat to curved: the sky in any spacetime.}
+
+In Minkowski spacetime, the null parametrisation \cref{eq:null-parametrisation}
+uses the coordinate axes as the reference frame.  For a boosted observer, we
+replace the coordinate basis with the observer's tetrad from
+\cref{sec:sr-lorentz}: the spatial directions
+$(\sin\theta\cos\varphi,\, \sin\theta\sin\varphi,\, \cos\theta)$
+are expanded in the tetrad vectors $e^\mu{}_{(1)}, e^\mu{}_{(2)},
+e^\mu{}_{(3)}$ instead of the coordinate vectors, and the time direction uses
+$e^\mu{}_{(0)}$.  The null vector for a pixel at $(\theta, \varphi)$ as
+measured by observer $\mathcal{O}$ becomes
+%
+\begin{equation}
+  k^\mu = E\Bigl(e^\mu{}_{(0)}
+    + \sin\theta\cos\varphi\; e^\mu{}_{(1)}
+    + \sin\theta\sin\varphi\; e^\mu{}_{(2)}
+    + \cos\theta\; e^\mu{}_{(3)}\Bigr) \,.
+  \label{eq:null-tetrad}
+\end{equation}
+%
+This expression is valid in \emph{any} spacetime: flat or curved, static or
+dynamic.  The tetrad encodes the observer's state of motion; the angles encode
+the pixel direction; the metric enters only through the tetrad orthonormality
+condition.  To confirm that \cref{eq:null-tetrad} is indeed null, substitute
+into $\eta_{\mu\nu}\,k^\mu\,k^\nu$ and use the orthonormality condition
+$\eta_{\mu\nu}\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab}$: the cross terms
+vanish, the timelike leg contributes $-E^2$, and the three spatial legs
+contribute $E^2(\sin^2\theta\cos^2\varphi + \sin^2\theta\sin^2\varphi +
+\cos^2\theta) = E^2$, giving $-E^2 + E^2 = 0$.
+\implnote{The camera module constructs $k^\mu$ from a pixel grid and the
+observer's tetrad, then hands the resulting null vector to the geodesic
+integrator.}
+
+The chapter introduction promised that this parametrisation of null
+vectors would reappear verbatim in the camera model, and
+\cref{eq:null-tetrad} is that parametrisation.
+
+In curved spacetime, the tetrad vectors $e^\mu{}_{(a)}$ become functions of
+position---they satisfy
+$\metric\,e^\mu{}_{(a)}\,e^\nu{}_{(b)} = \eta_{ab}$ rather than the Minkowski
+version---but \cref{eq:null-tetrad} itself is unchanged.  The flat-spacetime
+machinery of this chapter is the complete template for relativistic ray tracing;
+what remains is to let the metric vary.
+\xrefnote{The geodesic equation, derived in
+\cref{ch:differential-geometry}, governs how $k^\mu$ evolves as the ray
+propagates through curved spacetime.}

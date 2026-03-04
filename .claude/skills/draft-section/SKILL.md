@@ -1,7 +1,7 @@
 ---
 name: draft-section
 description: "Draft LaTeX prose for a single section of the event-horizon-book, following the IFI cycle and tonal reference."
-argument-hint: <chapter-path> [section-label]
+argument-hint: <chapter-path> [section-label] [--no-review]
 ---
 
 # /draft-section
@@ -11,11 +11,12 @@ Draft LaTeX prose for a single section following the Intuition–Formalism–Int
 ## Interface
 
 ```
-/draft-section <chapter-path> [section-label]
+/draft-section <chapter-path> [section-label] [--no-review]
 ```
 
 - `chapter-path`: relative to `src/` (e.g., `part2_black_holes/ch06_geodesics`)
 - `section-label`: optional (e.g., `sec:geo-null`); if omitted, draft the chapter introduction and first section
+- `--no-review`: optional flag to skip the editorial board (Steps 7–10) for fast iteration
 - If the chapter stub has no `\section{}` entries, draft only the chapter introduction and note this in the output
 
 ## Process
@@ -88,7 +89,66 @@ Before presenting the output, verify:
 - [ ] Opening sentence does not repeat the section heading
 - [ ] `\starmark` sections do not assume the reader has read other `\starmark` sections
 
-### Step 7 — Write Files, Build, and Fix Overflows
+### Step 7 — Spawn Editorial Board
+
+**Skip conditions:** Skip Steps 7–10 entirely if:
+- This is a **chapter introduction** (no `section-label` argument — these are 2–3 paragraphs, too short to warrant 4 specialist reviews)
+- The user passed `--no-review`
+
+Read the four reviewer prompt files from `prompts/` relative to this skill:
+- `prompts/physicist.md`
+- `prompts/mathematician.md`
+- `prompts/pedagogy.md`
+- `prompts/continuity.md`
+
+**Spawn 4 `general-purpose` agents in parallel** using the Agent tool. Each agent receives:
+1. Its reviewer prompt (from the file above)
+2. The full draft section text (inline in the prompt)
+3. Role-specific context files (inline in the prompt or instructed to read)
+
+**Context distribution per reviewer:**
+
+| Reviewer | Context (beyond draft) |
+|----------|------------------------|
+| Physicist | `ehcommands.tex`, chapter stub, codebase source files from Step 3 (max 3 files, truncated to relevant functions/types) |
+| Applied Mathematician | `ehcommands.tex`, chapter stub |
+| Pedagogy Specialist | `tone.md` (full file), chapter stub |
+| Continuity Specialist | `continuity.md`, `tone.md`, `ehcommands.tex`, up to 3 most recent preceding drafted sections in same chapter, adjacent chapter stubs (previous and next from Step 2) |
+
+Each reviewer must return their review in the structured format defined in their prompt file. If a reviewer fails to return or returns malformed output, proceed with available reviews. **Minimum quorum: 2 of 4 reviewers must return valid reviews to proceed.**
+
+### Step 8 — Editor Synthesis (Round 1)
+
+The lead agent acts as **chief technical editor**. Process all returned reviews:
+
+1. Read all reviews (require minimum 2)
+2. Classify each issue: **ACCEPT** / **REJECT** (with reason) / **CONFLICT**
+3. Resolve conflicts using judgement; physics correctness and mathematical rigour serve as default tiebreakers when the editor has no strong view
+4. If accepting a correction conflicts with a reviewer's **Preserve** note, document the justification for overriding the Preserve
+5. Apply all accepted corrections to the draft
+6. If any **MAJOR** issues were accepted → proceed to Step 9 (Round 2)
+7. Otherwise → skip to Step 11
+
+### Step 9 — Conditional Round 2
+
+**Skip if:** All reviewers returned PASS or MINOR verdicts, or no MAJOR issues were accepted in Step 8.
+
+Re-submit the revised draft to **only the reviewers who raised MAJOR issues** (not all 4). Spawn agents in parallel as in Step 7, but with a modified prompt:
+
+> "You previously reviewed this section and raised MAJOR issues. The draft has been revised. Verify your MAJOR issues are addressed. Report only remaining MAJOR issues using the same review format. Do not raise new issues."
+
+Process returned reviews. If a reviewer does not return, proceed without them.
+
+### Step 10 — Final Editorial Pass
+
+1. Apply remaining corrections from Round 2 or make final unilateral calls
+2. Round 2 ignores any newly raised issues not present in Round 1
+3. Unresolved disagreements go to the output's "Open questions" section with the editor's rationale
+4. Regenerate continuity notes from the post-review (final) draft, not the pre-review draft
+
+**Hard limit: 2 review-revise rounds total.** After Round 2, the editor makes all final decisions.
+
+### Step 11 — Write Files, Build, and Fix Overflows
 
 **Write the section file:**
 
@@ -116,14 +176,21 @@ Before presenting the output, verify:
 **Present the following to the user:**
 
 1. **Section summary** — 2-3 sentences on what was drafted and key choices made
-2. **Continuity notes** — always produce these, even on first invocation:
+2. **Continuity notes** — always produce these (regenerated from post-review draft if editorial board ran), even on first invocation:
    - Notation introduced (symbols, where defined)
    - Analogies used (what they map, where they break)
    - Forward references made (promises to fulfil in later sections)
    - Backward references used (callbacks to earlier material)
 3. **Missing references** — bibliography keys used but not in `references.bib`
 4. **Figure specifications** — detailed specs for each placeholder
-5. **Open questions** — anything requiring author decision
+5. **Editorial board summary** (omit if editorial board was skipped):
+   - Verdicts: `Physicist: PASS, Mathematician: MINOR, Pedagogy: MINOR, Continuity: MAJOR` (example)
+   - Round 2: whether triggered, which reviewers, and outcome
+   - Corrections applied: count and brief list
+   - Corrections rejected: count with reasons
+   - Conflicts resolved: count with rationale
+   - When all reviewers return PASS: "Editorial board: all PASS, no corrections applied."
+6. **Open questions** — anything requiring author decision, including unresolved editorial disagreements from Step 10
 
 ## Guidelines
 

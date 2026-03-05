@@ -1,0 +1,264 @@
+% sec:schw-orbits — Event Horizon, Photon Sphere, and ISCO
+\section{Event Horizon, Photon Sphere, and ISCO}
+\label{sec:schw-orbits}
+
+The geodesic structure of the Schwarzschild spacetime reduces to a
+one-dimensional effective-potential problem --- the same mathematical
+framework that governs planetary orbits in Newtonian gravity, but with
+a relativistic correction that creates qualitatively new behaviour at
+small~$r$.  Three radii emerge from this analysis, each serving as a
+decision boundary in the ray tracer: the event horizon at $r = 2M$
+(absorption), the photon sphere at $r = 3M$ (the bright ring in
+resolved images), and the innermost stable circular orbit at $r = 6M$
+(the inner edge of accretion disc models).
+
+\paragraph{Conserved quantities.}
+
+The Schwarzschild metric admits two Killing vectors: $\xi^\mu =
+\partial_t$ (stationarity) and $\psi^\mu = \partial_\varphi$
+(axisymmetry).  Each produces a conserved quantity along any geodesic:
+the contraction $p_\mu \xi^\mu$ is constant whenever $\xi^\mu$ is a
+Killing vector (\cref{sec:dg-geodesic}).  The specific energy is
+%
+\begin{equation}
+  E = -p_t = \left(1 - \frac{2M}{r}\right)\dot{t} \,,
+  \label{eq:schw-energy}
+\end{equation}
+%
+extending the Killing energy of \cref{sec:gr-weak-field} to the exact
+Schwarzschild geometry.  The specific angular momentum is
+%
+\begin{equation}
+  L = p_\varphi = r^2 \sin^2\!\theta\;\dot{\varphi} \,.
+  \label{eq:schw-angmom}
+\end{equation}
+%
+Here $L$ denotes the specific angular momentum, not the geodesic
+Lagrangian of \cref{sec:dg-geodesic}; the Lagrangian does not appear
+in this chapter.
+Spherical symmetry lets us restrict to equatorial orbits
+($\theta = \pi/2$, $\dot{\theta} = 0$) without loss of generality:
+any geodesic can be rotated into the equatorial plane, where
+$L = r^2\dot{\varphi}$.
+\physnote{For timelike geodesics parametrised by proper time, $E$ and
+$L$ are the energy and angular momentum per unit rest mass.  For null
+geodesics, only the ratio $b = L/E$ --- the impact parameter --- is
+physically meaningful.}
+
+\paragraph{The effective potential.}
+
+The norm of the tangent vector is constant along any geodesic:
+$\metric\,\dot{x}^\mu\,\dot{x}^\nu = \kappa$, where $\kappa = -1$
+for timelike and $\kappa = 0$ for null.  Expanding in the equatorial
+Schwarzschild metric with $\dot{t} = E/(1-2M/r)$ and
+$\dot{\varphi} = L/r^2$, then solving for $\dot{r}^2$, gives
+%
+\begin{equation}
+  \dot{r}^2 = E^2
+    - \left(1 - \frac{2M}{r}\right)
+      \!\left(\frac{L^2}{r^2} - \kappa\right) .
+  \label{eq:schw-radial}
+\end{equation}
+%
+The right-hand side defines a one-dimensional energy equation
+$\dot{r}^2 = E^2 - V_{\text{eff}}(r)$: the radial motion is governed
+entirely by an effective potential whose shape depends on whether the
+geodesic is timelike or null.  Turning points occur generically at
+$V_{\text{eff}} = E^2$ (the exception being unstable circular orbits
+where $V'_{\text{eff}} = 0$ simultaneously).  For timelike geodesics
+($\kappa = -1$),
+%
+\begin{equation}
+  V_{\text{eff}}(r) = \left(1 - \frac{2M}{r}\right)
+    \!\left(1 + \frac{L^2}{r^2}\right)
+  = \underbrace{1 - \frac{2M}{r} + \frac{L^2}{r^2}}_{\text{Newtonian}}
+    \underbrace{{} - \frac{2ML^2}{r^3}}_{\text{GR correction}} ,
+  \label{eq:veff-timelike}
+\end{equation}
+%
+The underbrace labels identify structural correspondences with the
+Newtonian effective potential promised in the opening: $-2M/r$ is the
+gravitational term and $L^2/r^2$ the centrifugal barrier, while the
+constant~$1$ is the rest-mass contribution.  Only the final term is
+new.  For null geodesics ($\kappa = 0$),
+%
+\begin{equation}
+  V_{\text{eff}}(r) = \frac{L^2}{r^2}\!\left(1 - \frac{2M}{r}\right)
+  = \frac{L^2}{r^2} - \frac{2ML^2}{r^3} \,.
+  \label{eq:veff-null}
+\end{equation}
+%
+The purely relativistic term $-2ML^2/r^3$ is the decisive one.  In
+Newtonian gravity the centrifugal barrier diverges as $r \to 0$,
+preventing infall; the GR correction overwhelms this barrier at small
+$r$, ultimately allowing --- and forcing --- capture.
+\warnnote{The GR effective potential is defined by
+$\dot{r}^2 = E^2 - V_{\text{eff}}$, not by
+$\frac{1}{2}\dot{r}^2 = E - V_{\text{eff}}$ as in the Newtonian
+convention.  The structural correspondence between individual terms is
+exact, but magnitudes differ by factors of~$2$ when comparing with
+standard Newtonian expressions.}
+\physnote{The relativistic correction $-2ML^2/r^3$ dominates below
+$r \sim 3M$, which is why Newtonian gravity admits stable circular
+orbits at all radii while GR does not.}
+
+\paragraph{The photon sphere.}
+
+Circular orbits sit at critical points of the effective potential
+where $V'_{\text{eff}} = 0$.  Differentiating the null potential
+\eqref{eq:veff-null} gives
+%
+\begin{equation}
+  V'_{\text{eff}}(r)
+  = \frac{L^2}{r^4}\bigl({-}2r + 6M\bigr) \,,
+  \label{eq:veff-null-deriv}
+\end{equation}
+%
+which vanishes at $r = 3M$.  The second derivative
+$V''_{\text{eff}}(3M) = -2L^2/(81M^4) < 0$ identifies this as a
+maximum: the photon orbit is \emph{unstable}.  A photon at $r = 3M$
+circles indefinitely, but any perturbation sends it spiralling inward
+or escaping to infinity.  The locus of these unstable orbits forms the
+\emph{photon sphere}.
+
+The critical impact parameter separating capture from deflection
+follows from the peak value.  Setting $E^2 = V_{\text{eff}}(3M) =
+L^2/(27M^2)$ gives the marginally captured impact parameter:
+%
+\begin{equation}
+  b_c = \frac{L}{E} = 3\sqrt{3}\,M \approx 5.196\,M \,.
+  \label{eq:critical-impact}
+\end{equation}
+%
+Photons with $b < b_c$ are absorbed; those with $b > b_c$ are
+deflected.  Photons with $b$ marginally above $b_c$ wind multiple
+times around the black hole before escaping, producing the bright
+photon ring visible in resolved images \cite{Johnson2020}.  For a
+$10\,M_\odot$ black hole, $b_c \approx 77\;\text{km}$.
+\histnote{Darwin identified the photon sphere in 1959
+\cite{Darwin1959}; the photon ring substructure --- an infinite
+sequence of increasingly narrow sub-rings --- was characterised by
+Johnson et al.\ \cite{Johnson2020}.}
+
+\paragraph{The innermost stable circular orbit.}
+
+For massive particles, the effective potential
+\eqref{eq:veff-timelike} has richer structure: both a local minimum
+(stable circular orbit) and a local maximum (unstable circular orbit)
+when the angular momentum is large enough.  Setting
+$V'_{\text{eff}} = 0$ and clearing the denominator gives the circular
+orbit condition
+%
+\begin{equation}
+  Mr^2 - L^2 r + 3ML^2 = 0 \,,
+  \label{eq:circular-condition}
+\end{equation}
+%
+a quadratic in $r$ with discriminant $L^2(L^2 - 12M^2)$.  Two
+circular orbits exist when $L^2 > 12M^2$; they merge when
+$L^2 = 12M^2$.  At this marginal angular momentum the discriminant
+vanishes, and the repeated-root formula $r = L^2/(2M)$ from
+the quadratic \cref{eq:circular-condition} yields
+%
+\begin{equation}
+  r_{\text{ISCO}} = \frac{L^2}{2M}\bigg|_{L^2\,=\,12M^2}
+  = 6M \,.
+  \label{eq:isco-radius}
+\end{equation}
+%
+No stable circular orbit exists below $r = 6M$: a particle nudged
+inward from any circular orbit at smaller radius spirals into the
+black hole rather than returning to its original track.
+\warnnote{The ISCO is a property of the Schwarzschild geometry, not
+of the test particle.  Massive and massless particles have different
+effective potentials; $r = 6M$ applies only to massive particles.
+The corresponding radius for photons is the photon sphere at
+$r = 3M$.}
+
+The ISCO sets the inner edge of a thin accretion disc: gas follows
+nearly circular orbits as it spirals inward, radiating energy, until
+reaching $r = 6M$ where it plunges toward the horizon on a nearly
+geodesic trajectory.  The radiative efficiency --- the fraction of
+rest-mass energy radiated before reaching the ISCO --- follows from the
+specific energy at $r = 6M$.  Evaluating \cref{eq:veff-timelike} with
+$L^2 = 12M^2$ gives $E_{\text{ISCO}}^2 = 8/9$, so
+%
+\begin{equation}
+  \eta = 1 - E_{\text{ISCO}} = 1 - \frac{2\sqrt{2}}{3}
+  \approx 5.7\% \,.
+  \label{eq:isco-efficiency}
+\end{equation}
+%
+Nuclear fusion converts less than $1\%$ of rest mass to energy;
+accretion onto a non-spinning black hole is already six times more
+efficient.  Rotating black holes do better still: the prograde ISCO
+of an extremal Kerr black hole achieves
+$\eta \approx 42\%$ (\cref{sec:kerr-isco}).
+\physnote{The ISCO efficiency sets a fundamental scale for
+astrophysical luminosities.  Active galactic nuclei and X-ray
+binaries are powered by accretion, and their observed luminosities
+are consistent with $\eta$ in the range $5$--$40\%$, providing
+indirect evidence for the Kerr nature of astrophysical black holes.}
+
+\paragraph{The event horizon from the potential.}
+
+The effective potential offers a fourth perspective on the event
+horizon.  As $r \to 2M^+$, the factor $(1 - 2M/r)$ vanishes, so
+$V_{\text{eff}} \to 0$ for both null and timelike geodesics: the
+entire centrifugal barrier has been erased by the relativistic
+correction.  Any geodesic with $E > 0$ that reaches this limit
+satisfies $\dot{r}^2 \to E^2 > 0$ and continues inward without a
+turning point.  This complements the coordinate-singularity view
+(\cref{sec:schw-coordinates}), the one-way membrane picture
+(\cref{fig:ef-light-cones}), and the causal-boundary analysis
+(\cref{sec:schw-kruskal}).
+
+% FIGURE PLACEHOLDER
+% Description: Effective potential V_eff(r) for the Schwarzschild
+%   spacetime.  Two panels: (a) null geodesics showing V_eff/L^2 vs
+%   r/M with the maximum at r=3M (photon sphere) marked, and the
+%   critical impact parameter b_c = 3sqrt(3)M indicated; (b) timelike
+%   geodesics showing V_eff vs r/M for several values of L/M,
+%   illustrating the stable minimum and unstable maximum that merge
+%   at the ISCO (L^2 = 12M^2, r = 6M).  Vertical dashed lines at
+%   r = 2M (horizon), r = 3M (photon sphere), r = 6M (ISCO).
+% Source: data plot
+% Parameters: M = 1, L/M = 3.0, 3.464 (ISCO), 4.0, 5.0 for timelike;
+%   single curve for null.  EH colour palette.
+% Caption draft: Effective potential for geodesics in the Schwarzschild
+%   spacetime with $M = 1$.  (a) Null geodesics:
+%   $V_{\text{eff}}/L^2$ has a single maximum at the photon sphere
+%   $r = 3M$; photons with impact parameter $b < b_c = 3\sqrt{3}\,M$
+%   are captured.  (b) Timelike geodesics: $V_{\text{eff}}$ for
+%   several angular momenta $L$.  At $L^2 = 12M^2$ (bold curve), the
+%   local minimum and maximum merge at the ISCO $r = 6M$; below this
+%   angular momentum, no stable circular orbit exists.  The vertical
+%   dashed line marks the event horizon $r = 2M$.
+% Short caption: Effective potential for Schwarzschild geodesics
+% Label: fig:schw-effective-potential
+
+\paragraph{Codebase termination conditions.}
+
+Having established the physical significance of each characteristic
+radius, we now trace how they enter the ray tracer's geodesic
+integration loop.  The \texttt{TerminationConfig}
+record stores a horizon radius (set to $2M$ plus a small numerical
+buffer to avoid evaluating the metric near the singularity), a
+celestial-sphere radius beyond which the photon is considered escaped,
+and inner/outer radii for accretion disc intersection.
+\coderef{Geodesic.Termination}{TerminationConfig}
+At each integration step, the check is a simple radius comparison:
+$r < r_{\text{horizon}}$ triggers absorption,
+$r > r_{\text{celestial}}$ triggers escape.
+
+For accretion disc rendering, the integrator detects crossings of the
+equatorial plane ($z = 0$) and checks whether the crossing radius lies
+in the interval $[r_{\text{ISCO}},\, r_{\text{outer}}]$.  The inner
+edge at $r_{\text{ISCO}}$ is physically motivated: in the
+Novikov--Thorne thin-disc model, matter follows circular geodesics
+above the ISCO and plunges freely below it, so the disc emits
+radiation only for $r \geq r_{\text{ISCO}}$
+\cite{Novikov1973,Page1974}.
+\implnote{The function \texttt{checkDiskCrossing} interpolates between
+integration steps to locate the equatorial crossing, preventing the
+adaptive stepper from stepping over a thin disc.}

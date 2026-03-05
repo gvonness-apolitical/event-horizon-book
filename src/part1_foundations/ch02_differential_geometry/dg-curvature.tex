@@ -1,0 +1,307 @@
+% sec:dg-curvature — Curvature Tensors
+\section{Curvature Tensors}
+\label{sec:dg-curvature}
+
+Parallel-transport a vector around a closed loop on a sphere, and it comes
+back rotated.  On a flat surface, this never happens --- the vector returns to
+its starting orientation regardless of the path.  The discrepancy between the
+initial and final vectors encodes the curvature enclosed by the loop, and the
+Riemann tensor is the local, infinitesimal version of this statement: it
+measures how much a vector rotates when parallel-transported around a
+vanishingly small loop.  \Cref{sec:dg-geodesic} promised a measure of how the
+gravitational field curves nearby geodesics apart --- the Riemann tensor is
+that measure.
+\physnote{Geodesic deviation --- the relative acceleration of neighbouring
+freely falling particles --- is proportional to the Riemann tensor.  This is
+how tidal forces arise in general relativity: not as forces, but as curvature.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/parallel-transport-loop}
+  \caption[Parallel transport around a closed loop on the two-sphere]{Parallel transport around a closed loop on the two-sphere
+    demonstrates the path dependence that defines curvature.  A vector
+    initially pointing north (blue) is parallel-transported around the
+    spherical triangle $A \to B \to C \to A$, whose three sides are
+    great-circle arcs (gold).  Upon returning to the starting vertex, the
+    vector has rotated by $\pi/2$ to point along the equator (crimson) ---
+    an angle equal to the solid angle enclosed by the triangle, here
+    one-eighth of the sphere.  On a flat surface, the vector would return
+    to its original orientation.  The rotation angle per unit area, in the
+    limit of a vanishingly small loop, is the Gaussian curvature
+    $K = 1/R^2$.}
+  \label{fig:parallel-transport-loop}
+\end{figure}
+
+\paragraph{The Riemann tensor via the commutator.}
+
+The covariant derivative $\cd{\mu}$ from \cref{sec:dg-covariant} --- the
+torsion-free Levi-Civita connection --- was constructed so that
+$\cd{\mu} V^\nu$ transforms as a tensor.  For partial
+derivatives, the order of differentiation doesn't matter:
+$\pd{\mu}\,\pd{\nu} f = \pd{\nu}\,\pd{\mu} f$ for any smooth function $f$.
+For covariant derivatives acting on vectors, this commutativity fails on curved
+manifolds.  The failure is measured by the \emph{Riemann curvature tensor},
+defined through the commutator
+%
+\begin{equation}
+  (\cd{\mu}\,\cd{\nu} - \cd{\nu}\,\cd{\mu})\, V^\rho
+  = \riemann{\rho}{\sigma}{\mu}{\nu}\, V^\sigma \,.
+  \label{eq:riemann-def}
+\end{equation}
+%
+The left-hand side is the commutator $[\cd{\mu}, \cd{\nu}]$ applied to an
+arbitrary vector field $V^\rho$.  The right-hand side defines a $(1,3)$
+tensor $\riemann{\rho}{\sigma}{\mu}{\nu}$ that depends only on the connection,
+not on the vector being transported.  If the Riemann tensor vanishes
+everywhere, covariant derivatives commute, parallel transport is
+path-independent, and the manifold is flat.  Conversely, a nonzero Riemann
+tensor is the infinitesimal version of the rotation described in the opening
+paragraph: it measures the curvature that a vanishingly small loop encloses.
+\warnnote{The index ordering and sign convention for the Riemann tensor vary
+across textbooks.  We follow Carroll \cite{Carroll2004} and
+Wald \cite{Wald1984}: the upper index is first, and
+\cref{eq:riemann-def} has no minus sign.  MTW \cite{MTW1973} uses the same
+sign but different index ordering.}
+
+\paragraph{Component formula.}
+
+Expanding the commutator using \cref{eq:covariant-deriv-vector} and collecting
+terms yields the component expression
+%
+\begin{equation}
+  \riemann{\rho}{\sigma}{\mu}{\nu}
+  = \pd{\mu}\,\christoffel{\rho}{\nu}{\sigma}
+  - \pd{\nu}\,\christoffel{\rho}{\mu}{\sigma}
+  + \christoffel{\rho}{\mu}{\lambda}\,\christoffel{\lambda}{\nu}{\sigma}
+  - \christoffel{\rho}{\nu}{\lambda}\,\christoffel{\lambda}{\mu}{\sigma} \,.
+  \label{eq:riemann-components}
+\end{equation}
+%
+The first two terms involve derivatives of the Christoffel symbols --- and
+since the Christoffel symbols are built from first derivatives of the metric
+(\cref{eq:christoffel-formula}), the Riemann tensor involves \emph{second}
+derivatives of the metric.  The last two terms are quadratic in the Christoffel
+symbols: schematically, $R \sim \partial\Gamma + \Gamma\Gamma$.  Curvature is
+a second-order property of the metric, invisible to the Christoffel symbols
+alone.
+\histnote{Riemann introduced this tensor in his 1854 Habilitationsschrift,
+the same lecture where he defined manifolds.  Christoffel independently
+rediscovered it in 1869 in the context of differential invariants.}
+
+\paragraph{Symmetries and independent components.}
+
+The Riemann tensor with all indices lowered,
+$R_{\rho\sigma\mu\nu} = g_{\rho\alpha}\,\riemann{\alpha}{\sigma}{\mu}{\nu}$,
+possesses three algebraic symmetries:
+%
+\begin{align}
+  R_{\rho\sigma\mu\nu} &= -R_{\rho\sigma\nu\mu} \,,
+  \label{eq:riemann-antisym1} \\
+  R_{\rho\sigma\mu\nu} &= -R_{\sigma\rho\mu\nu} \,,
+  \label{eq:riemann-antisym2} \\
+  R_{\rho\sigma\mu\nu} &= R_{\mu\nu\rho\sigma} \,.
+  \label{eq:riemann-pairsym}
+\end{align}
+%
+The first two state that the tensor is antisymmetric in each index pair
+separately: swapping either the first two or the last two indices flips the
+sign.  The third states that the two pairs can be exchanged as a unit.  A
+fourth relation, the \emph{algebraic Bianchi identity}, provides an
+additional constraint:
+%
+\begin{equation}
+  R_{\rho\sigma\mu\nu} + R_{\rho\mu\nu\sigma} + R_{\rho\nu\sigma\mu} = 0 \,.
+  \label{eq:bianchi-algebraic}
+\end{equation}
+%
+This is a cyclic sum over the last three indices.  Together, these four
+symmetries reduce the number of independent components from the naive
+$n^4 = 256$ (for $n = 4$) to
+%
+\begin{equation}
+  \frac{n^2(n^2 - 1)}{12} = 20 \qquad (n = 4) \,.
+  \label{eq:riemann-count}
+\end{equation}
+%
+The count follows from treating the antisymmetric pairs $[\rho\sigma]$ and
+$[\mu\nu]$ as symmetric-matrix indices: each pair has $n(n-1)/2 = 6$ values,
+so the pair-symmetric tensor has $6 \times 7/2 = 21$ components before the
+algebraic Bianchi identity removes one more.
+\physnote{In two dimensions, \cref{eq:riemann-count} gives
+$2^2(2^2 - 1)/12 = 1$: a two-dimensional manifold has exactly one independent
+curvature component, the Gaussian curvature.  In three dimensions there are 6,
+the same as the number of independent Ricci-tensor components, so the Ricci
+tensor captures all the curvature.  Only in four and higher dimensions does
+the Riemann tensor contain information beyond the Ricci tensor.}
+
+\paragraph{The Ricci tensor and Ricci scalar.}
+
+Contracting the Riemann tensor on its first and third indices defines the
+\emph{Ricci tensor}:
+%
+\begin{equation}
+  \ricci = \riemann{\lambda}{\mu}{\lambda}{\nu} \,.
+  \label{eq:ricci-def}
+\end{equation}
+%
+The Ricci tensor inherits the symmetry $R_{\mu\nu} = R_{\nu\mu}$ from the
+pair symmetry of the Riemann tensor (\cref{eq:riemann-pairsym}), so it has 10
+independent components in four dimensions --- the same count as the metric.
+This is not a coincidence: the Einstein field equations equate a combination of
+the Ricci tensor and metric to the stress-energy tensor, and both sides must
+have the same number of independent components.
+
+A further contraction with the inverse metric yields the \emph{Ricci scalar}
+(or \emph{scalar curvature}):
+%
+\begin{equation}
+  \ricciscalar = \inversemetric\, R_{\mu\nu} \,.
+  \label{eq:ricci-scalar-def}
+\end{equation}
+%
+This is a single scalar field that summarises the trace of the curvature at
+each point.  For a maximally symmetric space (one with the most Killing vectors
+possible), the Ricci scalar is constant and determines the geometry completely:
+positive $\ricciscalar$ for spheres, zero for flat space, negative for
+hyperbolic space.
+
+\paragraph{The Einstein tensor and the Bianchi identity.}
+
+The Riemann tensor satisfies a differential identity --- the
+\emph{differential Bianchi identity}:
+%
+\begin{equation}
+  \cd{\alpha}\, \riemann{\rho}{\sigma}{\mu}{\nu}
+  + \cd{\mu}\, \riemann{\rho}{\sigma}{\nu}{\alpha}
+  + \cd{\nu}\, \riemann{\rho}{\sigma}{\alpha}{\mu} = 0 \,.
+  \label{eq:bianchi-differential}
+\end{equation}
+%
+This is a cyclic sum of covariant derivatives over three indices.  Contracting
+twice --- once on $\rho$ and $\mu$, then on $\sigma$ and $\alpha$ with the
+inverse metric --- produces a remarkable result: a specific combination of the
+Ricci tensor and scalar is automatically divergence-free.  This is the
+\emph{contracted Bianchi identity}:
+%
+\begin{equation}
+  \nabla^\mu\, \einstein = 0 \,,
+  \label{eq:contracted-bianchi}
+\end{equation}
+%
+where the \emph{Einstein tensor} is defined by
+%
+\begin{equation}
+  \einstein = \ricci - \tfrac{1}{2}\,\metric\,\ricciscalar \,.
+  \label{eq:einstein-tensor}
+\end{equation}
+%
+The contracted Bianchi identity guarantees that the Einstein tensor is
+divergence-free purely as a consequence of the geometry --- it holds for any
+metric, regardless of any field equations.  This is the reason the Einstein
+tensor appears on the left-hand side of Einstein's field equations:
+setting $\einstein = 8\pi\,\stressenergy$ automatically
+enforces $\nabla^\mu \stressenergy = 0$, the covariant statement of
+energy-momentum conservation.
+\xrefnote{The Einstein field equations and their physical content are the
+subject of \cref{ch:general-relativity}.}
+
+\paragraph{The Weyl tensor.}
+
+The Riemann tensor can be decomposed into a trace part (determined by the Ricci
+tensor) and a trace-free part called the \emph{Weyl tensor}
+$\weyl{\rho}{\sigma}{\mu}{\nu}$.  In four dimensions, the decomposition is
+%
+\begin{equation}
+  R_{\rho\sigma\mu\nu}
+    = C_{\rho\sigma\mu\nu}
+    + g_{\rho[\mu}\,R_{\nu]\sigma}
+    - g_{\sigma[\mu}\,R_{\nu]\rho}
+    - \tfrac{1}{3}\,\ricciscalar\;
+      g_{\rho[\mu}\,g_{\nu]\sigma} \,,
+  \label{eq:weyl-decomposition}
+\end{equation}
+%
+where the square brackets denote antisymmetrisation:
+$g_{\rho[\mu}\,R_{\nu]\sigma} = \tfrac{1}{2}(g_{\rho\mu}\,R_{\nu\sigma}
+- g_{\rho\nu}\,R_{\mu\sigma})$.  The decomposition separates curvature into a
+piece controlled by local matter (the Ricci terms, determined by the
+stress-energy tensor through Einstein's equations) and a piece that propagates
+freely (the Weyl tensor).  The Weyl tensor has 10 independent components in
+four dimensions --- it vanishes identically for $n \leq 3$, where the Ricci
+tensor already captures all curvature --- and shares all the symmetries of the
+Riemann tensor plus the
+additional property that every trace vanishes:
+$C^\lambda{}_{\sigma\lambda\nu} = 0$.
+
+In vacuum, where $R_{\mu\nu} = 0$ and $\ricciscalar = 0$, the Weyl tensor
+\emph{is} the Riemann tensor.  It encodes the free gravitational field ---
+the tidal distortions that propagate as gravitational waves and that produce
+the image distortions computed by the ray tracer.
+\physnote{The Weyl tensor is conformally invariant: multiplying the metric by a
+smooth positive function leaves $\weyl{\rho}{\sigma}{\mu}{\nu}$ unchanged.
+This makes it the natural curvature tensor for gravitational lensing, where the
+conformal structure (light-cone shape) matters but the overall scale does not.}
+
+\paragraph{A worked example: curvature of $S^2$.}
+
+The two-sphere has been our running example throughout this chapter.  With
+the Christoffel symbols from \cref{eq:sphere-christoffel} and the count from
+\cref{eq:riemann-count} giving one independent curvature component in two
+dimensions, a single computation determines the full Riemann tensor.
+Substituting into \cref{eq:riemann-components}, the second term vanishes
+because $\christoffel{\theta}{\theta}{\varphi} = 0$ and the third because
+$\christoffel{\theta}{\theta}{\lambda} = 0$ for both values of $\lambda$;
+only the first and fourth terms survive:
+%
+\begin{equation}
+  \riemann{\theta}{\varphi}{\theta}{\varphi}
+  = \pd{\theta}\,\christoffel{\theta}{\varphi}{\varphi}
+    - \christoffel{\theta}{\varphi}{\varphi}\,
+      \christoffel{\varphi}{\theta}{\varphi}
+  = (\sin^2\!\theta - \cos^2\!\theta) + \cos^2\!\theta
+  = \sin^2\!\theta \,,
+  \label{eq:sphere-riemann}
+\end{equation}
+%
+where the two intermediate results follow from
+$\pd{\theta}(-\sin\theta\cos\theta) = \sin^2\!\theta - \cos^2\!\theta$
+and $-(-\sin\theta\cos\theta)(\cot\theta) = \cos^2\!\theta$.
+
+The Ricci tensor has components $R_{\theta\theta} = 1$ and
+$R_{\varphi\varphi} = \sin^2\!\theta$; tracing with the inverse metric gives
+the Ricci scalar
+%
+\begin{equation}
+  \ricciscalar = g^{\theta\theta}\,R_{\theta\theta}
+    + g^{\varphi\varphi}\,R_{\varphi\varphi}
+  = \frac{1}{R^2} + \frac{1}{R^2} = \frac{2}{R^2} \,.
+  \label{eq:sphere-ricci-scalar}
+\end{equation}
+%
+\warnnote{The symbol $R$ is momentarily overloaded: $\ricciscalar$ on the
+left is the Ricci scalar, while $R$ in the denominator is the sphere radius
+from \cref{sec:dg-metric}.  Context and position in the equation resolve
+the ambiguity.}
+The factor of $R^2$ enters through the inverse metric, even though the
+Christoffel symbols and the Riemann component
+$\riemann{\theta}{\varphi}{\theta}{\varphi}$ are $R$-independent.  A larger
+sphere is less curved: the Earth's surface, with $R \approx 6{,}400\;\text{km}$,
+has $\ricciscalar \approx 5 \times 10^{-14}\;\text{m}^{-2}$ --- small enough
+that a city appears flat, but detectable over continental distances.  The
+Gaussian curvature $K = \ricciscalar/2 = 1/R^2$ recovers the standard result
+from classical differential geometry.
+\histnote{Gauss proved in his \emph{Theorema Egregium} (1827) that the
+Gaussian curvature depends only on the intrinsic metric, not on how the surface
+is embedded in three-dimensional space --- the first result in what would become
+Riemannian geometry.}
+
+The curvature tensors defined here complete the geometric toolkit of this
+chapter.  The Riemann tensor encodes the full curvature information (20
+independent components in four dimensions); the Ricci tensor (10 components)
+captures how matter and energy curve spacetime; and the Weyl tensor (10
+components) captures the remaining free-field curvature responsible for
+gravitational lensing and tidal distortions.  With the Einstein tensor in
+hand --- a divergence-free combination of the Ricci tensor and scalar that can
+be consistently equated to a matter source --- the next chapter writes down
+Einstein's field equations and begins to populate these geometric structures
+with physics.

@@ -1,0 +1,257 @@
+% sec:gr-weak-field — The Weak-Field Limit
+\section{The Weak-Field Limit}
+\label{sec:gr-weak-field}
+
+The Einstein equations are ten coupled, nonlinear partial differential
+equations for the metric.  Before trusting them to describe black holes
+and gravitational waves, we should verify that they reproduce the theory
+they are supposed to generalise: Newtonian gravity.  The verification is
+more than a consistency check --- it fixes the factor of $8\pi$ in the
+field equations (\cref{eq:efe}), and it yields the gravitational
+redshift as a byproduct, an effect that colours every image the ray
+tracer produces.
+
+\paragraph{Linearisation.}
+
+Consider a region of spacetime where gravity is weak and all matter
+moves slowly compared to light.  ``Weak'' means that the metric is
+close to Minkowski:
+%
+\begin{equation}
+  \metric = \eta_{\mu\nu} + h_{\mu\nu} \,,
+  \qquad \abs{h_{\mu\nu}} \ll 1 \,,
+  \label{eq:weak-field-metric}
+\end{equation}
+%
+where $\eta_{\mu\nu} = \operatorname{diag}(-1,+1,+1,+1)$ is the flat
+metric and $h_{\mu\nu}$ is a small perturbation.  ``Slow'' means that
+the matter four-velocity is approximately
+$u^\mu \approx (1,\mathbf{0})$ and that the metric perturbation is
+nearly static: $\pd{0} h_{\mu\nu} \ll \pd{i} h_{\mu\nu}$.
+
+The inverse metric to first order in $h$ is
+$g^{\mu\nu} = \eta^{\mu\nu} - h^{\mu\nu} + \order{h^2}$, where
+$h^{\mu\nu} \equiv \eta^{\mu\alpha}\eta^{\nu\beta}h_{\alpha\beta}$
+raises indices with the background metric.  Substituting into the
+Christoffel formula (\cref{eq:christoffel-formula}) and dropping terms
+quadratic in $h$ gives the linearised connection coefficients:
+%
+\begin{equation}
+  \christoffel{\lambda}{\mu}{\nu}
+    = \tfrac{1}{2}\,\eta^{\lambda\sigma}\!\left(
+        \pd{\mu} h_{\nu\sigma}
+      + \pd{\nu} h_{\mu\sigma}
+      - \pd{\sigma} h_{\mu\nu}
+    \right) + \order{h^2} \,.
+  \label{eq:christoffel-linearised}
+\end{equation}
+%
+The connection coefficients are now linear in the perturbation: each
+$\christoffel{\lambda}{\mu}{\nu}$ is $\order{h}$, with no nonlinear
+mixing of metric components.
+
+The linearised Ricci tensor follows from keeping only the terms with
+one derivative of one Christoffel symbol.  Since each Christoffel
+symbol is already $\order{h}$, the $\Gamma\Gamma$ products
+in \cref{eq:riemann-components} are $\order{h^2}$ and drop out:
+%
+\begin{equation}
+  \ricci
+    = \pd{\lambda}\christoffel{\lambda}{\mu}{\nu}
+    - \pd{\nu}\christoffel{\lambda}{\mu}{\lambda}
+    + \order{h^2} \,.
+  \label{eq:ricci-linearised}
+\end{equation}
+%
+This is the sense in which the weak-field Einstein equations are
+\emph{linear}: the Ricci tensor depends linearly on $h_{\mu\nu}$,
+and the nonlinear self-interaction that makes general relativity so
+difficult is negligible.
+
+\paragraph{Recovering Poisson's equation.}
+
+We need only the time--time component of the field equations in the
+Newtonian limit.  The matter is dust (\cref{eq:perfect-fluid} with
+$p = 0$): slow, pressureless matter whose stress-energy tensor reduces
+to $T_{\mu\nu} = \rho\,u_\mu\,u_\nu$.  In the rest frame,
+$T_{00} \approx \rho$ and all other components are suppressed by
+factors of $v^2$.  The trace follows from
+the four-velocity normalisation:
+$T = \inversemetric\,T_{\mu\nu}
+= \rho\,\inversemetric\,u_\mu\,u_\nu = -\rho$,
+since $\metric\,u^\mu\,u^\nu = -1$.
+
+The trace-reversed Einstein equations,
+$\ricci = 8\pi(T_{\mu\nu} - \tfrac{1}{2}\,\metric\,T)$
+(\cref{eq:efe-trace-reversed}), isolate the Ricci tensor on the left
+and are algebraically more convenient.  The $00$-component reads
+%
+\begin{equation}
+  R_{00} = 8\pi\!\left(T_{00} - \tfrac{1}{2}\,g_{00}\,T\right)
+         \approx 8\pi\!\left(\rho
+           - \tfrac{1}{2}(-1)(-\rho)\right)
+         = 4\pi\rho \,.
+  \label{eq:weak-field-rhs}
+\end{equation}
+%
+For the left-hand side, the static assumption
+($\pd{0} h_{\mu\nu} \approx 0$) eliminates all time derivatives,
+and the only surviving Christoffel symbol is the spatial part of
+$\christoffel{\lambda}{0}{0}$.  From \cref{eq:christoffel-linearised}
+with $\mu = \nu = 0$ and $\lambda = i$ (spatial):
+%
+\begin{equation}
+  \christoffel{i}{0}{0} = -\tfrac{1}{2}\,\pd{i} h_{00} \,.
+  \label{eq:gamma-i-00}
+\end{equation}
+%
+The time component $\christoffel{0}{0}{0} = \tfrac{1}{2}\pd{0}h_{00}
+\approx 0$ vanishes by the static assumption.  The second term in
+\cref{eq:ricci-linearised}, $\pd{0}\christoffel{\lambda}{0}{\lambda}$,
+involves a time derivative and is likewise negligible, leaving
+%
+\begin{equation}
+  R_{00} = \pd{i}\christoffel{i}{0}{0}
+         = -\tfrac{1}{2}\,\laplacian h_{00} \,.
+  \label{eq:weak-field-lhs}
+\end{equation}
+%
+Equating \cref{eq:weak-field-lhs,eq:weak-field-rhs}:
+%
+\begin{equation}
+  \laplacian h_{00} = -8\pi\rho \,.
+  \label{eq:h00-poisson}
+\end{equation}
+%
+Comparing with the Poisson equation $\laplacian\Phi = 4\pi\rho$
+(\cref{eq:poisson}) gives the identification
+%
+\begin{equation}
+  h_{00} = -2\Phi \,,
+  \qquad\text{i.e.,}\qquad
+  g_{00} = -(1 + 2\Phi) \,.
+  \label{eq:g00-potential}
+\end{equation}
+%
+This is the bridge between general relativity and Newtonian gravity: the
+time--time component of the metric encodes the gravitational potential,
+and the factor of $8\pi$ in the Einstein equations is precisely what is
+needed to reproduce Newton's $\laplacian\Phi = 4\pi\rho$.
+\physnote{The factor of $8\pi$ (rather than, say, $4\pi$) traces back
+to the use of the \emph{trace-reversed} field equations.  The trace
+operation absorbs a factor of~2 on the right-hand side; the $8\pi$
+compensates to leave $4\pi\rho$ in the Poisson equation.}
+
+\paragraph{Geodesic motion as Newton's second law.}
+
+The identification \cref{eq:g00-potential} also recovers Newtonian
+dynamics.  A slow particle has $u^\mu \approx (1,\mathbf{0})$, and
+its proper time coincides with coordinate time:
+$\d\tau/\d t = \sqrt{-g_{00}} \approx \sqrt{1+2\Phi} \approx 1$
+for $\abs{\Phi} \ll 1$.  The spatial components of the geodesic
+equation (\cref{eq:geodesic}) then give
+%
+\begin{equation}
+  \frac{\d^2 x^i}{\d t^2}
+    \approx -\christoffel{i}{0}{0}
+    = \tfrac{1}{2}\,\pd{i} h_{00}
+    = -\pd{i} \Phi \,.
+  \label{eq:newton-from-geodesic}
+\end{equation}
+%
+This is Newton's second law for a particle in a gravitational field:
+acceleration equals minus the gradient of the potential.  The Einstein
+equations produce the field ($\laplacian\Phi = 4\pi\rho$); the geodesic
+equation produces the response
+($\d^2 x^i / \d t^2 = -\pd{i}\Phi$).  Both pillars of Newtonian
+gravity emerge as limiting cases of the geometric theory.
+
+\paragraph{Gravitational redshift.}
+
+A photon climbing out of a gravitational potential well loses energy ---
+its frequency decreases and its wavelength stretches toward the red.
+The weak-field metric makes this quantitative.  A static spacetime
+possesses a time-translation symmetry, encoded by a Killing vector
+$\xi^\mu = (1,\mathbf{0})$; the conserved quantity along any geodesic
+is the Killing energy $E = -p_\mu\,\xi^\mu = -p_0 > 0$.
+A static observer at position $r$ measures the photon's local energy
+as $E_{\text{local}} = E/\sqrt{-g_{00}(r)}$, so the locally measured
+frequency scales as $\nu \propto 1/\sqrt{-g_{00}(r)}$.  The ratio
+of frequencies measured by two static observers at the emission and
+reception points is therefore
+%
+\begin{equation}
+  \frac{\nu_{\text{rec}}}{\nu_{\text{em}}}
+    = \frac{\sqrt{-g_{00}(\text{em})}}{\sqrt{-g_{00}(\text{rec})}}
+    = \sqrt{\frac{1 + 2\Phi_{\text{em}}}{1 + 2\Phi_{\text{rec}}}}
+    \approx 1 + \Phi_{\text{em}} - \Phi_{\text{rec}} \,.
+  \label{eq:grav-redshift}
+\end{equation}
+%
+Since $\Phi < 0$ in a gravitational well, a photon escaping to a
+region of weaker gravity ($\Phi_{\text{rec}} > \Phi_{\text{em}}$)
+arrives with $\nu_{\text{rec}} < \nu_{\text{em}}$: it is redshifted.
+The gravitational redshift parameter $z$, defined by
+$1 + z = \nu_{\text{em}}/\nu_{\text{rec}}$, satisfies
+$z \approx \Phi_{\text{rec}} - \Phi_{\text{em}}$ in the weak-field
+limit.
+\histnote{Gravitational redshift was one of the three ``classical
+tests'' of general relativity proposed by Einstein.  Pound and Rebka
+confirmed it in 1960, measuring the frequency shift of gamma rays
+falling 22.5~m in the Harvard tower --- a fractional shift of only
+$2.5 \times 10^{-15}$.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/grav-redshift-profile.pgf}
+  \caption[Gravitational redshift near a Schwarzschild black hole]{%
+    Gravitational redshift $z$ as a function of emission radius
+    for a Schwarzschild black hole.  The solid curve shows the exact result
+    $z = (1-2M/r)^{-1/2} - 1$ (\cref{eq:redshift-schwarzschild}); the dashed
+    curve is the weak-field approximation $z \approx M/r$.  Vertical lines mark
+    the ISCO ($r = 6M$, blue), photon sphere ($r = 3M$, gold), and event
+    horizon ($r = 2M$, crimson).  The two curves agree for $r \gg 2M$ but
+    diverge sharply as the horizon is approached, where $z \to \infty$ and
+    photons are effectively erased from the image.}
+  \label{fig:grav-redshift-profile}
+\end{figure}
+
+\paragraph{From weak fields to black holes.}
+
+Near a Schwarzschild black hole, the weak-field approximation breaks
+down, but the exact redshift follows from the same Killing-vector
+argument applied to the full Schwarzschild metric, whose time--time
+component is $g_{00} = -(1 - 2M/r)$
+(\cref{sec:gr-exact-solutions}).  A photon emitted at radius $r$ and
+received at infinity (where $g_{00} \to -1$) has
+%
+\begin{equation}
+  1 + z = \frac{1}{\sqrt{1 - 2M/r}} \,.
+  \label{eq:redshift-schwarzschild}
+\end{equation}
+%
+At the innermost stable circular orbit ($r = 6M$),
+$z \approx 0.22$; at the photon sphere ($r = 3M$),
+$z = \sqrt{3} - 1 \approx 0.73$; and as $r \to 2M$ (the event
+horizon), $z \to \infty$ --- photons are infinitely redshifted and
+effectively disappear.  For comparison, on the surface of the Sun
+($M_\odot \approx 1.5\;\text{km}$ in geometric units,
+$R_\odot \approx 7 \times 10^5\;\text{km}$),
+$z \approx M/R \approx 2 \times 10^{-6}$: barely detectable, yet
+confirmed to high precision.
+\physnote{The ray tracer computes this redshift exactly for every
+photon.  The effect is most dramatic at the inner edge of an accretion
+disc, where photons originate deep in the potential well.  The
+combination of gravitational redshift and Doppler shift from orbital
+motion produces the characteristic asymmetric brightness pattern of
+black hole images.}
+
+The weak-field limit has served its purpose: the $8\pi$ factor is
+justified, Newton's law is recovered, and the gravitational redshift
+is established as a direct consequence of the metric.  The exact
+redshift formula (\cref{eq:redshift-schwarzschild}) will reappear in
+the ray tracer's spectral calculations, where it colours every pixel
+of a black hole image.  The next section surveys the exact solutions
+that populate the codebase --- spacetimes where the weak-field
+approximation gives way to the full nonlinear beauty of Einstein's
+equations.

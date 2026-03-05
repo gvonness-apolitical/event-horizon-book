@@ -1,0 +1,233 @@
+% sec:gr-efe — The Einstein Field Equations
+\section{The Einstein Field Equations}
+\label{sec:gr-efe}
+
+The geometric machinery of \cref{ch:differential-geometry} culminated in a
+remarkable accident: the Einstein tensor $\einstein$ is divergence-free purely
+as a consequence of the Riemannian geometry, with no physics assumed
+(\cref{eq:contracted-bianchi}).  Meanwhile, any sensible theory of matter
+demands that the stress-energy tensor $\stressenergy$ --- which encodes the
+density, pressure, and momentum flux of whatever fills spacetime --- satisfy
+the conservation law $\nabla^\mu \stressenergy = 0$.  Two symmetric,
+divergence-free $(0,2)$ tensors built from entirely different starting
+points: one from the geometry, the other from the matter.  Einstein's stroke
+was to set them proportional to each other.
+\physnote{The requirement $\nabla^\mu \stressenergy = 0$ generalises the
+flat-spacetime conservation laws $\pd{\mu} T^{\mu\nu} = 0$ to curved
+spacetime.  On a curved manifold, covariant divergence replaces ordinary
+divergence.}
+
+\paragraph{The Newtonian correspondence.}
+
+Any candidate field equation for gravity must pass a basic sanity check: in
+the limit of weak fields and slow-moving matter, it must reduce to the
+Poisson equation that encodes Newtonian gravity.  This requirement pins down
+the proportionality constant.  Newton's gravitational potential $\Phi$
+satisfies
+%
+\begin{equation}
+  \laplacian \Phi = 4\pi\rho \,,
+  \label{eq:poisson}
+\end{equation}
+%
+where $\rho$ is the mass density and we work in geometrised units
+($G = c = 1$).  The left-hand side involves second spatial derivatives of the
+potential; in general relativity, second derivatives of the metric play the
+role of $\laplacian \Phi$, and the Ricci tensor is the natural candidate
+since it is built from second derivatives of $\metric$
+(\cref{eq:riemann-components}).  On the right-hand side, the mass density
+$\rho$ is just one component of the stress-energy tensor --- specifically
+$T_{00}$ in the rest frame of the matter.  The simplest generally covariant
+equation with the correct Newtonian limit is
+%
+\begin{equation}
+  \einstein = 8\pi\,\stressenergy \,,
+  \label{eq:efe}
+\end{equation}
+%
+where the factor of $8\pi$ is fixed by requiring that \cref{eq:efe}
+reproduce \cref{eq:poisson} in the weak-field, low-velocity limit.
+\Cref{sec:gr-weak-field} carries out this matching explicitly.
+\histnote{Einstein arrived at \cref{eq:efe} in November 1915, after
+several years of false starts.  The trace-reversed form
+(\cref{eq:efe-trace-reversed} below) appeared first; the compact
+$\einstein = 8\pi\stressenergy$ followed once the Einstein tensor and the
+contracted Bianchi identity were recognised as a package.}
+
+Expanding the Einstein tensor using its definition
+(\cref{eq:einstein-tensor}), the field equations read
+%
+\begin{equation}
+  \ricci - \tfrac{1}{2}\,\metric\,\ricciscalar = 8\pi\,\stressenergy \,.
+  \label{eq:efe-expanded}
+\end{equation}
+%
+This is a system of ten equations (one for each independent component of the
+symmetric tensors $\ricci$ and $\stressenergy$) for the ten independent
+components of the metric $\metric$.  The count matches, but --- as we discuss
+below --- four of the ten equations are constraints rather than evolution
+equations, a subtlety tied to the coordinate freedom of general relativity.
+
+\paragraph{Trace-reversed form.}
+
+The trace of \cref{eq:efe-expanded} isolates the Ricci scalar in terms of
+the matter content alone, which lets us rewrite the field equations in a more
+convenient form.  Contracting with $\inversemetric$ and using
+$\inversemetric\,\metric = \delta^\mu{}_\mu = 4$ (in four spacetime
+dimensions) gives
+%
+\begin{equation}
+  \ricciscalar - 2\ricciscalar = 8\pi\,T \,,
+  \label{eq:efe-trace}
+\end{equation}
+%
+where $T = \inversemetric\,\stressenergy$ is the trace of the stress-energy
+tensor and the factor of $2$ arises as $\tfrac{1}{2} \times 4$ from the
+second term.  Solving for the Ricci scalar, $\ricciscalar = -8\pi\,T$, and
+substituting back into \cref{eq:efe-expanded} yields the trace-reversed form
+%
+\begin{equation}
+  \ricci = 8\pi\!\left(\stressenergy
+    - \tfrac{1}{2}\,\metric\,T\right) .
+  \label{eq:efe-trace-reversed}
+\end{equation}
+%
+The trace-reversed form is often more convenient for deriving solutions,
+because the left-hand side involves only the Ricci tensor rather than the
+Ricci tensor minus a trace term.  In vacuum, where $\stressenergy = 0$ and
+hence $T = 0$, the trace equation gives $\ricciscalar = 0$, and
+\cref{eq:efe-expanded} reduces to
+%
+\begin{equation}
+  \ricci = 0 \,.
+  \label{eq:vacuum-efe}
+\end{equation}
+%
+Every exact spacetime in the codebase --- Schwarzschild, Kerr, and
+Morris--Thorne --- is either a vacuum solution or satisfies a particularly
+simple stress-energy tensor.  The vacuum equations $\ricci = 0$ are the
+starting point for the Schwarzschild derivation in \cref{ch:schwarzschild}.
+\xrefnote{The stress-energy tensors for perfect fluids and electromagnetic
+fields are defined in \cref{sec:gr-stress-energy}.}
+
+\paragraph{Structure as partial differential equations.}
+
+The field equations look algebraic as written, but the Ricci tensor hides
+second derivatives of the metric.  Since $\ricci$ is a contraction of the
+Riemann tensor (\cref{eq:ricci-def}), and the Riemann tensor involves
+derivatives of the Christoffel symbols (\cref{eq:riemann-components}), which
+are themselves first derivatives of the metric
+(\cref{eq:christoffel-formula}), the Einstein equations are a system of ten
+coupled, second-order, nonlinear partial differential equations for the ten
+components of $\metric$.  The nonlinearity enters through the
+$\Gamma\Gamma$ terms in the Riemann tensor: schematically,
+$R \sim \partial^2 g + (\partial g)^2$.  This is in sharp contrast to
+electromagnetism, where Maxwell's equations are linear in the field.
+The nonlinearity has a direct physical consequence: gravitational fields
+gravitate.  The energy stored in the gravitational field itself contributes
+to the curvature, so superposition fails and exact solutions are rare.
+\physnote{The self-interaction encoded in the $(\partial g)^2$ terms is what
+makes numerical solutions essential: even two-body problems in general
+relativity have no closed-form solution.}
+
+In a given coordinate system, the ten metric components
+$g_{\mu\nu}(x^\alpha)$ are the unknowns, and the ten equations
+(\cref{eq:efe-expanded}) relate them to whatever matter is present.  For
+generic matter distributions, no closed-form solution exists, and the
+equations must be solved numerically --- the task of the numerical-relativity
+chapters in Part~IV.
+
+\paragraph{Gauge freedom and the constraint count.}
+
+General relativity is a diffeomorphism-invariant theory: the physics is
+unchanged by smooth reparametrisations of the coordinates.  A coordinate
+transformation $x^\mu \to x'^\mu(x)$ introduces four arbitrary functions
+(one per spacetime dimension), so metrics that differ by a coordinate
+transformation describe the same physical spacetime.  This gauge freedom
+means that four of the ten metric components are pure gauge --- they can be
+set to any convenient value by a coordinate choice, without affecting the
+physics.
+
+The contracted Bianchi identity is what enforces this counting at the level
+of the equations themselves.  The four identities
+$\nabla^\mu \einstein = 0$ (\cref{eq:contracted-bianchi}) are satisfied by
+the left-hand side of \cref{eq:efe} regardless of the metric, so only six
+of the ten field equations are truly independent.  In the initial-value
+formulation, four of these take the form of constraints that the initial data
+must satisfy, while the remaining six govern time evolution --- a structure
+we revisit in detail in the ADM decomposition of
+\cref{ch:adm-decomposition}.  The six independent equations match the six
+physical degrees of freedom of the gravitational field (ten metric components
+minus four gauge choices).
+\warnnote{The gauge freedom of general relativity is more subtle than
+electromagnetic gauge freedom.  In electromagnetism, gauge transformations
+act on the potential but leave the field strength unchanged.  In general
+relativity, the ``field'' {\itshape is} the metric, and gauge
+transformations change its components directly.  Only geometric invariants
+--- scalar curvature, geodesic lengths, etc.\ --- are physically
+meaningful.}
+
+\paragraph{Conservation from geometry.}
+
+The contracted Bianchi identity has a second, equally important
+consequence.  Since the left-hand side of \cref{eq:efe} is identically
+divergence-free, the right-hand side must be as well wherever the field
+equations hold:
+%
+\begin{equation}
+  \nabla^\mu \stressenergy = 0 \,.
+  \label{eq:stress-energy-conservation}
+\end{equation}
+%
+Energy-momentum conservation is not an additional postulate appended to the
+field equations --- it is a mathematical consequence of them.  Any
+stress-energy tensor that satisfies \cref{eq:efe} automatically satisfies
+\cref{eq:stress-energy-conservation}.  This is why the Einstein tensor,
+rather than the Ricci tensor alone, appears on the left-hand side: the
+combination $\ricci - \tfrac{1}{2}\metric\ricciscalar$ is the unique
+divergence-free symmetric $(0,2)$ tensor built from the metric and its first
+two derivatives that is linear in the second derivatives (up to an additive
+$\Lambda\,\metric$ term, discussed below).
+\histnote{Hilbert derived the field equations from a variational principle
+(the Einstein--Hilbert action
+$S = \int \ricciscalar\,\detmetric\,\vol{4}$) almost simultaneously with
+Einstein in November 1915.  The variational approach makes the Bianchi
+identity and conservation law manifest as consequences of diffeomorphism
+invariance, via Noether's second theorem.}
+
+\paragraph{The cosmological constant.}
+
+The Einstein tensor is not the only divergence-free symmetric tensor that
+can appear on the left-hand side.  The metric itself is covariantly constant
+($\cd{\alpha}\,\metric = 0$ by metric compatibility), so
+$\Lambda\,\metric$ is divergence-free for any constant $\Lambda$.  The most
+general field equation consistent with the requirements above is therefore
+%
+\begin{equation}
+  \einstein + \Lambda\,\metric = 8\pi\,\stressenergy \,,
+  \label{eq:efe-lambda}
+\end{equation}
+%
+where $\Lambda$ is the cosmological constant.  Cosmological observations
+constrain $\Lambda \approx 1.1 \times 10^{-52}\;\text{m}^{-2}$ (in SI
+units), a scale so much larger than any black hole that $\Lambda$ has no
+observable effect on the spacetimes we simulate.  We set $\Lambda = 0$ for
+the remainder of this book.
+\physnote{For a solar-mass black hole, $M_\odot \approx 1.5 \times
+10^3\;\text{m}$ in geometrised units, so $\Lambda M^2 \sim 10^{-46}$ --- negligible.  Even for a supermassive hole with $M \sim 10^9 M_\odot$, the
+ratio is of order $10^{-28}$.  The cosmological constant becomes relevant
+only at cosmological distances (hundreds of megaparsecs), where it drives the
+accelerating expansion of the universe.}
+
+\paragraph{The vacuum equations and the road ahead.}
+
+The spacetimes of primary interest in this book --- isolated black holes and
+binary mergers --- are vacuum or nearly vacuum solutions.  Outside a black
+hole's event horizon, $\stressenergy = 0$, and the field equations reduce to
+$\ricci = 0$.  These ten equations (of which six are independent) are the
+starting point for the exact solutions of
+\cref{ch:schwarzschild,ch:kerr} and the numerical evolutions of Part~IV.
+The next section introduces the stress-energy tensor for the matter sources
+that do appear --- perfect fluids in accretion discs and electromagnetic
+fields in jets --- before \cref{sec:gr-weak-field} verifies that the full
+equations reduce to Newtonian gravity where they should.

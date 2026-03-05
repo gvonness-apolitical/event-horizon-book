@@ -1,0 +1,233 @@
+% sec:schw-kerr-schild — Kerr-Schild Form
+\section{Kerr-Schild Form}
+\label{sec:schw-kerr-schild}
+
+The Eddington--Finkelstein coordinates of the previous section remove the
+coordinate singularity at $r = 2M$, but they introduce a new problem: the
+metric is written in spherical coordinates $(v, r, \theta, \varphi)$, which
+have their own coordinate singularity at the poles ($\theta = 0, \pi$), and
+the flat-spacetime limit yields $\eta_{\mu\nu}$ in spherical rather than
+Cartesian form.  The ray tracer needs Cartesian spatial coordinates to set
+up initial conditions and to avoid special treatment at the poles.  The
+Kerr--Schild form delivers both: a single Cartesian chart that is
+horizon-penetrating, pole-free, and whose inverse metric costs nothing more
+than a sign flip.
+
+\paragraph{From Eddington--Finkelstein to Kerr--Schild.}
+
+The ingoing Eddington--Finkelstein metric (\cref{eq:ef-ingoing}) uses the
+advanced time $v = t + r_*$ as its time coordinate.  Define a new time
+coordinate by subtracting the radial coordinate:
+%
+\begin{equation}
+  \bar{t} = v - r \,.
+  \label{eq:ks-time-def}
+\end{equation}
+%
+Since $v = t + r_*$ and $r_* = r + 2M\ln(r/2M - 1)$
+(\cref{eq:tortoise,eq:ef-v-def}), the Kerr--Schild time differs from
+Schwarzschild time outside the horizon ($r > 2M$) by a logarithmic
+correction: $\bar{t} = t + 2M\ln(r/2M - 1)$.  The defining relation
+$\bar{t} = v - r$ remains valid at and inside the horizon, where
+Schwarzschild time is undefined.
+
+Substituting $\d v = \d\bar{t} + \d r$ into the Eddington--Finkelstein line
+element \eqref{eq:ef-ingoing} and writing $f = 2M/r$,
+%
+\begin{align}
+  \d s^2 &= -(1 - f)\,(\d\bar{t} + \d r)^2
+    + 2\,(\d\bar{t} + \d r)\,\d r
+    + r^2\,\d\Omega^2 \notag \\
+  &= \underbrace{-\d\bar{t}^2 + \d r^2
+    + r^2\,\d\Omega^2}_{\text{Minkowski}}
+    \;+\; f\,(\d\bar{t} + \d r)^2 \,.
+  \label{eq:ks-spherical}
+\end{align}
+%
+The first line substitutes directly; the second separates the
+flat-spacetime contribution from a gravitational correction.  The entire
+effect of curvature appears in the second term: a distortion along the
+radial null direction $\d\bar{t} + \d r$, with strength $f = 2M/r$ that
+falls off as the Newtonian potential.  (Expanding
+$-\d\bar{t}^2 + \d r^2 + f(\d\bar{t} + \d r)^2$ reproduces the
+coefficients $(-1+f)$, $2f$, $(1+f)$ for
+$\d\bar{t}^2$, $\d\bar{t}\,\d r$, $\d r^2$, confirming the
+factorisation.)  The one-form $\d\bar{t} + \d r$ has components
+$l_\mu = (1, 1, 0, 0)$ in coordinates $(\bar{t}, r, \theta, \varphi)$,
+so the metric takes the Kerr--Schild form
+%
+\begin{equation}
+  \metric = \eta_{\mu\nu} + f\,l_\mu\,l_\nu \,,
+  \qquad f = \frac{2M}{r} \,,
+  \label{eq:ks-schw-metric}
+\end{equation}
+%
+fulfilling the decomposition previewed in \cref{sec:gr-exact-solutions}:
+the full curved metric is a flat background plus a rank-one correction
+built from a single covector $l_\mu$ and a scalar function $f$.
+\histnote{Kerr and Schild introduced this decomposition in 1965
+\cite{KerrSchild1965}, originally for the rotating Kerr metric.
+The Schwarzschild case is a special limit that was recognised almost
+immediately.}
+
+Converting to Cartesian spatial coordinates
+$(x, y, z) = (r\sin\theta\cos\varphi,\, r\sin\theta\sin\varphi,\,
+r\cos\theta)$ replaces $\d r^2 + r^2\,\d\Omega^2$ with
+$\d x^2 + \d y^2 + \d z^2$, and the radial one-form becomes
+$\d r = (x\,\d x + y\,\d y + z\,\d z)/r$.  The components of $l_\mu$ in
+Cartesian Kerr--Schild coordinates $(\bar{t}, x, y, z)$ are
+%
+\begin{equation}
+  l_\mu = \left(1,\; \frac{x}{r},\; \frac{y}{r},\;
+    \frac{z}{r}\right) , \qquad r = \sqrt{x^2 + y^2 + z^2} \,.
+  \label{eq:ks-null-oneform}
+\end{equation}
+%
+These are the Kerr--Schild data stated in \cref{sec:gr-exact-solutions},
+now derived from first principles.
+
+\paragraph{The null property and the inverse metric.}
+
+The covector $l_\mu$ is null with respect to the flat metric:
+%
+\begin{equation}
+  \eta^{\mu\nu}\,l_\mu\,l_\nu = -(1)^2 + \frac{x^2 + y^2 + z^2}{r^2}
+  = -1 + 1 = 0 \,.
+  \label{eq:ks-flat-null}
+\end{equation}
+%
+The payoff of this null property is immediate and substantial.  For a
+generic perturbation $\metric = \eta_{\mu\nu} + h_{\mu\nu}$, the inverse
+metric requires a Neumann series $\inversemetric = \eta^{\mu\nu} -
+h^{\mu\nu} + h^{\mu\alpha}h_\alpha{}^\nu - \cdots$ that may not even
+converge near the horizon.  For a null rank-one perturbation, the series
+terminates after one term.  Writing
+$l^\mu = \eta^{\mu\alpha}l_\alpha = (-1,\, x/r,\, y/r,\, z/r)$ and
+computing
+%
+\begin{equation}
+  g^{\mu\alpha}\,g_{\alpha\nu}
+  = \delta^\mu{}_\nu
+    + f\,l^\mu\,l_\nu
+    - f\,l^\mu\,l_\nu
+    - f^2\,l^\mu\underbrace{(l^\alpha\,l_\alpha)}_{=\;0}\,l_\nu
+  = \delta^\mu{}_\nu \,,
+  \label{eq:ks-inverse-verify}
+\end{equation}
+%
+confirms that the inverse metric is
+%
+\begin{equation}
+  \inversemetric = \eta^{\mu\nu} - f\,l^\mu\,l^\nu \,.
+  \label{eq:ks-inverse}
+\end{equation}
+%
+The two cross terms in \cref{eq:ks-inverse-verify} are each
+$f\,l^\mu\,l_\nu$ and cancel directly, while the $f^2$ term vanishes
+because $l_\mu$ is null.  The inverse differs from the forward metric by
+nothing more than a sign flip in front of the correction.
+\warnnote{The sign flip between $\metric = \eta_{\mu\nu} +
+f\,l_\mu\,l_\nu$ and $\inversemetric = \eta^{\mu\nu} -
+f\,l^\mu\,l^\nu$ relies entirely on $l_\mu$ being null.  For a
+non-null perturbation, the inverse involves the full Neumann series;
+the null property truncates it after one term.}
+
+\paragraph{Explicit components.}
+
+Writing $n^i = x^i/r$ for the Euclidean unit radial vector ($i = 1, 2, 3$;
+in Cartesian coordinates $n_i = n^i$ since spatial indices are raised and
+lowered with $\delta_{ij}$), the Kerr--Schild metric components in
+coordinates $(\bar{t}, x, y, z)$ are
+%
+\begin{equation}
+  g_{\bar{t}\bar{t}} = -1 + f \,, \quad
+  g_{\bar{t}i} = f\,n_i \,, \quad
+  g_{ij} = \delta_{ij} + f\,n_i n_j \,.
+  \label{eq:ks-components}
+\end{equation}
+%
+The pattern carries over to the inverse: the correction term flips sign
+while the mixed time--space components are unchanged.
+%
+\begin{equation}
+  g^{\bar{t}\bar{t}} = -1 - f \,, \quad
+  g^{\bar{t}i} = f\,n^i \,, \quad
+  g^{ij} = \delta^{ij} - f\,n^i n^j \,.
+  \label{eq:ks-inv-components}
+\end{equation}
+%
+At $r = 2M$ the function $f = 1$: every component is finite, and the
+metric is perfectly well-behaved.  At the ISCO ($r = 6M$), $f = 1/3$ ---
+the metric deviates from flat spacetime by roughly $30\%$, yet every
+component remains a simple rational function of the coordinates.  At large
+$r$, $f \to 0$ and the metric smoothly approaches $\eta_{\mu\nu}$ in
+Cartesian form --- precisely the flat-spacetime coordinates the codebase
+uses for initial conditions.
+
+The metric determinant is worth noting for numerical work: $\det(g) = -1$,
+independent of position.  This follows from the matrix determinant lemma:
+$\det(A + uv^T) = (1 + v^T\!A^{-1}u)\det(A)$.  With $A = \eta$,
+$u = f\,l$, and $v = l$, the correction factor is
+$1 + f\,\eta^{\mu\nu}l_\mu\,l_\nu = 1$ since $l_\mu$ is null.
+\physnote{The unit determinant means the natural volume element
+$\detmetric\;\d^4\!x$ reduces to the coordinate volume
+$\d\bar{t}\,\d x\,\d y\,\d z$ --- volume integrals over the Kerr--Schild
+chart have the same form as in flat spacetime.}
+
+\paragraph{Computational advantages.}
+
+Three features make the Kerr--Schild form the natural choice for the
+geodesic integrator:
+%
+\begin{enumerate}
+\item \textbf{Horizon-penetrating:} All metric components are finite
+  at $r = 2M$, so the integrator steps smoothly through the horizon
+  without adaptive refinement or coordinate switching.
+\item \textbf{Pole-free:} Cartesian coordinates have no
+  coordinate singularity at $\theta = 0, \pi$, eliminating special
+  treatment of polar geodesics.
+\item \textbf{Algebraically simple inverse:} The sign-flip formula
+  \eqref{eq:ks-inverse} means the inverse metric is as cheap to
+  evaluate as the forward metric --- no matrix inversion at each
+  integration step.
+\end{enumerate}
+%
+\coderef{Spacetime}{SchwarzschildKS}
+The codebase implements these properties directly.  The type
+\texttt{SchwarzschildKS} stores only the mass $M$; the polymorphic function
+\texttt{schwarzschildMetricFn} computes all ten independent components
+of $\metric$ from \cref{eq:ks-components} for any \texttt{Floating}
+type, enabling automatic differentiation for Christoffel symbols without
+hand-coded derivatives (\cref{ch:autodiff}).
+\implnote{The polymorphic metric function accepts \texttt{Double} for
+production ray tracing and AD types for exact derivative computation.
+A single code path serves both purposes.}
+%
+\begin{lstlisting}[language=Haskell]
+schwarzschildMetricFn :: Floating a => a -> [a] -> [a]
+schwarzschildMetricFn m [_, cx, cy, cz] =
+  let r  = sqrt (cx*cx + cy*cy + cz*cz)
+      h  = 2*m / r
+      lx = cx / r; ly = cy / r; lz = cz / r
+  in [ -1 + h,   h*lx,       h*ly,       h*lz
+     ,           1 + h*lx*lx, h*lx*ly,    h*lx*lz
+     ,                        1 + h*ly*ly, h*ly*lz
+     ,                                     1 + h*lz*lz ]
+\end{lstlisting}
+%
+The ten entries are the independent components of the symmetric
+$4 \times 4$ metric, listed in upper-triangular order.  Each line
+of the code maps directly to \cref{eq:ks-components}: the \texttt{-1 + h}
+entry is $g_{\bar{t}\bar{t}} = -1 + f$, the off-diagonal entries
+\texttt{h*lx}, \texttt{h*ly}, \texttt{h*lz} are $g_{\bar{t}i} = f\,n_i$,
+and the spatial block is $\delta_{ij} + f\,n_i n_j$.
+
+The Kerr--Schild decomposition is not specific to the Schwarzschild
+spacetime.  The Kerr metric for a rotating black hole admits the same
+$\metric = \eta_{\mu\nu} + f\,l_\mu\,l_\nu$ structure, with $f$ and
+$l_\mu$ generalised to incorporate the spin parameter $a$; setting $a = 0$
+recovers \cref{eq:ks-schw-metric} exactly.  This universality allows the
+codebase to use the same integration infrastructure for both spacetimes.
+\xrefnote{The Kerr--Schild form of the Kerr metric is derived in
+\cref{sec:kerr-ks}, where $l_\mu$ acquires a twist from the
+black hole's rotation.}

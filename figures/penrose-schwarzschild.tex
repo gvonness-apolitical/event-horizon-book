@@ -1,0 +1,124 @@
+% penrose-schwarzschild.tex — Penrose diagram for the maximally extended
+% Schwarzschild spacetime
+% Inputable TikZ fragment for fig:penrose-schwarzschild
+% Requires: tikz with calc, arrows.meta, decorations.markings (loaded by ehbook.cls)
+%
+% Shape: diamond with top/bottom vertices flattened into horizontal
+% singularity lines.  All null lines at 45°.
+%
+% Geometry (cm):
+%   Half-height h = 1.8 (centre to singularity).
+%   Singularity half-width s = 1.0.
+%   Spatial-infinity offset w = s + h = 2.8 (ensures 45° edges).
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+    zigzag/.style={
+      decorate,
+      decoration={zigzag, segment length=3.5pt, amplitude=1.5pt},
+    },
+  ]
+
+  % ── Parameters ──────────────────────────────────────────────────────
+  \def\h{1.8}    % half-height (centre to singularity)
+  \def\s{1.0}    % singularity half-width
+  \def\w{2.8}    % spatial infinity offset (= s + h for 45° edges)
+
+  % ── Key points ──────────────────────────────────────────────────────
+  \coordinate (ipI)   at ( \s,  \h);   % i+  Region I
+  \coordinate (imI)   at ( \s, -\h);   % i-  Region I
+  \coordinate (i0I)   at ( \w,    0);  % i^0 Region I
+  \coordinate (ipIII) at (-\s,  \h);   % i+  Region III
+  \coordinate (imIII) at (-\s, -\h);   % i-  Region III
+  \coordinate (i0III) at (-\w,    0);  % i^0 Region III
+
+  % ── Region fills (very faint) ──────────────────────────────────────
+  % Region II (top triangle)
+  \fill[EHAccretionGold, opacity=0.04]
+    (ipIII) -- (ipI) -- (0, 0) -- cycle;
+  % Region IV (bottom triangle)
+  \fill[EHAccretionGold, opacity=0.04]
+    (imIII) -- (imI) -- (0, 0) -- cycle;
+
+  % ── Singularities (zigzag, top and bottom) ─────────────────────────
+  \draw[EHHorizonCrimson, very thick, zigzag]
+    (ipIII) -- (ipI);
+  \draw[EHHorizonCrimson, very thick, zigzag]
+    (imIII) -- (imI);
+
+  % Singularity labels
+  \node[above, font=\scriptsize, text=EHHorizonCrimson]
+    at (0, \h) {$r = 0$};
+  \node[below, font=\scriptsize, text=EHHorizonCrimson]
+    at (0, -\h) {$r = 0$};
+
+  % ── Null infinity (diamond boundary edges) ─────────────────────────
+  % Region I: right side
+  \draw[EHMarginGray, thick] (ipI) -- (i0I)
+    node[pos=0.5, above right, inner sep=1pt, font=\scriptsize,
+         text=EHMarginGray] {$\mathscr{I}^+$};
+  \draw[EHMarginGray, thick] (i0I) -- (imI)
+    node[pos=0.5, below right, inner sep=1pt, font=\scriptsize,
+         text=EHMarginGray] {$\mathscr{I}^-$};
+  % Region III: left side
+  \draw[EHMarginGray, thick] (ipIII) -- (i0III)
+    node[pos=0.5, above left, inner sep=1pt, font=\scriptsize,
+         text=EHMarginGray] {$\mathscr{I}^+$};
+  \draw[EHMarginGray, thick] (i0III) -- (imIII)
+    node[pos=0.5, below left, inner sep=1pt, font=\scriptsize,
+         text=EHMarginGray] {$\mathscr{I}^-$};
+
+  % ── Horizons (dashed X through centre) ─────────────────────────────
+  \draw[EHHorizonCrimson, dashed, thick]
+    (imIII) -- (ipI);  % T = X line
+  \draw[EHHorizonCrimson, dashed, thick]
+    (ipIII) -- (imI);  % T = -X line
+
+  % ── Region labels ──────────────────────────────────────────────────
+  \node[font=\small] at ( 1.4,  0) {I};
+  \node[font=\small] at (   0, 0.7) {II};
+  \node[font=\small] at (-1.4,  0) {III};
+  \node[font=\small] at (   0, -0.7) {IV};
+
+  % ── Conformal boundary labels ──────────────────────────────────────
+  % Spatial infinity
+  \node[right, font=\scriptsize, text=EHMarginGray]
+    at ({\w + 0.08}, 0) {$i^0$};
+  \node[left, font=\scriptsize, text=EHMarginGray]
+    at ({-\w - 0.08}, 0) {$i^0$};
+
+  % Timelike infinity
+  \node[right, font=\scriptsize, text=EHMarginGray, inner sep=1pt]
+    at ({\s + 0.08}, \h) {$i^+$};
+  \node[right, font=\scriptsize, text=EHMarginGray, inner sep=1pt]
+    at ({\s + 0.08}, -\h) {$i^-$};
+  \node[left, font=\scriptsize, text=EHMarginGray, inner sep=1pt]
+    at ({-\s - 0.08}, \h) {$i^+$};
+  \node[left, font=\scriptsize, text=EHMarginGray, inner sep=1pt]
+    at ({-\s - 0.08}, -\h) {$i^-$};
+
+  % ── Vertex dots ────────────────────────────────────────────────────
+  \fill[EHMarginGray] (i0I)   circle (1.5pt);
+  \fill[EHMarginGray] (i0III) circle (1.5pt);
+  \fill[EHMarginGray] (ipI)   circle (1.2pt);
+  \fill[EHMarginGray] (imI)   circle (1.2pt);
+  \fill[EHMarginGray] (ipIII) circle (1.2pt);
+  \fill[EHMarginGray] (imIII) circle (1.2pt);
+
+  % ── Sample timelike worldline ──────────────────────────────────────
+  % Starts in Region I, crosses future horizon, hits singularity.
+  % Must have slope > 1 (steeper than 45°) to be timelike.
+  \draw[EHJetBlue, thick, ->]
+    plot[smooth, tension=0.6] coordinates {
+      (1.6, -0.8)
+      (1.2, -0.1)
+      (0.7, 0.6)
+      (0.3, 1.2)
+      (0.15, 1.6)
+      (0.1, 1.78)
+    };
+  \node[right, font=\scriptsize, text=EHJetBlue, inner sep=1pt]
+    at (1.6, -0.8) {observer};
+
+\end{tikzpicture}

@@ -277,10 +277,13 @@
 \setsubsubsecheadstyle{\normalsize\sffamily\bfseries\color{black}}
 
 % ---------- TikZ libraries ----------
-\usetikzlibrary{calc,arrows.meta,decorations.markings,positioning}
+\usetikzlibrary{calc,arrows.meta,decorations.markings,decorations.pathmorphing,positioning}
 
-% ---------- Miscellaneous ----------
+% ---------- Table of contents ----------
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{3}
+\setpnumwidth{2em}          % page-number column width
+\setrmarg{3em}              % right margin for TOC entries
+\cftsetindents{part}{0em}{3em}  % widen part-number box for "VII" etc.
 
 \endinput

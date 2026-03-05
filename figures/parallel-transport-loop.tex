@@ -1,0 +1,150 @@
+% parallel-transport-loop.tex — Parallel transport around a spherical triangle
+% Inputable TikZ fragment for fig:parallel-transport-loop
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Projection: orthographic, 30° elevation tilt (matches fig:sphere-geodesics).
+%
+% Triangle vertices (rotated to face the viewer):
+%   A = (θ,φ) = (π/2, 225°)   equator, lower-left
+%   B = (0, 0)                  north pole
+%   C = (π/2, 315°)            equator, lower-right
+% The triangle subtends solid angle π/2 (one-eighth of the sphere).
+%
+% A vector initially pointing north at A (upward on screen) is parallel-
+% transported around A→B→C→A.  It returns pointing along the equator
+% (rightward on screen) — rotated by π/2.
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Parameters ──────────────────────────────────────────────────────
+  \def\R{1.8}
+  \pgfmathsetmacro{\tilt}{30}
+  \pgfmathsetmacro{\costilt}{cos(\tilt)}
+  \pgfmathsetmacro{\sintilt}{sin(\tilt)}
+  \pgfmathsetmacro{\eqb}{\R*\sintilt}     % equator semi-minor axis
+
+  % ── Projected vertex positions ─────────────────────────────────────
+  % A = (90°, 225°): embed (−.707, −.707, 0)
+  \pgfmathsetmacro{\Ax}{-0.7071*\R}
+  \pgfmathsetmacro{\Ay}{-0.7071*\R*\sintilt}
+  % B = (0°, 0°): embed (0, 0, 1)
+  \pgfmathsetmacro{\Bx}{0}
+  \pgfmathsetmacro{\By}{\R*\costilt}
+  % C = (90°, 315°): embed (.707, −.707, 0)
+  \pgfmathsetmacro{\Cx}{0.7071*\R}
+  \pgfmathsetmacro{\Cy}{-0.7071*\R*\sintilt}
+
+  % ── Sphere outline and shading ──────────────────────────────────────
+  \shade[ball color=EHMarginGray!8, draw=EHMarginGray, thin]
+    (0,0) circle (\R);
+
+  % ── Equator (faint, near side only: φ = 180° to 360°) ─────────────
+  \draw[EHMarginGray, thin, opacity=0.15]
+    ({-\R}, 0) arc (180:360:{\R} and {\eqb});
+
+  % ── Triangle fill (faint gold) ─────────────────────────────────────
+  % Fill uses sampled meridian curves + equator arc
+  \fill[EHAccretionGold, opacity=0.08]
+    % A→B along meridian φ=225°
+    ({-0.7071*\R}, {-0.7071*\R*\sintilt})
+    ({-0.7071*\R*sin(75)}, {(-0.7071*sin(75)*\sintilt + cos(75)*\costilt)*\R})
+    ({-0.7071*\R*sin(60)}, {(-0.7071*sin(60)*\sintilt + cos(60)*\costilt)*\R})
+    ({-0.7071*\R*sin(45)}, {(-0.7071*sin(45)*\sintilt + cos(45)*\costilt)*\R})
+    ({-0.7071*\R*sin(30)}, {(-0.7071*sin(30)*\sintilt + cos(30)*\costilt)*\R})
+    ({-0.7071*\R*sin(15)}, {(-0.7071*sin(15)*\sintilt + cos(15)*\costilt)*\R})
+    (0, {\R*\costilt})
+    % B→C along meridian φ=315°
+    ({0.7071*\R*sin(15)}, {(-0.7071*sin(15)*\sintilt + cos(15)*\costilt)*\R})
+    ({0.7071*\R*sin(30)}, {(-0.7071*sin(30)*\sintilt + cos(30)*\costilt)*\R})
+    ({0.7071*\R*sin(45)}, {(-0.7071*sin(45)*\sintilt + cos(45)*\costilt)*\R})
+    ({0.7071*\R*sin(60)}, {(-0.7071*sin(60)*\sintilt + cos(60)*\costilt)*\R})
+    ({0.7071*\R*sin(75)}, {(-0.7071*sin(75)*\sintilt + cos(75)*\costilt)*\R})
+    ({0.7071*\R}, {-0.7071*\R*\sintilt})
+    % C→A along equator (arc approximated by returning)
+    -- ({0.7071*\R}, {-0.7071*\R*\sintilt})
+       arc (315:225:{\R} and {\eqb})
+    -- cycle;
+
+  % ── Triangle edge: A→B (meridian φ=225°, θ from 90° to 0°) ────────
+  % x = −0.707·R·sinθ,  y = R·(−0.707·sinθ·sintilt + cosθ·costilt)
+  \draw[EHAccretionGold, thick] plot[smooth, tension=0.55] coordinates {
+    ({-0.7071*\R},               {(-0.7071*\sintilt + 0*\costilt)*\R})
+    ({-0.7071*\R*sin(75)}, {(-0.7071*sin(75)*\sintilt + cos(75)*\costilt)*\R})
+    ({-0.7071*\R*sin(60)}, {(-0.7071*sin(60)*\sintilt + cos(60)*\costilt)*\R})
+    ({-0.7071*\R*sin(45)}, {(-0.7071*sin(45)*\sintilt + cos(45)*\costilt)*\R})
+    ({-0.7071*\R*sin(30)}, {(-0.7071*sin(30)*\sintilt + cos(30)*\costilt)*\R})
+    ({-0.7071*\R*sin(15)}, {(-0.7071*sin(15)*\sintilt + cos(15)*\costilt)*\R})
+    (0,                          {\R*\costilt})
+  };
+
+  % ── Triangle edge: B→C (meridian φ=315°, θ from 0° to 90°) ────────
+  % x = +0.707·R·sinθ,  y = R·(−0.707·sinθ·sintilt + cosθ·costilt)
+  \draw[EHAccretionGold, thick] plot[smooth, tension=0.55] coordinates {
+    (0,                          {\R*\costilt})
+    ({0.7071*\R*sin(15)}, {(-0.7071*sin(15)*\sintilt + cos(15)*\costilt)*\R})
+    ({0.7071*\R*sin(30)}, {(-0.7071*sin(30)*\sintilt + cos(30)*\costilt)*\R})
+    ({0.7071*\R*sin(45)}, {(-0.7071*sin(45)*\sintilt + cos(45)*\costilt)*\R})
+    ({0.7071*\R*sin(60)}, {(-0.7071*sin(60)*\sintilt + cos(60)*\costilt)*\R})
+    ({0.7071*\R*sin(75)}, {(-0.7071*sin(75)*\sintilt + cos(75)*\costilt)*\R})
+    ({0.7071*\R},               {(-0.7071*\sintilt + 0*\costilt)*\R})
+  };
+
+  % ── Triangle edge: C→A (equator arc, φ from 315° to 225°) ─────────
+  \draw[EHAccretionGold, thick]
+    (\Cx, \Cy) arc (315:225:{\R} and {\eqb});
+
+  % ── Parallel-transport vectors at vertex A ─────────────────────────
+  %
+  % Initial: pointing north = (0,0,1) in embedding.
+  %   Screen: dx=0, dy = costilt·R.  Direction: straight up.
+  %
+  % After transport A→B→C→A, the vector arrives as the +φ direction
+  % at A: embedding (0.707, −0.707, 0).
+  %   Screen: dx = 0.707·R, dy = −0.707·sintilt·R.
+  %
+  \def\veclen{0.6}
+
+  % Initial vector (blue): points north = up on screen
+  \draw[->, EHJetBlue, very thick]
+    (\Ax, \Ay) -- ++(0, \veclen)
+    node[left, inner sep=2pt, font=\scriptsize, text=EHJetBlue] {initial};
+
+  % Final vector (crimson): points along equator (+φ direction at A)
+  % Direction (0.707, −0.707·sintilt) normalised, scaled to veclen
+  \pgfmathsetmacro{\fdx}{0.7071}
+  \pgfmathsetmacro{\fdy}{-0.7071*\sintilt}
+  \pgfmathsetmacro{\flen}{sqrt(\fdx*\fdx + \fdy*\fdy)}
+  \draw[->, EHHorizonCrimson, very thick]
+    (\Ax, \Ay) -- ++({\veclen*\fdx/\flen}, {\veclen*\fdy/\flen})
+    node[below, inner sep=2pt, font=\scriptsize, text=EHHorizonCrimson] {final};
+
+  % ── Rotation arc showing π/2 ──────────────────────────────────────
+  % Arc from final-vector direction to initial-vector direction
+  % Final is at screen angle atan2(fdy, fdx); initial is at 90°.
+  \pgfmathsetmacro{\arcrad}{0.35}
+  \pgfmathsetmacro{\finalangle}{atan2(\fdy, \fdx)}
+  \draw[EHHorizonCrimson, thin, ->]
+    ({\Ax + \arcrad*\fdx/\flen}, {\Ay + \arcrad*\fdy/\flen})
+    arc ({\finalangle}:90:{\arcrad})
+    node[pos=0.45, right, inner sep=1pt, font=\scriptsize,
+         text=EHHorizonCrimson] {$\pi/2$};
+
+  % ── Vertex dots and labels ─────────────────────────────────────────
+  \fill (\Ax, \Ay) circle (1.5pt);
+  \fill (\Bx, \By) circle (1.5pt);
+  \fill (\Cx, \Cy) circle (1.5pt);
+
+  \node[font=\scriptsize, anchor=north east]
+    at ({\Ax - 0.06}, {\Ay - 0.06}) {$A$};
+  \node[font=\scriptsize, anchor=south]
+    at (\Bx, {\By + 0.08}) {$B$};
+  \node[font=\scriptsize, anchor=north west]
+    at ({\Cx + 0.06}, {\Cy - 0.06}) {$C$};
+
+  % ── Sphere label ───────────────────────────────────────────────────
+  \node[font=\small] at (0, {-\R - 0.35}) {$S^2$};
+
+\end{tikzpicture}

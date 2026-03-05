@@ -21,6 +21,16 @@ transformations---excellent accounts exist elsewhere
 directly in the codebase: the metric as a matrix, index operations as linear
 algebra, and null vectors as the starting data for ray tracing.
 
+The three sections trace a path from spacetime geometry to the camera's
+viewfinder.  We begin with the Minkowski metric and the classification of
+vectors into timelike, null, and spacelike --- the vocabulary that the geodesic
+integrator uses to distinguish massive particles from photons.  Lorentz
+transformations then enter not as abstract symmetries but through the tetrad
+formalism, which constructs the observer's local reference frame from four
+orthonormal vectors.  The chapter closes with the light cone and null vectors,
+where we derive the explicit formula that maps a pixel on the rendered image to
+a photon four-momentum --- the initial data for every ray trace.
+
 Readers comfortable with special relativity may wish to skim this chapter for
 notation and proceed to \cref{ch:differential-geometry}, where we generalise
 to curved spacetime.  But the tetrad construction in \cref{sec:sr-lorentz} and

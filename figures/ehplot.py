@@ -21,6 +21,9 @@ from pathlib import Path
 _style_path = Path(__file__).parent / "ehbook.mplstyle"
 plt.style.use(str(_style_path))
 
+# Use LuaLaTeX (matches ehbook.cls; XeTeX default can't find all fonts)
+matplotlib.rcParams["pgf.texsystem"] = "lualatex"
+
 # pgf preamble: load fonts via fontspec to match ehbook.cls
 matplotlib.rcParams["pgf.preamble"] = "\n".join([
     r"\usepackage{fontspec}",

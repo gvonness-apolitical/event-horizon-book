@@ -1,0 +1,235 @@
+% sec:dg-metric — The Metric Tensor and Index Operations
+\section{The Metric Tensor and Index Operations}
+\label{sec:dg-metric}
+
+To trace a photon near a black hole, the ray tracer must answer geometric
+questions at every integration step: how far apart are two nearby rays?  How
+much proper time elapses between events along a timelike worldline?  Is a
+given displacement timelike, null, or spacelike?  The tangent-space machinery
+from \cref{sec:dg-manifolds} cannot answer any of these --- the spaces
+$T_p\mathcal{M}$ and $T^*_p\mathcal{M}$ carry no notion of length, angle,
+or distance.  What is missing is an inner product on each tangent space: the
+metric tensor.
+\coderef{Math.Tensor.Symmetric}{Sym4}
+
+\paragraph{The metric tensor.}
+
+A \emph{metric tensor} $\metric$ at a point $p$ is a symmetric,
+non-degenerate bilinear form on $T_p\mathcal{M}$.  In local coordinates
+$x^\mu$, where $V = V^\mu\,\pd{\mu}$ and $W = W^\mu\,\pd{\mu}$, its action
+takes the component form
+%
+\begin{equation}
+  g(V, W) = \metric\, V^\mu\, W^\nu \,.
+  \label{eq:metric-bilinear}
+\end{equation}
+%
+Symmetry means $g_{\mu\nu} = g_{\nu\mu}$, so in four dimensions the metric has
+$4 \times 5 / 2 = 10$ independent components rather than 16.  Non-degeneracy
+means the determinant $g = \det(\metric)$ is non-zero everywhere --- no
+tangent vector is ``invisible'' to the metric.  In short, the metric is the
+curved-spacetime generalisation of the dot product: it assigns a ``size'' to
+displacements and an ``angle'' between directions.
+
+\begin{definition}[Metric tensor]
+\label{def:metric-tensor}
+A \emph{Lorentzian metric} on a smooth manifold $\mathcal{M}$ is a smooth
+assignment $p \mapsto g_p$ of a symmetric, non-degenerate bilinear form of
+signature $(-,+,+,+)$ to each tangent space $T_p\mathcal{M}$.  The pair
+$(\mathcal{M}, g)$ is a \emph{Lorentzian manifold} --- the mathematical arena
+for general relativity.
+\end{definition}
+
+\implnote{The codebase represents the metric as \texttt{Sym4 'Covariant},
+storing exactly 10 independent components.  The constructor
+\texttt{sym4Diag (-1) 1 1 1 :: Sym4 'Covariant} produces the Minkowski
+metric in Cartesian coordinates.}
+
+\paragraph{The line element.}
+
+The metric's most direct physical expression is the \emph{line element},
+which assigns a squared interval to an infinitesimal coordinate displacement
+$\d x^\mu$:
+%
+\begin{equation}
+  \d s^2 = \metric\,\d x^\mu\,\d x^\nu \,.
+  \label{eq:line-element}
+\end{equation}
+%
+This is a compact notation for a double sum over $\mu$ and $\nu$ from 0 to 3,
+with the Einstein convention summing over both repeated index pairs.  For the
+Minkowski metric $\eta_{\mu\nu} = \operatorname{diag}(-1,+1,+1,+1)$ from
+\cref{sec:sr-minkowski}, the line element reduces to
+$\d s^2 = -\d t^2 + \d x^2 + \d y^2 + \d z^2$ --- the interval that
+underpinned all of \cref{ch:special-relativity}.  A general curved-spacetime
+metric replaces these constant coefficients with functions of the coordinates.
+\physnote{For a timelike displacement ($\d s^2 < 0$), the proper time is
+$\d\tau = \sqrt{-\d s^2}$.  For a spacelike displacement ($\d s^2 > 0$),
+$\d s$ is the proper distance.  Null displacements have $\d s^2 = 0$ exactly.}
+
+\paragraph{Signature and causal character.}
+
+The single minus sign in the signature $(-,+,+,+)$ is what makes spacetime
+\emph{spacetime} rather than a four-dimensional Riemannian manifold.  At each
+point $p$, the metric divides tangent vectors into three classes by the sign of
+$g(V, V) = \metric\, V^\mu\, V^\nu$:
+%
+\begin{equation}
+  g(V, V) \;\begin{cases}
+    < 0 & \text{timelike} \\
+    = 0 & \text{null (lightlike)} \\
+    > 0 & \text{spacelike}
+  \end{cases}
+  \label{eq:causal-character}
+\end{equation}
+%
+This classification is coordinate-independent --- it depends on the metric and
+the vector, not on the chart.  The causal structure introduced in
+\cref{sec:sr-causal} for flat spacetime now extends to every point on the
+manifold: each tangent space carries its own light cone, and the metric
+determines its shape.
+\xrefnote{The light cone at each point was introduced in
+\cref{sec:sr-causal}; in curved spacetime, these cones tilt and deform from
+point to point.}
+
+\paragraph{Index lowering and raising.}
+
+The metric provides the canonical map between vectors and covectors that
+\cref{sec:dg-manifolds} noted was missing from the bare tangent-space
+framework.  Given a tangent vector $V^\mu$, we define its \emph{associated
+one-form} by
+%
+\begin{equation}
+  V_\mu = \metric\, V^\nu \,.
+  \label{eq:index-lower}
+\end{equation}
+%
+This operation is called \emph{lowering an index}, and it maps
+$T_p\mathcal{M} \to T^*_p\mathcal{M}$.  The inverse operation,
+\emph{raising an index}, requires the inverse metric $\inversemetric$
+(defined below):
+%
+\begin{equation}
+  V^\mu = \inversemetric\, V_\nu \,.
+  \label{eq:index-raise}
+\end{equation}
+%
+Together, these two operations constitute the \emph{musical isomorphism} ---
+lowering is denoted $\flat$ and raising $\sharp$ in differential-geometric
+notation.  Non-degeneracy of the metric guarantees that the map is an
+isomorphism: every vector has a unique associated covector, and vice versa.
+\coderef{Math.Tensor.Operations}{lower4}
+
+\warnnote{Lowering and raising change the object's type: $V^\mu$ lives in
+$T_p\mathcal{M}$, while $V_\mu$ lives in $T^*_p\mathcal{M}$.  Even for the
+Minkowski metric, the components differ: if $V^\mu = (E, p^x, p^y, p^z)$
+then $V_\mu = (-E, p^x, p^y, p^z)$.}
+
+\paragraph{The inverse metric.}
+
+The \emph{inverse metric} $\inversemetric$ is defined by the condition
+%
+\begin{equation}
+  g^{\mu\alpha}\, g_{\alpha\nu} = \delta^\mu{}_\nu \,,
+  \label{eq:inverse-metric}
+\end{equation}
+%
+where $\delta^\mu{}_\nu$ is the Kronecker delta.  Since $\metric$ is
+non-degenerate, the matrix $(g_{\mu\nu})$ is invertible, and $\inversemetric$
+is its matrix inverse.  The inverse metric is itself a symmetric $(2,0)$
+tensor --- it takes two one-forms and produces a number:
+%
+\begin{equation}
+  g^{-1}(\omega, \sigma) = \inversemetric\,\omega_\mu\,\sigma_\nu \,.
+  \label{eq:inverse-metric-bilinear}
+\end{equation}
+%
+This is the inner product on the cotangent space, dual to the metric's inner
+product on the tangent space.  We will use $\inversemetric$ repeatedly in later
+chapters: in the geodesic Hamiltonian, it converts the covariant momentum
+$p_\mu$ into the contravariant velocity $\dot{x}^\mu$.
+\coderef{Math.Tensor.Operations}{inverseSym4}
+\histnote{The index-manipulation calculus was developed by Gregorio
+Ricci-Curbastro and Tullio Levi-Civita in 1900; Einstein adopted it for
+general relativity and popularised the summation convention.}
+
+\implnote{The function \texttt{inverseSym4} computes the inverse by cofactor
+expansion, returning a \texttt{Sym4 'Contravariant}.  The variance flip from
+\texttt{'Covariant} to \texttt{'Contravariant} is enforced by the type
+signature --- passing a contravariant metric to this function produces a
+compile-time error.}
+
+\paragraph{A worked example: the two-sphere.}
+
+Before tackling the full four-dimensional Lorentzian case, a two-dimensional
+Riemannian example makes the mechanics of index operations concrete and
+calculable by hand.  Consider the two-sphere $S^2$ of radius $R$, parametrised
+by coordinates $(\theta, \varphi)$ with $\theta \in (0, \pi)$ and
+$\varphi \in (0, 2\pi)$.  The metric is
+%
+\begin{equation}
+  \d s^2 = R^2\,\d\theta^2 + R^2\sin^2\!\theta\;\d\varphi^2 \,,
+  \label{eq:sphere-metric}
+\end{equation}
+%
+so the metric components are $g_{\theta\theta} = R^2$,
+$g_{\varphi\varphi} = R^2\sin^2\!\theta$, and $g_{\theta\varphi} = 0$.  As
+with any coordinate chart on $S^2$, this one fails to cover the entire sphere
+--- the determinant $g = R^4\sin^2\!\theta$ vanishes at the poles
+$\theta = 0, \pi$, which is a coordinate singularity, not a geometric one.
+The inverse metric has components $g^{\theta\theta} = 1/R^2$ and
+$g^{\varphi\varphi} = 1/(R^2\sin^2\!\theta)$.
+
+To see index raising in action, take a covector with components
+$\omega_\theta = 0$, $\omega_\varphi = 1$.  Raising the index gives the
+vector $\omega^\sharp$ with components
+%
+\begin{equation}
+  \omega^\theta = g^{\theta\theta}\,\omega_\theta +
+    g^{\theta\varphi}\,\omega_\varphi = 0 \,,\qquad
+  \omega^\varphi = g^{\varphi\varphi}\,\omega_\varphi =
+    \frac{1}{R^2\sin^2\!\theta} \,.
+  \label{eq:sphere-raise-example}
+\end{equation}
+%
+The raised component $\omega^\varphi$ depends on $\theta$: near the poles,
+where $\sin\theta \to 0$, the same covector corresponds to a vector with
+diverging contravariant component.  This reflects the coordinate singularity,
+not any physical pathology --- the covector $\omega$ and the vector
+$\omega^\sharp$ represent the same geometric object expressed in different
+index positions.
+
+\paragraph{From flat to curved.}
+
+The Minkowski metric $\eta_{\mu\nu}$ from \cref{sec:sr-minkowski} is the
+special case where the metric components are constants: the same diagonal
+$(-1, +1, +1, +1)$ at every point.  In that setting, raising and lowering
+merely flip the sign on the time component and leave spatial components
+unchanged.  A general curved-spacetime metric $\metric$ can have all ten
+components varying from point to point, encoding gravitational effects through
+the geometry itself.
+\xrefnote{The Schwarzschild metric, the first curved-spacetime metric we study
+in detail, appears in \cref{ch:schwarzschild}.}
+
+As a preview, the line element for a Schwarzschild black hole of mass $M$
+reads
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{2M}{r}\right)\d t^2
+    + \left(1 - \frac{2M}{r}\right)^{\!-1}\!\d r^2
+    + r^2\,\d\theta^2
+    + r^2\sin^2\!\theta\;\d\varphi^2 \,,
+  \label{eq:schwarzschild-preview}
+\end{equation}
+%
+in coordinates $(t, r, \theta, \varphi)$ with geometric units $G = c = 1$.
+The position-dependent coefficients encode the gravitational field: they
+approach the Minkowski values at large $r$ and develop a coordinate singularity
+at $r = 2M$ that coincides with the event horizon --- a genuine causal boundary
+that requires horizon-penetrating coordinates to resolve.
+
+The metric tensor connects the tangent-space framework to measurable physics.
+Distances, proper times, angles, volumes, and the causal structure all follow
+from $\metric$ and its inverse.  The next section introduces the derivative
+operator that respects this structure: the covariant derivative, built from the
+metric via the Christoffel symbols.

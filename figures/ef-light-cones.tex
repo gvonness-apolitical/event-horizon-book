@@ -1,0 +1,164 @@
+% ef-light-cones.tex — Light cones in Schwarzschild and ingoing EF coordinates
+% Inputable TikZ fragment for fig:ef-light-cones
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Two-panel comparison showing how light cones tilt at the event horizon.
+% Panel (a): Schwarzschild (r, t) — symmetric cones pinching at r=2M.
+% Panel (b): Ingoing EF (r, v)  — ingoing edge horizontal, outgoing tilts inward.
+%
+% Physics (M=1): null directions from ds²=0.
+%   (a) dt/dr = ±1/(1−2/r).  Symmetric about time axis.
+%   (b) Ingoing: dv=0.  Outgoing: dv/dr = 2/(1−2/r).
+%
+% Scales: s_r = 0.7 cm/M, s_t = s_v = 0.35 cm/M.  Arm length L = 0.35 cm.
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Panel (a): Schwarzschild coordinates ───────────────────────────
+
+  \begin{scope}[shift={(0,0)}]
+
+    % Axis lengths
+    \def\rmin{0.5}    % left edge in cm (r ≈ 0.7M)
+    \def\rmax{3.5}    % right edge in cm (r ≈ 5M)
+    \def\tmax{2.6}    % top of t axis
+
+    % Horizon position: r=2M → x = 2×0.7 = 1.4 cm
+    \def\rh{1.4}
+
+    % Gray shaded strip for r < 2M (coordinates undefined)
+    \fill[EHMarginGray, opacity=0.06]
+      (0, -0.3) rectangle (\rh, \tmax);
+
+    % Horizon line
+    \draw[EHHorizonCrimson, dashed, thick]
+      (\rh, -0.3) -- (\rh, \tmax)
+      node[above, font=\scriptsize, text=EHHorizonCrimson] {$r = 2M$};
+
+    % Axes
+    \draw[->, EHMarginGray, thin] (-0.15, 0) -- (\rmax, 0)
+      node[right, font=\scriptsize] {$r$};
+    \draw[->, EHMarginGray, thin] (0, -0.15) -- (0, \tmax)
+      node[above, font=\scriptsize] {$t$};
+
+    % ── Light cones ──────────────────────────────────────────────────
+    % Each cone: filled triangle with base at (r, 0), edges ±(Δx, Δy).
+    % Pre-computed from plan: dt/dr = ±1/f, f = 1−2/r, arm length 0.35 cm.
+
+    % r = 4.2M → x = 2.94
+    \fill[EHAccretionGold, opacity=0.15]
+      (2.94, 0) -- ++(0.253, 0.242) -- ++(-0.506, 0) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (2.94, 0) -- ++(0.253, 0.242)  (2.94, 0) -- ++(-0.253, 0.242);
+    \fill[EHAccretionGold] (2.94, 0) circle (1.2pt);
+
+    % r = 3.2M → x = 2.24
+    \fill[EHAccretionGold, opacity=0.15]
+      (2.24, 0) -- ++(0.210, 0.280) -- ++(-0.420, 0) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (2.24, 0) -- ++(0.210, 0.280)  (2.24, 0) -- ++(-0.210, 0.280);
+    \fill[EHAccretionGold] (2.24, 0) circle (1.2pt);
+
+    % r = 2.6M → x = 1.82
+    \fill[EHAccretionGold, opacity=0.15]
+      (1.82, 0) -- ++(0.147, 0.318) -- ++(-0.294, 0) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (1.82, 0) -- ++(0.147, 0.318)  (1.82, 0) -- ++(-0.147, 0.318);
+    \fill[EHAccretionGold] (1.82, 0) circle (1.2pt);
+
+    % r = 2.2M → x = 1.54
+    \fill[EHAccretionGold, opacity=0.15]
+      (1.54, 0) -- ++(0.063, 0.344) -- ++(-0.126, 0) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (1.54, 0) -- ++(0.063, 0.344)  (1.54, 0) -- ++(-0.063, 0.344);
+    \fill[EHAccretionGold] (1.54, 0) circle (1.2pt);
+
+    % Panel label
+    \node[font=\scriptsize, anchor=north] at (1.75, -0.55) {(a) Schwarzschild};
+
+  \end{scope}
+
+  % ── Panel (b): Ingoing Eddington–Finkelstein coordinates ──────────
+
+  \begin{scope}[shift={(5.0, 0)}]
+
+    % Axis lengths
+    \def\rmin{0.2}
+    \def\rmax{3.5}
+    \def\vmax{2.6}
+
+    % Horizon position: r=2M → x = 1.4 cm
+    \def\rh{1.4}
+
+    % Horizon line
+    \draw[EHHorizonCrimson, dashed, thick]
+      (\rh, -0.3) -- (\rh, \vmax)
+      node[above, font=\scriptsize, text=EHHorizonCrimson] {$r = 2M$};
+
+    % Axes
+    \draw[->, EHMarginGray, thin] (-0.15, 0) -- (\rmax, 0)
+      node[right, font=\scriptsize] {$r$};
+    \draw[->, EHMarginGray, thin] (0, -0.15) -- (0, \vmax)
+      node[above, font=\scriptsize] {$v$};
+
+    % ── Light cones ──────────────────────────────────────────────────
+    % Ingoing edge: dv=0, always (−0.35, 0) — horizontal pointing left.
+    % Outgoing edge: dv/dr = 2/(1−2/r), pre-computed per plan.
+
+    % r = 4.2M → x = 2.94
+    \fill[EHAccretionGold, opacity=0.15]
+      (2.94, 0) -- ++(-0.350, 0) -- ++(0.513, 0.310) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (2.94, 0) -- ++(-0.350, 0)  (2.94, 0) -- ++(0.163, 0.310);
+    \fill[EHAccretionGold] (2.94, 0) circle (1.2pt);
+
+    % r = 3.2M → x = 2.24
+    \fill[EHAccretionGold, opacity=0.15]
+      (2.24, 0) -- ++(-0.350, 0) -- ++(0.473, 0.328) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (2.24, 0) -- ++(-0.350, 0)  (2.24, 0) -- ++(0.123, 0.328);
+    \fill[EHAccretionGold] (2.24, 0) circle (1.2pt);
+
+    % r = 2.6M → x = 1.82
+    \fill[EHAccretionGold, opacity=0.15]
+      (1.82, 0) -- ++(-0.350, 0) -- ++(0.429, 0.341) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (1.82, 0) -- ++(-0.350, 0)  (1.82, 0) -- ++(0.079, 0.341);
+    \fill[EHAccretionGold] (1.82, 0) circle (1.2pt);
+
+    % r = 2.0M → x = 1.40 (at the horizon — outgoing is vertical)
+    \fill[EHAccretionGold, opacity=0.15]
+      (1.40, 0) -- ++(-0.350, 0) -- ++(0.350, 0.350) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (1.40, 0) -- ++(-0.350, 0)  (1.40, 0) -- ++(0, 0.350);
+    \fill[EHAccretionGold] (1.40, 0) circle (1.2pt);
+
+    % r = 1.5M → x = 1.05 (inside — outgoing tilts inward)
+    \fill[EHAccretionGold, opacity=0.15]
+      (1.05, 0) -- ++(-0.350, 0) -- ++(0.239, 0.332) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (1.05, 0) -- ++(-0.350, 0)  (1.05, 0) -- ++(-0.111, 0.332);
+    \fill[EHAccretionGold] (1.05, 0) circle (1.2pt);
+
+    % r = 1.0M → x = 0.70 (deep inside — both edges point left)
+    \fill[EHAccretionGold, opacity=0.15]
+      (0.70, 0) -- ++(-0.350, 0) -- ++(0.103, 0.247) -- cycle;
+    \draw[EHAccretionGold, thick]
+      (0.70, 0) -- ++(-0.350, 0)  (0.70, 0) -- ++(-0.247, 0.247);
+    \fill[EHAccretionGold] (0.70, 0) circle (1.2pt);
+
+    % Annotation: arrow showing both edges point to smaller r
+    \draw[EHMarginGray, thin, ->]
+      (0.25, 0.85) -- ++(-0.20, 0)
+      node[left, font=\scriptsize, text=EHMarginGray, align=right]
+      {both edges\\[-1pt]point inward};
+
+    % Panel label
+    \node[font=\scriptsize, anchor=north] at (1.75, -0.55) {(b) Eddington--Finkelstein};
+
+  \end{scope}
+
+\end{tikzpicture}

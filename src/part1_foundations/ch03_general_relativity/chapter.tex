@@ -7,33 +7,14 @@ equations and their physical content. We discuss the stress-energy tensor, the
 weak-field limit that recovers Newtonian gravity, and survey the exact
 solutions that the codebase implements.
 
-\section{The Einstein Field Equations}
-\label{sec:gr-efe}
+% ---- Drafted sections ----
+\input{part1_foundations/ch03_general_relativity/gr-efe}
 
-We motivate and state the Einstein equations $G_{\mu\nu} = 8\pi T_{\mu\nu}$,
-discuss their structure as second-order PDEs for the metric, and outline the
-role of the Bianchi identity in enforcing energy-momentum conservation.
+\input{part1_foundations/ch03_general_relativity/gr-stress-energy}
 
-\section{Stress-Energy and Matter Coupling}
-\label{sec:gr-stress-energy}
+\input{part1_foundations/ch03_general_relativity/gr-weak-field}
 
-We define the stress-energy tensor for a perfect fluid and for the
-electromagnetic field, showing how matter sources enter the field equations.
-
-\section{The Weak-Field Limit}
-\label{sec:gr-weak-field}
-
-We linearise the Einstein equations around flat spacetime, recover the
-Newtonian potential, and derive the gravitational redshift---an effect visible
-in the ray tracer's output.
-
-\section{Exact Solutions: An Overview}
-\label{sec:gr-exact-solutions}
-\coderef{Spacetime}{Class}
-
-We survey the exact solutions implemented in the codebase---Schwarzschild,
-Kerr, and Morris-Thorne---motivating the detailed treatments in the following
-chapters.
+\input{part1_foundations/ch03_general_relativity/gr-exact-solutions}
 
 \paragraph{Key References.}
 The field-equation derivation follows \cite{Carroll2004}; the exact-solutions

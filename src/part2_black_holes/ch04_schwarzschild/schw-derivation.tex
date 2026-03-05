@@ -1,0 +1,207 @@
+% sec:schw-derivation — Derivation and Birkhoff's Theorem
+\section{Derivation and Birkhoff's Theorem}
+\label{sec:schw-derivation}
+
+The overview in \cref{sec:gr-exact-solutions} stated the Schwarzschild
+metric as a fait accompli; this section shows where it comes from.  The
+derivation is instructive beyond its result: spherical symmetry and the
+vacuum equations are so constraining that they determine the metric up
+to a single parameter --- the mass.  We need not even assume that the
+spacetime is static; the Einstein equations enforce staticity on their
+own.
+
+\paragraph{The spherically symmetric ansatz.}
+
+A spacetime is spherically symmetric when the rotation group $SO(3)$
+acts on it by isometries, with each orbit a two-sphere.  The most
+general metric compatible with this symmetry can be written
+\cite{Carroll2004}
+%
+\begin{equation}
+  \d s^2 = -e^{2\alpha(t,r)}\,\d t^2
+           + e^{2\beta(t,r)}\,\d r^2
+           + r^2\!\left(\d\theta^2
+             + \sin^2\!\theta\;\d\varphi^2\right) ,
+  \label{eq:schw-ansatz}
+\end{equation}
+%
+where $\alpha(t,r)$ and $\beta(t,r)$ are two unknown functions and $r$
+is the \emph{areal radius}: the area of each symmetry two-sphere is
+$4\pi r^2$ by construction.
+\physnote{Defining $r$ so that the angular part is
+$r^2\,\d\Omega^2$ is a gauge choice --- it fixes what we mean by the
+radial coordinate without loss of generality.}
+The exponential parametrisation keeps the metric components manifestly
+nonzero and simplifies the Ricci-tensor algebra.  Note that $\alpha$
+and $\beta$ are allowed to depend on both $t$ and $r$ --- we are not
+assuming time-independence.  The metric therefore describes a
+two-parameter family of geometries; the vacuum equations will reduce
+those two functions to a single constant.
+
+\paragraph{Solving the vacuum equations.}
+
+The vacuum condition $\ricci = 0$ (\cref{eq:vacuum-efe}) supplies ten
+equations, but spherical symmetry reduces them to four independent
+components.  Computing the Christoffel symbols from
+\cref{eq:schw-ansatz} and contracting --- a mechanical but lengthy
+calculation --- gives the off-diagonal Ricci component
+%
+\begin{equation}
+  R_{tr} = \frac{2\,\dot{\beta}}{r} \,,
+  \label{eq:schw-ricci-tr}
+\end{equation}
+%
+where an overdot denotes $\partial/\partial t$.  Setting
+$R_{tr} = 0$ immediately yields $\dot{\beta} = 0$, so
+$\beta = \beta(r)$ --- the function $\beta$ cannot depend on time.
+\physnote{This is the first sign of Birkhoff's theorem: one of the
+two metric functions is forced to be time-independent before we
+touch the diagonal equations.}
+
+With $\dot{\beta} = 0$, the remaining time-derivative terms ---
+which enter $R_{tt}$ and $R_{rr}$ only through $\dot{\beta}$ and
+$\ddot{\beta}$ --- vanish identically, leaving three diagonal
+equations involving only radial derivatives (primes denote
+$\partial/\partial r$).  The key structural feature is that $R_{tt}$
+and $R_{rr}$ share the same second-order content, differing only
+in sign and in their $1/r$ terms:
+%
+\begin{align}
+  R_{tt} &= e^{2(\alpha-\beta)}\!\left[
+    \alpha'' + {\alpha'}^{2} - \alpha'\beta'
+    + \frac{2\alpha'}{r}\right] ,
+  \label{eq:schw-ricci-tt} \\[4pt]
+  R_{rr} &= -\alpha'' - {\alpha'}^{2} + \alpha'\beta'
+    + \frac{2\beta'}{r} \,,
+  \label{eq:schw-ricci-rr} \\[4pt]
+  R_{\theta\theta} &= e^{-2\beta}\bigl[
+    r\!\left(\beta' - \alpha'\right) - 1\bigr] + 1 \,.
+  \label{eq:schw-ricci-thth}
+\end{align}
+%
+The fourth component $R_{\varphi\varphi} =
+\sin^2\!\theta\;R_{\theta\theta}$ is proportional and carries no
+new information.
+
+\paragraph{Relating $\alpha$ and $\beta$.}
+
+The expressions for $R_{tt}$ and $R_{rr}$ look unwieldy, but a
+well-chosen linear combination cancels almost everything:
+%
+\begin{equation}
+  e^{2(\beta-\alpha)} R_{tt} + R_{rr}
+  = \frac{2}{r}\!\left(\alpha' + \beta'\right) = 0 \,.
+  \label{eq:schw-alpha-beta-sum}
+\end{equation}
+%
+This forces $\alpha' = -\beta'$, and hence $\alpha(t,r) = -\beta(r) +
+f(t)$ for some function $f$ of time alone.  The residual function
+$f(t)$ enters only through $e^{2\alpha}\,\d t^2 = e^{-2\beta +
+2f(t)}\,\d t^2$; redefining the time coordinate via $\d\bar{t} =
+e^{f(t)}\,\d t$ sets $\alpha = -\beta$.  Relabelling $\bar{t} \to t$,
+neither metric function depends on $t$, and no $\d t\,\d r$
+cross-term appears: the metric is static.  We didn't assume
+staticity --- the vacuum equations demanded it.
+
+\paragraph{Integrating the angular equation.}
+
+With $\alpha = -\beta$, the angular equation $R_{\theta\theta} = 0$
+reduces to
+%
+\begin{equation}
+  e^{-2\beta}\!\left(1 - 2r\beta'\right) = 1 \,.
+  \label{eq:schw-ode}
+\end{equation}
+%
+Expanding the derivative $\frac{\d}{\d r}\bigl[r\,e^{-2\beta}\bigr]
+= e^{-2\beta}(1 - 2r\beta')$ shows that \cref{eq:schw-ode} is
+equivalent to $\frac{\d}{\d r}\bigl[r\,e^{-2\beta}\bigr] = 1$.
+Integrating once gives
+%
+\begin{equation}
+  e^{-2\beta(r)} = 1 - \frac{C}{r} \,,
+  \label{eq:schw-e2beta}
+\end{equation}
+%
+where $C$ is a constant of integration.  Since $e^{2\alpha} =
+e^{-2\beta}$, the full line element becomes
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{C}{r}\right)\d t^2
+           + \left(1 - \frac{C}{r}\right)^{\!-1}\d r^2
+           + r^2\!\left(\d\theta^2
+             + \sin^2\!\theta\;\d\varphi^2\right) .
+  \label{eq:schw-derived}
+\end{equation}
+%
+Substituting \cref{eq:schw-e2beta} into $R_{tt} = 0$ yields an
+identity: the contracted Bianchi identity guarantees that the
+remaining component is automatically satisfied once the other three
+vanish.
+
+\paragraph{Identifying the mass.}
+
+The integration constant $C$ acquires physical meaning from the
+weak-field limit.  At large $r$ the metric should reproduce Newtonian
+gravity, where $g_{00} \approx -(1 + 2\Phi)$ with $\Phi = -M/r$ the
+gravitational potential (\cref{eq:g00-potential}).  Matching gives
+$C = 2M$, and \cref{eq:schw-derived} reduces to
+\cref{eq:schwarzschild-metric}.  The entire geometry
+of a spherically symmetric vacuum is encoded in a single number: the
+mass~$M$.
+\xrefnote{The weak-field identification of $M$ as the Newtonian mass
+is developed in \cref{sec:gr-weak-field}.}
+
+\paragraph{Birkhoff's theorem.}
+
+The observation that the vacuum equations force staticity without it
+being assumed is sufficiently important to state as a theorem.
+
+\begin{theorem}[Birkhoff, 1923]\label{thm:birkhoff}
+Every spherically symmetric solution of the vacuum Einstein equations
+is static and isometric to the Schwarzschild metric
+\eqref{eq:schw-derived}.
+\end{theorem}
+
+The proof is the derivation above: $R_{tr} = 0$ eliminates time
+dependence in $\beta$; the combination
+\eqref{eq:schw-alpha-beta-sum} ties $\alpha$ to $-\beta$ up to a
+function of $t$ alone; and a time-coordinate redefinition removes that
+function \cite{Carroll2004,Wald1984}.
+\histnote{Birkhoff published this result in 1923
+\cite{Birkhoff1923}, though Jebsen obtained the same conclusion
+two years earlier.  The theorem is sometimes called the
+Jebsen--Birkhoff theorem.}
+
+The physical content is the gravitational analogue of Newton's shell
+theorem.  A spherically symmetric star can pulsate, oscillate, or
+undergo gravitational collapse, and provided it retains its symmetry,
+the external field is unchanged --- it remains the Schwarzschild
+geometry with the same $M$.
+\physnote{Birkhoff's theorem forbids monopole gravitational radiation;
+dipole radiation is separately forbidden by momentum conservation.
+The lowest multipole that can radiate gravitationally is the
+quadrupole.}
+For the ray tracer, this means that photon trajectories outside a
+collapsing spherical star are identical to those around a static black
+hole of the same mass --- the dynamics of the interior are invisible
+to external observers.
+
+\paragraph{Scope and limitations.}
+
+The solution has two singular surfaces: $r = 0$ and $r = 2M$.
+To distinguish a genuine singularity from a coordinate artefact,
+we need a quantity that all observers agree on --- a curvature
+scalar.  The simplest is the Kretschmann scalar
+$R_{\alpha\beta\gamma\delta}R^{\alpha\beta\gamma\delta}$, which for
+the Schwarzschild metric evaluates to $48M^2/r^6$.  This diverges
+at $r = 0$: the singularity there is genuine.  The singularity at $r = 2M$ is a coordinate artefact:
+all curvature invariants are finite, and a freely falling observer
+crosses $r = 2M$ in finite proper time without experiencing anything
+locally dramatic.  Resolving this coordinate singularity --- and finding
+coordinates that the ray tracer can use smoothly across the horizon ---
+is the subject of the next two sections.
+\warnnote{The Schwarzschild solution with $M < 0$ has a naked
+singularity at $r = 0$ with no horizon.  Negative-mass solutions are
+unphysical but occasionally useful as stress tests for numerical
+codes.}

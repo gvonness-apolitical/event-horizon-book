@@ -2,45 +2,45 @@
 \chapter{The Schwarzschild Solution}
 \label{ch:schwarzschild}
 
-This chapter derives the unique spherically symmetric vacuum solution and
-explores its geometric structure. We pay special attention to the coordinate
-systems and characteristic radii that the ray tracer uses to set up initial
-conditions and detect termination events.
+\Cref{sec:gr-exact-solutions} presented the Schwarzschild line element as a
+finished product --- a metric and a type class instance handed to the ray
+tracer without derivation.  This chapter supplies the derivation.  Spherical
+symmetry and the vacuum field equations are so constraining that they
+determine the metric up to a single parameter, the mass~$M$; Birkhoff's
+theorem sharpens this by showing that staticity need not be assumed.  The
+result is the unique exterior geometry of any spherically symmetric
+gravitating body, whether a collapsing star or a static black hole.
 
-\section{Derivation and Birkhoff's Theorem}
-\label{sec:schw-derivation}
+The derived line element has a troublesome feature: its components diverge at
+$r = 2M$.  Three coordinate systems repair this singularity, each offering a
+different computational advantage.  Ingoing Eddington--Finkelstein coordinates
+replace Schwarzschild time with a null coordinate that remains finite at the
+horizon, revealing $r = 2M$ as a one-way membrane rather than a barrier.  The
+Kerr--Schild form recasts the full metric as flat Minkowski space plus a
+rank-one null correction --- giving the ray tracer a Cartesian,
+horizon-penetrating chart whose inverse costs nothing more than a sign flip.
+Kruskal--Szekeres coordinates then expose the complete causal structure,
+including the white hole and second asymptotic region that Schwarzschild
+coordinates conceal entirely.
 
-We derive the Schwarzschild metric from spherical symmetry and the vacuum
-Einstein equations, and state Birkhoff's theorem guaranteeing uniqueness.
+The chapter closes with an effective-potential analysis of geodesic orbits.
+Three characteristic radii --- the event horizon at $r = 2M$, the photon
+sphere at $r = 3M$, and the innermost stable circular orbit at $r = 6M$ ---
+emerge as critical points of this potential, and each serves as a termination
+or boundary condition in the geodesic integrator.  Every result here
+generalises to spinning black holes; the non-rotating case establishes the
+patterns that \cref{ch:kerr} extends.
 
-\section{Coordinate Systems and the Coordinate Singularity}
-\label{sec:schw-coordinates}
-\coderef{Spacetime}{Schwarzschild}
+% ---- Drafted sections ----
+\input{part2_black_holes/ch04_schwarzschild/schw-derivation}
 
-We distinguish the coordinate singularity at $r = 2M$ from the physical
-singularity at $r = 0$, and introduce Eddington-Finkelstein and other
-horizon-penetrating coordinates.
+\input{part2_black_holes/ch04_schwarzschild/schw-coordinates}
 
-\section{Kerr-Schild Form}
-\label{sec:schw-kerr-schild}
+\input{part2_black_holes/ch04_schwarzschild/schw-kerr-schild}
 
-We write the Schwarzschild metric in Kerr-Schild form, which is regular at
-the horizon and serves as the foundation for the codebase's default coordinate
-choice.
+\input{part2_black_holes/ch04_schwarzschild/schw-kruskal}
 
-\section{Kruskal-Szekeres and Penrose Diagrams}
-\label{sec:schw-kruskal}
-
-We construct the maximal analytic extension and use Penrose diagrams to
-visualise the global causal structure.
-
-\section{Event Horizon, Photon Sphere, and ISCO}
-\label{sec:schw-orbits}
-
-We derive the three characteristic radii---the event horizon at $r = 2M$, the
-photon sphere at $r = 3M$, and the innermost stable circular orbit at
-$r = 6M$---that govern the ray tracer's termination conditions and accretion
-disc models.
+\input{part2_black_holes/ch04_schwarzschild/schw-orbits}
 
 \paragraph{Key References.}
 The derivation follows \cite{Carroll2004}; Kerr-Schild coordinates are

@@ -1,0 +1,295 @@
+% sec:schw-kruskal — Kruskal–Szekeres and Penrose Diagrams
+\section{Kruskal--Szekeres and Penrose Diagrams}
+\label{sec:schw-kruskal}
+
+Neither Schwarzschild coordinates nor Eddington--Finkelstein coordinates
+cover the full geometry.  The ingoing patch sees the exterior and the
+black hole interior but misses the white hole; the outgoing patch sees
+the exterior and the white hole but misses the black hole interior.
+A natural question arises: is there more spacetime beyond what these
+coordinate systems reveal?  The answer matters even for the ray tracer,
+which operates only in the exterior --- understanding the global
+structure is what confirms that a photon crossing the horizon can never
+return.  To see the complete picture, we need coordinates that cover the
+\emph{maximal analytic extension} of the Schwarzschild spacetime.
+
+\paragraph{Kruskal--Szekeres coordinates.}
+
+The strategy is to combine the ingoing and outgoing null coordinates
+into a pair that is everywhere nonsingular.  Recall the advanced and
+retarded times from \cref{sec:schw-coordinates}:
+$v = t + r_*$ and $u = t - r_*$, where $r_*$ is the tortoise coordinate
+(\cref{eq:tortoise}).  In terms of $u$ and $v$, the Schwarzschild line
+element outside the horizon becomes
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{2M}{r}\right)\d u\,\d v
+           + r^2\,\d\Omega^2 \,,
+  \label{eq:ks-double-null}
+\end{equation}
+%
+where $r$ is determined implicitly by $v - u = 2r_*$.  The prefactor
+$(1 - 2M/r)$ still vanishes at the horizon.  To remove it, define
+%
+\begin{equation}
+  U = -e^{-u/4M} \,, \qquad V = e^{v/4M} \,.
+  \label{eq:ks-UV-def}
+\end{equation}
+%
+These are simply exponential rescalings of the null coordinates,
+chosen so that the $1/4M$ in the exponent cancels the $4M$ that
+appears when differentiating the tortoise coordinate.  Differentiating
+gives $\d U = (4M)^{-1}\,e^{-u/4M}\,\d u$ and
+$\d V = (4M)^{-1}\,e^{v/4M}\,\d v$, so
+$\d U\,\d V = (4M)^{-2}\,e^{(v-u)/4M}\,\d u\,\d v$.
+The product of the exponentials is
+%
+\begin{equation}
+  UV = -e^{(v-u)/4M} = -e^{r_*/2M}
+     = -e^{r/2M}\!\left(\frac{r}{2M} - 1\right) ,
+  \label{eq:ks-UV-product}
+\end{equation}
+%
+where the last step substitutes the definition of $r_*$
+(\cref{eq:tortoise}) and is valid for $r > 2M$.  The right-hand
+side of \cref{eq:ks-UV-product} is smooth for all $r > 0$, so we
+adopt it as the implicit definition of $r(U,V)$ on the full
+extension.  The key identity is that the zero of $(1 - 2M/r)$
+at the horizon is matched by a zero of $UV$: the exponential
+rescaling converts a singular coordinate factor into a smooth
+conformal prefactor.
+
+Rearranging, $e^{(v-u)/4M} = -UV$ and
+$(1 - 2M/r) = -(2M/r)\,UV\,e^{-r/2M}$.  Substituting into
+\cref{eq:ks-double-null} and collecting factors yields the
+Kruskal--Szekeres line element:
+%
+\begin{equation}
+  \d s^2 = -\frac{32M^3}{r}\,e^{-r/2M}\,\d U\,\d V
+           + r^2\,\d\Omega^2 \,,
+  \label{eq:ks-metric-null}
+\end{equation}
+%
+with $r(U,V)$ determined implicitly by \cref{eq:ks-UV-product}.
+The prefactor $32M^3\,e^{-r/2M}/r$ is strictly positive and finite
+for all $r > 0$: the coordinate singularity at $r = 2M$ has been
+removed entirely.  The only singularity left is the physical one at
+$r = 0$.
+\histnote{Kruskal and Szekeres independently discovered these
+coordinates in 1960 \cite{Kruskal1960,Szekeres1960};
+Fuller and Wheeler first analysed the maximal extension in
+detail \cite{FullerWheeler1962}.}
+
+For many purposes it is convenient to work with timelike and
+spacelike coordinates rather than the null pair $(U, V)$.
+Define
+%
+\begin{equation}
+  T = \tfrac{1}{2}(V + U) \,, \qquad
+  X = \tfrac{1}{2}(V - U) \,.
+  \label{eq:ks-TX-def}
+\end{equation}
+%
+The metric becomes
+%
+\begin{equation}
+  \d s^2 = \frac{32M^3}{r}\,e^{-r/2M}
+    \bigl({-}\d T^2 + \d X^2\bigr)
+    + r^2\,\d\Omega^2 \,,
+  \label{eq:ks-metric}
+\end{equation}
+%
+where $r$ is now defined implicitly by
+%
+\begin{equation}
+  X^2 - T^2 = \left(\frac{r}{2M} - 1\right)e^{r/2M} \,.
+  \label{eq:ks-r-implicit}
+\end{equation}
+%
+The conformal factor multiplying $(-\d T^2 + \d X^2)$ is positive
+for $r > 0$, so light cones in the $(T, X)$ plane make $45^\circ$
+angles everywhere --- precisely the feature that makes
+Kruskal--Szekeres coordinates valuable.  Causal structure is read
+off as easily as in Minkowski spacetime.
+\physnote{The $45^\circ$ light cones are not an accident.  The $(T, X)$
+block of the metric is conformally flat: a position-dependent rescaling
+of the two-dimensional Minkowski metric.  Conformal rescalings preserve
+causal structure.}
+
+\paragraph{The four regions.}
+
+Surfaces of constant $r$ satisfy $X^2 - T^2 = \text{const}$:
+they are hyperbolas in the $(T, X)$ plane.  The horizon $r = 2M$
+corresponds to $X^2 - T^2 = 0$, i.e.\ the pair of lines
+$T = \pm X$.  These two null lines divide the $(T, X)$ plane into
+four regions:
+%
+\begin{center}
+\begin{tabular}{cll}
+  \toprule
+  Region & Definition & Physical interpretation \\
+  \midrule
+  I   & $X > \abs{T}$ & Exterior (our universe) \\
+  II  & $T > \abs{X}$ & Black hole interior (future singularity) \\
+  III & $X < -\abs{T}$ & Second exterior (disconnected) \\
+  IV  & $T < -\abs{X}$ & White hole interior (past singularity) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+%
+Region~I is the familiar exterior covered by Schwarzschild coordinates
+with $t \in (-\infty, \infty)$.  Region~II is the black hole interior:
+every future-directed causal curve in this region reaches the
+singularity at $r = 0$.  In units where $2M = 1$, the singularity
+traces the hyperbolas $T = \pm\sqrt{X^2 + 1}$, bounding Regions~II
+and~IV respectively.  Region~III is a second asymptotically flat
+exterior,
+disconnected from Region~I --- no causal curve connects them.
+Region~IV is the time-reverse of Region~II: a white hole from which
+matter and light can emerge but never enter.
+\warnnote{Region~III is not the ``other side'' of the black hole in
+any traversable sense.  A traveller who crosses the future horizon from
+Region~I enters Region~II, not Region~III, and inevitably reaches the
+singularity.}
+
+Ingoing Eddington--Finkelstein coordinates
+(\cref{sec:schw-coordinates}) cover Regions~I and~II but not III
+or~IV.  Outgoing Eddington--Finkelstein coordinates
+(\cref{eq:ef-outgoing}) cover Regions~I and~IV.
+Kruskal--Szekeres coordinates are the only system among those
+we've constructed that covers all four regions simultaneously.
+
+\paragraph{Penrose diagrams.}
+
+Kruskal--Szekeres coordinates have a practical limitation: regions at
+$r \to \infty$ are pushed to $X \to \infty$, so the diagram extends
+infinitely in both directions.  A Penrose (or Carter--Penrose) diagram
+solves this by applying a further conformal compactification that maps
+the entire spacetime onto a finite region, while preserving the
+$45^\circ$ light cones that make causal structure visible.
+\histnote{Penrose introduced the conformal compactification technique
+in 1963 \cite{Penrose1963}; Carter independently developed the
+diagrammatic method for the Kerr family
+\cite{Carter1966}.}
+
+The construction begins with the null coordinates $(U, V)$.  Apply
+the compactification
+%
+\begin{equation}
+  \tilde{U} = \arctan U \,, \qquad
+  \tilde{V} = \arctan V \,,
+  \label{eq:penrose-compactify}
+\end{equation}
+%
+which maps $U, V \in (-\infty, \infty)$ to
+$\tilde{U}, \tilde{V} \in (-\pi/2, \pi/2)$.  The physical spacetime
+does not fill the full square
+$(\tilde{U}, \tilde{V}) \in (-\pi/2, \pi/2)^2$: the singularity at
+$r = 0$ corresponds to $UV = 1$, which defines the upper and lower
+boundaries of the diagram.  In the compactified coordinates, the metric
+takes the form $\d s^2 = \Omega^{-2}\,\d\tilde{s}^2$ for a smooth
+conformal factor $\Omega$ that vanishes at infinity.  The explicit form
+of $\Omega$ involves the Kruskal prefactor and the derivatives of the
+$\arctan$ maps; what matters for diagram construction is only that
+$\Omega > 0$ everywhere except at conformal infinity, where
+$\Omega \to 0$ defines the boundary.  The ``unphysical'' metric
+$\d\tilde{s}^2$ is the one actually drawn; since it differs from the
+physical metric by a strictly positive function, the causal structure
+--- which null curves are future-directed, which events can communicate
+--- is identical.
+
+%
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/penrose-schwarzschild}
+  \caption[Penrose diagram for the maximally extended Schwarzschild spacetime]{%
+    Penrose diagram for the maximally extended Schwarzschild spacetime.
+    The entire spacetime fits in a finite diamond; light rays travel at
+    $45^\circ$.  The future singularity (top, zigzag) bounds Region~II
+    (the black hole interior); the past singularity (bottom) bounds
+    Region~IV (the white hole).  The horizons (dashed diagonals) separate
+    the four regions.  Spatial infinity $i^0$, future/past timelike
+    infinity $i^\pm$, and future/past null infinity $\mathscr{I}^\pm$ are
+    marked at the boundary of each exterior region.  A timelike observer
+    (solid curve) in Region~I who crosses the future horizon inevitably
+    reaches the singularity; no causal curve connects Region~I to
+    Region~III.}
+  \label{fig:penrose-schwarzschild}
+\end{figure}
+
+The resulting diagram has a characteristic diamond shape.  Each of the
+four Kruskal--Szekeres regions occupies a triangular quadrant.  The two
+singularities at $r = 0$ are horizontal lines (conventionally drawn as
+zigzags) at the top and bottom of the diamond.  The horizons are the
+$45^\circ$ diagonals connecting the left and right vertices.  The
+boundary of the diamond represents conformal infinity.  Decomposing
+infinity into distinct pieces lets us state precisely where different
+classes of curves end up: massive particles reach timelike infinity,
+photons reach null infinity, and spacelike slices terminate at spatial
+infinity.  The five standard boundary components for each exterior
+region are:
+%
+\begin{itemize}
+  \item $i^0$ (spatial infinity): the right vertex, where $r \to \infty$
+    at fixed $t$.
+  \item $i^+$ and $i^-$ (future and past timelike infinity): the
+    endpoints of future/past-inextendible timelike curves in the
+    exterior region.
+  \item $\mathscr{I}^+$ and $\mathscr{I}^-$ (future and past null
+    infinity): where outgoing and ingoing light rays reach as
+    $r \to \infty$.
+\end{itemize}
+%
+\warnnote{The Penrose diagram is a $(1+1)$-dimensional projection:
+each point represents a two-sphere of area $4\pi r^2$.  The diagram
+faithfully represents radial causal structure but suppresses angular
+information.}
+
+\paragraph{Reading causal structure from the diagram.}
+
+The real power of the Penrose diagram is that causal relationships
+become geometric.  Two events can be connected by a causal (timelike or
+null) curve if and only if one lies inside the light cone of the other
+in the diagram.  Three consequences follow immediately:
+
+First, every future-directed causal curve from Region~II terminates at
+the future singularity.  The singularity is not a point in space that
+one can avoid by steering --- it lies in the future of every event in
+Region~II, like a moment in time that everything approaches.
+\physnote{Inside the black hole, $r$ becomes a timelike coordinate and
+$t$ a spacelike one.  The singularity at $r = 0$ is not a place but a
+\emph{time}: the future boundary of the black hole interior.}
+
+Second, no causal curve connects Region~I to Region~III.  To reach
+Region~III from Region~I, a future-directed causal curve would have to
+cross the future horizon into Region~II.  But once in Region~II, every
+future-directed causal curve terminates at the singularity $r = 0$ ---
+no path leads onward to Region~III.
+
+Third, the white hole Region~IV is the time-reverse of the black hole
+Region~II: matter can leave but not enter.  White holes are
+mathematically consistent but widely regarded as astrophysically
+irrelevant --- they are unstable under small perturbations and do not
+form in gravitational collapse.
+
+\paragraph{Relevance for the ray tracer.}
+
+The ray tracer operates in Region~I (and partially in Region~II for
+photons that cross the horizon before termination).  The maximal
+extension is therefore not directly needed for rendering.  Its value
+is conceptual: before this construction, it might seem that a photon
+hitting $r = 2M$ encounters a barrier.  The Kruskal--Szekeres and
+Penrose diagrams show the opposite: the horizon is an interior surface,
+and the true boundary is the spacelike singularity at $r = 0$.  This
+is why the codebase's termination condition tests $r < r_{\min}$ rather
+than $r \leq 2M$ --- crossing the horizon is unremarkable; approaching
+the singularity is where the physics (and the numerics) break down, as
+curvature invariants diverge and the integration loses accuracy.
+\xrefnote{The termination conditions and their numerical
+implementation are discussed in \cref{sec:schw-orbits}.}
+
+For the Kerr black hole, the causal structure is considerably richer:
+the maximal extension has an infinite chain of asymptotic regions
+connected by inner horizons, and the singularity is a ring rather
+than a point.  The Penrose diagram technique generalises directly,
+and we return to it in \cref{sec:kerr-horizons}.

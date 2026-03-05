@@ -2,46 +2,42 @@
 \chapter{Differential Geometry for General Relativity}
 \label{ch:differential-geometry}
 
-This chapter develops the differential-geometric machinery required to
-formulate general relativity. We move from the abstract definition of a
-manifold to the concrete tools---covariant derivatives, Christoffel symbols,
-and curvature tensors---that appear directly in the codebase's metric and
-geodesic modules.
+Special relativity gives us a geometry for flat spacetime, but the central
+lesson of general relativity is that gravity \emph{is} geometry: freely falling
+observers experience no gravitational force, and what we call gravity is the
+curvature of spacetime itself.  To describe this curvature --- and to trace
+photons through it --- we need a calculus that works on spaces where the metric
+varies from point to point, where partial derivatives no longer transform as
+tensors, and where the notion of a ``straight line'' must be replaced by
+something more subtle.
+
+The chapter builds this calculus in five steps.  We begin with the bare notion
+of a smooth manifold --- a space that looks locally like $\mathbb{R}^n$ but may
+curve globally --- and equip it with a metric tensor that defines distances,
+angles, and the causal structure inherited from \cref{ch:special-relativity}.
+The metric determines a unique derivative operator, the covariant derivative,
+whose connection coefficients appear explicitly in the codebase's metric
+modules.  With this derivative in hand, we define geodesics and recast them in
+the Hamiltonian form that the ray tracer integrates at every step.  The chapter
+culminates with the Riemann curvature tensor, which encodes how the geometry
+deviates from flatness and feeds directly into the Einstein field equations of
+\cref{ch:general-relativity}.
+
+The two-sphere $S^2$ serves as a running worked example: coordinates, metric,
+Christoffel symbols, geodesics, and curvature are all computed explicitly for
+this familiar geometry before the same tools are applied to four-dimensional
+spacetimes.  Readers comfortable with differential geometry but unfamiliar with
+our conventions may wish to start with \cref{sec:dg-metric} for notation and
+\cref{sec:dg-geodesic} for the Hamiltonian formulation that drives the
+integrator.
 
 % ---- Drafted sections ----
 \input{part1_foundations/ch02_differential_geometry/dg-manifolds}
 
-% ---- Stubs (to be drafted) ----
+\input{part1_foundations/ch02_differential_geometry/dg-metric}
 
-\section{The Metric Tensor and Index Operations}
-\label{sec:dg-metric}
-\coderef{Math.Tensor}{MetricTensor}
+\input{part1_foundations/ch02_differential_geometry/dg-covariant}
 
-We introduce the metric tensor as the object that defines distances, angles,
-and the musical isomorphism between vectors and one-forms.
+\input{part1_foundations/ch02_differential_geometry/dg-geodesic}
 
-\section{Covariant Derivatives and Christoffel Symbols}
-\label{sec:dg-covariant}
-\coderef{Math.Tensor}{Christoffel}
-
-We define the Levi-Civita connection, derive the Christoffel symbols from the
-metric, and show how covariant differentiation generalises partial
-differentiation to curved spaces.
-
-\section{The Geodesic Equation}
-\label{sec:dg-geodesic}
-
-We derive the geodesic equation from parallel transport and from the
-variational principle, connecting the geometry to the equations of motion
-integrated by the ray tracer.
-
-\section{Curvature Tensors}
-\label{sec:dg-curvature}
-
-We define the Riemann tensor via the commutator of covariant derivatives,
-contract it to obtain the Ricci tensor and scalar, and state the symmetries
-that reduce the number of independent components.
-
-\paragraph{Key References.}
-The presentation follows \cite{Carroll2004} and \cite{Wald1984}; notation
-conventions are consistent with \cite{MTW1973}.
+\input{part1_foundations/ch02_differential_geometry/dg-curvature}

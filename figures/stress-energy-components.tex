@@ -1,0 +1,132 @@
+% stress-energy-components.tex — 4×4 grid showing T^{μν} component roles
+% Inputable TikZ fragment for fig:stress-energy-components
+% Requires: tikz with calc, positioning (loaded by ehbook.cls)
+%           decorations.pathreplacing (loaded below)
+%
+\usetikzlibrary{decorations.pathreplacing}
+\begin{tikzpicture}[
+    font=\footnotesize,
+  ]
+
+  % ── Dimensions ──────────────────────────────────────────────────────
+  \def\cw{1.35}   % cell width  (cm)
+  \def\ch{1.10}   % cell height (cm)
+
+  % Pre-compute key coordinates
+  \pgfmathsetmacro{\gridW}{4*\cw}       % total grid width
+  \pgfmathsetmacro{\gridH}{4*\ch}       % total grid height
+  \pgfmathsetmacro{\braceX}{4*\cw+0.25} % brace x (grid right + gap)
+
+  % ── Cell helper: \cell{col}{row}{colour}{opacity}{text} ────────────
+  %    (col,row) = 0..3 with origin at top-left of the grid
+  \newcommand{\cell}[5]{%
+    \fill[#3, fill opacity=#4]
+      ({#1*\cw},{-#2*\ch}) rectangle ({(#1+1)*\cw},{-(#2+1)*\ch});
+    \node at ({(#1+0.5)*\cw},{-(#2+0.5)*\ch}) {#5};
+  }
+
+  % ── Colour fills and cell labels ───────────────────────────────────
+
+  % Time-time: T^{00} — energy density (gold)
+  \cell{0}{0}{EHAccretionGold}{0.15}{$T^{00}$}
+
+  % Time-space row: T^{0i} — momentum density (crimson)
+  \cell{1}{0}{EHHorizonCrimson}{0.10}{$T^{01}$}
+  \cell{2}{0}{EHHorizonCrimson}{0.10}{$T^{02}$}
+  \cell{3}{0}{EHHorizonCrimson}{0.10}{$T^{03}$}
+
+  % Space-time column: T^{i0} — energy flux (crimson)
+  \cell{0}{1}{EHHorizonCrimson}{0.10}{$T^{10}$}
+  \cell{0}{2}{EHHorizonCrimson}{0.10}{$T^{20}$}
+  \cell{0}{3}{EHHorizonCrimson}{0.10}{$T^{30}$}
+
+  % Spatial diagonal: T^{ii} — pressure (blue)
+  \cell{1}{1}{EHJetBlue}{0.15}{$T^{11}$}
+  \cell{2}{2}{EHJetBlue}{0.15}{$T^{22}$}
+  \cell{3}{3}{EHJetBlue}{0.15}{$T^{33}$}
+
+  % Spatial off-diagonal: T^{ij}, i≠j — shear (gray)
+  \cell{1}{2}{EHMarginGray}{0.10}{$T^{21}$}
+  \cell{1}{3}{EHMarginGray}{0.10}{$T^{31}$}
+  \cell{2}{1}{EHMarginGray}{0.10}{$T^{12}$}
+  \cell{2}{3}{EHMarginGray}{0.10}{$T^{32}$}
+  \cell{3}{1}{EHMarginGray}{0.10}{$T^{13}$}
+  \cell{3}{2}{EHMarginGray}{0.10}{$T^{23}$}
+
+  % ── Grid lines ─────────────────────────────────────────────────────
+
+  % Thin grid lines
+  \foreach \i in {0,...,4} {
+    \draw[EHMarginGray, thin] ({\i*\cw},0) -- ({\i*\cw},{-\gridH});
+    \draw[EHMarginGray, thin] (0,{-\i*\ch}) -- ({\gridW},{-\i*\ch});
+  }
+
+  % Heavier separator: 0-row/column vs 3×3 spatial block
+  \draw[EHMarginGray, thick] ({\cw},0) -- ({\cw},{-\gridH});
+  \draw[EHMarginGray, thick] (0,{-\ch}) -- ({\gridW},{-\ch});
+
+  % Outer border
+  \draw[EHMarginGray, semithick] (0,0) rectangle ({\gridW},{-\gridH});
+
+  % ── Column headers (ν) ─────────────────────────────────────────────
+
+  \node[above=4pt] at ({0.5*\cw},0) {$0\;(t)$};
+  \node[above=4pt] at ({1.5*\cw},0) {$1\;(x)$};
+  \node[above=4pt] at ({2.5*\cw},0) {$2\;(y)$};
+  \node[above=4pt] at ({3.5*\cw},0) {$3\;(z)$};
+  \node[above=16pt] at ({2*\cw},0) {$\nu$};
+
+  % ── Row headers (μ) ────────────────────────────────────────────────
+
+  \node[left=4pt] at (0,{-0.5*\ch}) {$0\;(t)$};
+  \node[left=4pt] at (0,{-1.5*\ch}) {$1\;(x)$};
+  \node[left=4pt] at (0,{-2.5*\ch}) {$2\;(y)$};
+  \node[left=4pt] at (0,{-3.5*\ch}) {$3\;(z)$};
+  \node[rotate=90, anchor=south] at (-1.2,{-2*\ch}) {$\mu$};
+
+  % ── Right brace: spatial stress block ──────────────────────────────
+  %   Path runs top-to-bottom; default brace opens left toward the grid.
+  %   Label sits to the right of the brace tip.
+
+  \draw[decorate, decoration={brace, amplitude=8pt},
+        EHMarginGray, thick]
+    (\braceX,{-\ch}) -- (\braceX,{-\gridH})
+    node[midway, right=12pt, text=EHMarginGray, align=left]
+      {\footnotesize spatial\\\footnotesize stress};
+
+  % ── Legend ─────────────────────────────────────────────────────────
+
+  \pgfmathsetmacro{\ly}{-\gridH - 0.55}  % legend row 1 y
+  \pgfmathsetmacro{\lyb}{\ly - 0.4}      % legend row 2 y
+  \def\sw{0.28}                            % swatch size (cm)
+  \pgfmathsetmacro{\col}{2.7}             % second column x (cm)
+
+  % Gold: energy density
+  \fill[EHAccretionGold, fill opacity=0.35]
+    (0,{\ly-\sw/2}) rectangle (\sw,{\ly+\sw/2});
+  \draw[EHMarginGray, very thin]
+    (0,{\ly-\sw/2}) rectangle (\sw,{\ly+\sw/2});
+  \node[right=3pt, font=\scriptsize] at (\sw,\ly) {energy density};
+
+  % Crimson: momentum / flux
+  \fill[EHHorizonCrimson, fill opacity=0.25]
+    (\col,{\ly-\sw/2}) rectangle ({\col+\sw},{\ly+\sw/2});
+  \draw[EHMarginGray, very thin]
+    (\col,{\ly-\sw/2}) rectangle ({\col+\sw},{\ly+\sw/2});
+  \node[right=3pt, font=\scriptsize] at ({\col+\sw},\ly) {momentum / flux};
+
+  % Blue: pressure
+  \fill[EHJetBlue, fill opacity=0.35]
+    (0,{\lyb-\sw/2}) rectangle (\sw,{\lyb+\sw/2});
+  \draw[EHMarginGray, very thin]
+    (0,{\lyb-\sw/2}) rectangle (\sw,{\lyb+\sw/2});
+  \node[right=3pt, font=\scriptsize] at (\sw,\lyb) {pressure};
+
+  % Gray: shear
+  \fill[EHMarginGray, fill opacity=0.25]
+    (\col,{\lyb-\sw/2}) rectangle ({\col+\sw},{\lyb+\sw/2});
+  \draw[EHMarginGray, very thin]
+    (\col,{\lyb-\sw/2}) rectangle ({\col+\sw},{\lyb+\sw/2});
+  \node[right=3pt, font=\scriptsize] at ({\col+\sw},\lyb) {shear};
+
+\end{tikzpicture}

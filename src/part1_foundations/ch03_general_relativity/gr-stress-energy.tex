@@ -1,0 +1,229 @@
+% sec:gr-stress-energy — Stress-Energy and Matter Coupling
+\section{Stress-Energy and Matter Coupling}
+\label{sec:gr-stress-energy}
+
+The left-hand side of the Einstein equations encodes geometry; the
+right-hand side encodes the matter and energy that source it.  But what,
+concretely, does the stress-energy tensor $\stressenergy$ look like for
+the matter we care about?  A neutron star's maximum mass, the luminosity
+of an accretion disc, the thrust of a relativistic jet --- these all
+depend on the specific form of $T^{\mu\nu}$ that enters the field
+equations.  This section gives that form for two matter models: perfect
+fluids and electromagnetic fields.  We also state the energy conditions
+--- inequalities that ``reasonable'' matter should satisfy --- and note
+where the codebase's wormhole spacetime violates them.
+
+\paragraph{Physical content of the stress-energy tensor.}
+
+The stress-energy tensor $T^{\mu\nu}$ encodes the density and flux of
+energy and momentum.  In the rest frame of an observer with four-velocity
+$\fourvel$, the components have direct physical interpretations: $T^{00}$
+is the energy density (mass-energy per unit volume), $T^{0i}$ is the
+momentum density (equivalently, the energy flux in the $i$-direction),
+and $T^{ij}$ is the stress --- the flux of $i$-momentum across a surface
+of constant $x^j$.  The diagonal spatial components $T^{ii}$ are
+pressures; the off-diagonal components $T^{ij}$ ($i \neq j$) are shear
+stresses.  The symmetry $T^{\mu\nu} = T^{\nu\mu}$ follows from the
+requirement that angular momentum be conserved in the absence of
+intrinsic spin --- the same symmetry that makes the Einstein tensor a
+natural partner on the geometric side.
+\physnote{The identification $T^{0i} = {}$momentum density $= {}$energy
+flux is not a coincidence but a consequence of Lorentz invariance: the
+requirement that $T^{\mu\nu}$ transform as a tensor under boosts forces
+energy flux and momentum density to be components of the same object.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/stress-energy-components}
+  \caption[Physical content of the stress-energy tensor $T^{\mu\nu}$]{Physical content of the stress-energy tensor $T^{\mu\nu}$.
+    The component $T^{00}$ (gold) is the energy density measured by an
+    observer at rest.  The mixed time--space components $T^{0i}$ and
+    $T^{i0}$ (crimson) give the momentum density and energy flux ---
+    equal by the symmetry $T^{\mu\nu} = T^{\nu\mu}$.  Within the spatial
+    $3\times 3$ block, the diagonal entries $T^{ii}$ (blue) are pressures
+    and the off-diagonal entries $T^{ij}$ with $i \neq j$ (gray) are
+    shear stresses.  For a perfect fluid, all shear components vanish and
+    the three pressures are equal.}
+  \label{fig:stress-energy-components}
+\end{figure}
+
+\paragraph{Perfect fluids.}
+
+The simplest matter model with nontrivial dynamics is a perfect fluid:
+matter with an energy density and an isotropic pressure, but no viscosity
+or heat conduction.  In the rest frame of the fluid, the only nonzero
+components are the energy density $\rho$ on the time--time diagonal and
+the pressure $p$ on the spatial diagonal.  The covariant expression valid
+in any frame is
+%
+\begin{equation}
+  T^{\mu\nu} = (\rho + p)\,u^\mu\, u^\nu + p\, \inversemetric \,,
+  \label{eq:perfect-fluid}
+\end{equation}
+%
+where $u^\mu$ is the fluid four-velocity (normalised so that
+$\metric\, u^\mu\, u^\nu = -1$), and $\rho$ and $p$ are measured in the
+fluid's rest frame.  Here $\rho$ denotes the total energy density
+(rest-mass plus internal energy); the rest-mass density $\restmassdensity$
+used in the GRMHD formulation of Part~V is a distinct, smaller quantity.
+The two terms in \cref{eq:perfect-fluid} have a clean separation: the
+first carries the inertia (energy plus pressure, which acts as inertia in
+relativity), directed along the fluid's worldline; the second is an
+isotropic pressure that pushes equally in all spatial directions.
+\physnote{In general relativity, pressure gravitates.  The combination
+$\rho + p$ rather than $\rho$ alone appears because pressure contributes
+to inertia --- a consequence of the equivalence of energy and mass.  This
+has observable effects: it increases the central pressure required to
+support a neutron star, ultimately setting a maximum mass (the
+Tolman--Oppenheimer--Volkoff limit).}
+
+The trace of \cref{eq:perfect-fluid} follows from contracting with
+$\metric$ and using the normalisation $\metric\,u^\mu\,u^\nu = -1$
+together with $\metric\,\inversemetric = 4$:
+%
+\begin{equation}
+  T = \metric\,T^{\mu\nu} = -\rho + 3p \,.
+  \label{eq:perfect-fluid-trace}
+\end{equation}
+%
+The trace measures the balance between energy density and pressure: it
+vanishes when $\rho = 3p$, the equation of state for a gas of massless
+particles (a radiation-dominated fluid).  For dust --- pressureless matter
+with $p = 0$ --- the stress-energy tensor reduces to
+$T^{\mu\nu} = \rho\,u^\mu\,u^\nu$, and the trace gives $T = -\rho$.
+Dust is the matter model behind the Newtonian limit discussed in
+\cref{sec:gr-weak-field}: slow-moving, low-pressure matter whose
+gravitational field is entirely determined by its mass density.
+
+The conservation law $\nabla_\mu\,T^{\mu\nu} = 0$
+(\cref{eq:stress-energy-conservation}) applied to a perfect fluid
+yields the relativistic generalisation of the Euler equations --- a
+continuity equation for energy and a momentum equation for the fluid ---
+though the explicit decomposition belongs to the GRMHD treatment of
+Part~V.
+\xrefnote{The $3{+}1$ decomposition of perfect-fluid conservation and
+the numerical flux formulation are developed in Part~V.}
+
+\paragraph{The electromagnetic field.}
+
+Magnetised accretion discs and relativistic jets are driven by
+electromagnetic fields that carry energy and momentum --- and therefore
+curve spacetime.  To couple these fields to gravity through the Einstein
+equations, we need their stress-energy tensor.  The electromagnetic field
+in curved spacetime is encoded in the antisymmetric Faraday tensor
+$F_{\mu\nu} = -F_{\nu\mu}$, whose six independent components are the
+electric and magnetic fields measured by a given observer.  The
+stress-energy tensor built from $F_{\mu\nu}$ is
+%
+\begin{equation}
+  T^{\mu\nu}_{\text{EM}}
+    = F^{\mu}{}_{\alpha}\,F^{\nu\alpha}
+    - \tfrac{1}{4}\,\inversemetric\,F_{\alpha\beta}\,F^{\alpha\beta} \,,
+  \label{eq:em-stress-energy}
+\end{equation}
+%
+where indices on $F$ are raised with the inverse metric.  Unlike the
+perfect fluid, the electromagnetic stress-energy tensor is trace-free:
+%
+\begin{equation}
+  \metric\,T^{\mu\nu}_{\text{EM}} = 0 \,.
+  \label{eq:em-trace-free}
+\end{equation}
+%
+Contracting $\metric$ with both terms in \cref{eq:em-stress-energy}: the
+first yields $F_{\alpha\beta}\,F^{\alpha\beta}$, and the second, after
+$\metric\,\inversemetric = 4$, yields
+$-\tfrac{1}{4} \times 4 \times F_{\alpha\beta}\,F^{\alpha\beta}
+= -F_{\alpha\beta}\,F^{\alpha\beta}$; the sum vanishes.  The vanishing
+trace has an immediate consequence for the field equations: substituting
+$T = 0$ into the trace-reversed form (\cref{eq:efe-trace-reversed})
+gives $\ricci = 8\pi\,\stressenergy$, so the Ricci tensor is directly
+proportional to the stress-energy tensor in electrovacuum.
+\physnote{Maxwell's equations in curved spacetime take the same form as
+in flat spacetime, with partial derivatives replaced by covariant
+derivatives: $\nabla_\mu\,F^{\mu\nu} = 4\pi\,J^\nu$ (in Gaussian units)
+and $\nabla_{[\alpha}\,F_{\mu\nu]} = 0$.  The stress-energy conservation
+$\nabla_\mu\,T^{\mu\nu}_{\text{EM}} = 0$ then follows from Maxwell's
+equations alone, independently of the Einstein equations.}
+
+\paragraph{Energy conditions.}
+
+Not every symmetric tensor deserves to sit on the right-hand side of the
+field equations.  The energy conditions are physically motivated
+inequalities that constrain what ``reasonable'' matter looks like.  The
+two most important for this book are the weak and null energy conditions.
+The \emph{weak energy condition} (WEC) requires that every observer
+measure a non-negative energy density:
+%
+\begin{equation}
+  T_{\mu\nu}\, v^\mu\, v^\nu \geq 0
+  \qquad \text{for all timelike } v^\mu \,,
+  \label{eq:wec}
+\end{equation}
+%
+where $v^\mu$ is an arbitrary future-directed timelike vector.  For a
+perfect fluid, one can verify that the minimum over all timelike
+directions occurs in the rest frame (giving $\rho \geq 0$) and the
+highly boosted limit adds $\rho + p \geq 0$.  The \emph{null energy
+condition} (NEC) is the limiting case for null vectors:
+%
+\begin{equation}
+  T_{\mu\nu}\, k^\mu\, k^\nu \geq 0
+  \qquad \text{for all null } k^\mu \,.
+  \label{eq:nec}
+\end{equation}
+%
+For a perfect fluid, the null condition $\metric\,k^\mu\,k^\nu = 0$
+kills the pressure term, leaving
+$(\rho + p)(u_\mu\,k^\mu)^2 \geq 0$ --- so the NEC requires only
+$\rho + p \geq 0$.  This is weaker than the WEC because null vectors
+have no rest frame: the condition constrains only one combination of
+$\rho$ and $p$, not both independently.  The NEC is the minimal
+condition needed for Penrose's singularity theorem and for the area
+theorem of classical black hole mechanics.
+
+Two further conditions appear in the literature: the
+\emph{strong energy condition} (SEC),
+$(T_{\mu\nu} - \tfrac{1}{2}\,T\,g_{\mu\nu})\,v^\mu\,v^\nu \geq 0$ for
+all timelike $v^\mu$, which ensures that gravity is attractive in the
+sense of geodesic focusing; and the \emph{dominant energy condition}
+(DEC), which adds to the WEC the requirement that the energy--momentum
+current $-T^{\mu}{}_{\nu}\,v^\nu$ be causal (non-spacelike) for any
+future-directed timelike $v^\mu$ --- physically, energy cannot flow faster
+than light.  Ordinary matter satisfies all four: a perfect fluid obeys
+them whenever $\rho \geq 0$ and $0 \leq p \leq \rho$, and the
+electromagnetic field satisfies them for any field configuration.
+\warnnote{The energy conditions are not laws of nature.  Quantum fields
+can violate them locally (the Casimir effect produces regions of negative
+energy density), and the cosmological constant violates the SEC.  They
+are useful as sufficient conditions for theorems --- singularity
+formation, area increase, topological censorship --- but exotic matter
+that violates them is not forbidden by general relativity itself.}
+
+\paragraph{Exotic matter and the Morris--Thorne wormhole.}
+
+The energy conditions are abstract inequalities; a concrete violation
+builds intuition for what they actually constrain.  The Morris--Thorne
+wormhole implemented in the codebase (\cref{sec:gr-exact-solutions})
+provides exactly this.  Its metric is static and spherically symmetric,
+with a ``throat'' of minimum radius $b_0$ connecting two asymptotically
+flat regions.  Sustaining this geometry requires a stress-energy tensor
+that violates the NEC at the throat: any radial null vector $k^\mu$
+satisfies $T_{\mu\nu}\,k^\mu\,k^\nu < 0$
+there \cite{MorrisThorne1988}.  The violation is not a defect of the
+solution but its defining feature --- without exotic matter, the throat
+collapses to a singularity.  This is why the Morris--Thorne spacetime is
+a pedagogical tool (and a visually striking one for the ray tracer) rather
+than an astrophysically realistic solution.
+
+\paragraph{From matter to geometry.}
+
+The stress-energy tensors defined above complete the right-hand side of
+the Einstein equations.  The spacetimes of this book fall into three
+categories: vacuum solutions ($\stressenergy = 0$) for the Schwarzschild
+and Kerr black holes, electrovacuum for magnetised discs, and
+NEC-violating exotic matter for the Morris--Thorne wormhole.  With the
+matter side of the field equations now concrete, the next section closes
+the circle by verifying that the full equations reduce to Newtonian
+gravity in the weak-field limit --- the most basic consistency check that
+any relativistic theory of gravity must pass.

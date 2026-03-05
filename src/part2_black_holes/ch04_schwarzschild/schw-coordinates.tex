@@ -1,0 +1,222 @@
+% sec:schw-coordinates — Coordinate Systems and the Coordinate Singularity
+\section{Coordinate Systems and the Coordinate Singularity}
+\label{sec:schw-coordinates}
+
+The Schwarzschild metric (\cref{eq:schwarzschild-metric}) has a
+problem at $r = 2M$: the component $g_{rr} = (1 - 2M/r)^{-1}$
+diverges, and $g_{tt} = -(1 - 2M/r)$ vanishes.  A geodesic integrator
+that uses these coordinates will grind to a halt as a photon approaches
+the horizon --- step sizes shrink to zero, errors accumulate, and the
+integration never completes.  The previous section established that this
+divergence is a coordinate artefact: the Kretschmann scalar is finite
+at $r = 2M$.  This section constructs coordinates that eliminate the
+artefact, giving the integrator a smooth path through the horizon.
+
+\paragraph{The tortoise coordinate.}
+
+Null geodesics reveal how a coordinate system encodes causal structure:
+if we can find coordinates in which they look simple, the metric will
+too.  Setting $\d s^2 = 0$ and $\d\theta = \d\varphi = 0$ in the
+Schwarzschild metric gives, for $r \neq 2M$,
+%
+\begin{equation}
+  \frac{\d t}{\d r} = \pm \left(1 - \frac{2M}{r}\right)^{-1} .
+  \label{eq:schw-null-radial}
+\end{equation}
+%
+Outside the horizon ($r > 2M$), the plus sign describes outgoing rays
+and the minus sign ingoing ones.  As $r \to 2M^+$, the coordinate
+velocity $\d r/\d t$ vanishes: light appears to freeze at the horizon
+in Schwarzschild coordinates.  This isn't physical --- a freely falling
+observer crosses the horizon in finite proper time --- but it reveals
+that the $t$ coordinate is poorly adapted to the horizon geometry.
+\physnote{The ``freezing'' of light at the horizon is an artefact of
+Schwarzschild time $t$, which measures the proper time of a static
+observer at infinity.  No static observer exists at $r = 2M$, so $t$
+loses its physical meaning there.}
+
+To untangle the coordinate pathology, we integrate
+\cref{eq:schw-null-radial}.  Substituting $\d r_* = (1 - 2M/r)^{-1}\,
+\d r$ and integrating gives the \emph{tortoise coordinate}
+(for $r > 2M$):
+%
+\begin{equation}
+  r_* = r + 2M \ln\!\left(\frac{r}{2M} - 1\right) .
+  \label{eq:tortoise}
+\end{equation}
+%
+The name reflects the coordinate's behaviour: as $r \to 2M^+$,
+$r_* \to -\infty$, stretching the finite coordinate interval
+$[2M, \infty)$ into $(-\infty, \infty)$.  Since $\d r_* = (1 -
+2M/r)^{-1}\,\d r$, \cref{eq:schw-null-radial} becomes $\d t/\d r_*
+= \pm 1$, so radial null geodesics are simply $t = \pm r_* +
+\text{const}$ --- straight lines at $45^\circ$ in the $(t, r_*)$
+plane, just as in flat spacetime.  The coordinate singularity has been
+pushed to $r_* = -\infty$, but the metric still diverges there.
+
+\paragraph{Ingoing Eddington--Finkelstein coordinates.}
+
+The tortoise coordinate untangles the null structure but doesn't
+eliminate the singularity.  The decisive step combines $t$ and $r_*$
+into a single null coordinate that remains finite at the horizon.
+Define the \emph{advanced time}
+%
+\begin{equation}
+  v = t + r_* \,.
+  \label{eq:ef-v-def}
+\end{equation}
+%
+Along an ingoing radial null geodesic, $t = -r_* + \text{const}$, so
+$v = \text{const}$: the coordinate $v$ labels ingoing null rays.
+Substituting $\d t = \d v - \d r_*$ into the Schwarzschild line
+element, with $\d r_* = (1 - 2M/r)^{-1}\,\d r$, gives
+%
+\begin{align}
+  \d s^2 &= -\!\left(1 - \frac{2M}{r}\right)
+    \bigl[\d v - (1 - 2M/r)^{-1}\,\d r\bigr]^2
+    \notag \\
+    &\qquad
+    + \left(1 - \frac{2M}{r}\right)^{-1}\d r^2
+    + r^2\,\d\Omega^2 \notag \\
+  &= -\!\left(1 - \frac{2M}{r}\right)\d v^2
+    + 2\,\d v\,\d r \notag \\
+    &\qquad
+    \underbrace{{}- (1 - 2M/r)^{-1}\,\d r^2
+    + (1 - 2M/r)^{-1}\,\d r^2}_{= \; 0}
+    + r^2\,\d\Omega^2 \,.
+    \label{eq:ef-substitution}
+\end{align}
+%
+The two $\d r^2$ terms cancel exactly --- one from expanding the
+square, the other from the original $g_{rr}$ --- leaving the
+cross-term $2\,\d v\,\d r$ as the sole radial contribution:
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{2M}{r}\right)\d v^2
+           + 2\,\d v\,\d r
+           + r^2\!\left(\d\theta^2
+             + \sin^2\!\theta\;\d\varphi^2\right) .
+  \label{eq:ef-ingoing}
+\end{equation}
+%
+Every component of the metric is finite at $r = 2M$: $g_{vv} = 0$,
+$g_{vr} = 1$, and the angular part is $4M^2\,\d\Omega^2$.  The
+coordinate singularity has been removed entirely.
+\histnote{Eddington introduced these coordinates in 1924
+\cite{Eddington1924}; Finkelstein rediscovered them in 1958 and
+was the first to interpret $r = 2M$ as a one-way membrane rather than
+a singularity \cite{Finkelstein1958}.}
+
+The inverse metric is needed for raising indices and for the geodesic
+Hamiltonian.  The $(v, r)$ block of $\metric$ has determinant $-1$,
+and inverting gives $g^{vv} = 0$, $g^{vr} = 1$,
+$g^{rr} = 1 - 2M/r$, with the standard angular components
+$g^{\theta\theta} = 1/r^2$ and
+$g^{\varphi\varphi} = 1/(r^2\sin^2\!\theta)$.  At the horizon,
+$g^{rr} = 0$ while $g^{vr} = 1$: the surface $r = 2M$ is null, not
+singular.
+\warnnote{The cross-term $g_{vr}$ means that $v$ is not a time
+coordinate in the usual sense --- surfaces of constant $v$ are null,
+not spacelike.  This complicates the initial-value formulation but
+poses no difficulty for geodesic integration.}
+
+\paragraph{Light cone behaviour at the horizon.}
+
+The physical character of $r = 2M$ becomes transparent in ingoing
+Eddington--Finkelstein coordinates.  Setting $\d s^2 = 0$ and
+$\d\Omega = 0$ in \cref{eq:ef-ingoing} gives
+$\d v\bigl[2\,\d r - (1 - 2M/r)\,\d v\bigr] = 0$, which factors
+into two families of radial null geodesics:
+%
+\begin{equation}
+  \left(1 - \frac{2M}{r}\right)\d v = 2\,\d r
+  \qquad \text{or} \qquad \d v = 0 \,.
+  \label{eq:ef-null-geodesics}
+\end{equation}
+%
+The first family has $\d v/\d r = 2/(1 - 2M/r)$: outgoing rays.  The
+second family has $v = \text{const}$: ingoing rays.  Outside the
+horizon ($r > 2M$), both families behave as expected --- outgoing rays
+escape to larger $r$, ingoing rays fall to smaller $r$.  At $r = 2M$,
+the outgoing family has $\d v/\d r \to \infty$: the light cone tilts
+so that the ``outgoing'' direction is tangent to the horizon.  Inside
+the horizon ($r < 2M$), the factor $(1 - 2M/r)$ is negative.
+Future-directed null vectors satisfy $\d v > 0$ (inherited from the
+orientation of $v$ as advanced time), so both families have $\d r < 0$
+--- all future-directed null rays move to smaller $r$.  The horizon is
+a one-way membrane: light can enter but not escape.
+\physnote{The tilting of light cones across the horizon is the geometric
+content of the event horizon.  No local physics changes at $r = 2M$;
+the causal structure simply closes off escape routes to infinity.}
+
+%
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/ef-light-cones}
+  \caption[Light cones in Schwarzschild and Eddington--Finkelstein coordinates]{%
+    Light cones in Schwarzschild coordinates (left) and ingoing
+    Eddington--Finkelstein coordinates (right) for the Schwarzschild geometry
+    with $M = 1$.  In Schwarzschild coordinates, the light cones pinch shut
+    at $r = 2M$ as $g_{tt} \to 0$ and $g_{rr} \to \infty$, and the
+    coordinates do not extend through the horizon (shaded strip).  In
+    Eddington--Finkelstein coordinates, the ingoing null direction
+    $\d v = 0$ maintains a constant slope, while the outgoing direction
+    tilts progressively inward; at $r = 2M$, the outgoing cone is tangent
+    to the horizon.  Inside, both null directions point to smaller $r$,
+    showing that the horizon is a one-way causal boundary.}
+  \label{fig:ef-light-cones}
+\end{figure}
+
+\paragraph{Outgoing Eddington--Finkelstein coordinates.}
+
+To complete the picture, an analogous construction with the retarded
+time $u = t - r_*$ yields outgoing Eddington--Finkelstein coordinates.
+The substitution $\d t = \d u + \d r_*$ produces a cross-term with the
+opposite sign:
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{2M}{r}\right)\d u^2
+           - 2\,\d u\,\d r
+           + r^2\,\d\Omega^2 \,.
+  \label{eq:ef-outgoing}
+\end{equation}
+%
+This metric covers a different patch of the maximally extended
+spacetime: the exterior and the white hole interior (but not the
+black hole interior or the second asymptotic region).  For the ray
+tracer, outgoing coordinates are less useful than ingoing ones ---
+backward-traced photons typically fall inward toward the black hole ---
+but they appear naturally in the Kruskal--Szekeres construction
+(\cref{sec:schw-kruskal}).
+\xrefnote{The complete causal structure, including both ingoing and
+outgoing patches, is developed in the Penrose diagram of
+\cref{sec:schw-kruskal}.}
+
+\paragraph{Why not Eddington--Finkelstein?}
+
+These coordinates solve the horizon problem, so why doesn't the
+codebase use them?  Two reasons.  First, the
+metric (\cref{eq:ef-ingoing}) is written in spherical coordinates
+$(v, r, \theta, \varphi)$, which introduce their own coordinate
+singularity at $\theta = 0$ and $\theta = \pi$ --- the geodesic
+integrator would need special treatment at the poles.  Second, the
+angular coordinates break the flat-spacetime limit: at large $r$ the
+metric approaches $\eta_{\mu\nu}$ in spherical form, not in the
+Cartesian form that the codebase uses to set up initial conditions.
+
+The codebase instead uses \emph{Kerr--Schild coordinates}, which
+express the Schwarzschild metric in Cartesian spatial coordinates
+$(t, x, y, z)$ as a flat background plus a single null-vector
+correction (\cref{eq:kerr-schild-form}).  This representation is
+horizon-penetrating, pole-free, and extends naturally to the
+spinning Kerr metric --- the subject of the next section.
+The Kerr--Schild form is less standard in the pedagogical literature,
+so some geometric intuition is harder to read off directly ---
+the Eddington--Finkelstein picture developed above remains the
+clearest way to see why the horizon is a one-way membrane.
+\implnote{The Haskell type \texttt{SchwarzschildKS} stores only the
+mass $M$ and constructs all metric components from the Kerr--Schild
+decomposition.  The polymorphic metric function
+\texttt{schwarzschildMetricFn} works with any \texttt{Floating} type,
+enabling automatic differentiation for Christoffel computation without
+hand-coded derivatives.}

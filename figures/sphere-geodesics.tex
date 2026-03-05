@@ -1,0 +1,127 @@
+% sphere-geodesics.tex — Geodesics (great circles) on the two-sphere S²
+% Inputable TikZ fragment for fig:sphere-geodesics
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Projection: orthographic, viewing elevation = tilt above equatorial plane.
+%
+% For a point at colatitude θ, azimuth φ on the sphere:
+%   screen_x = R·sinθ·cosφ
+%   screen_y = R·sinθ·sinφ·sin(tilt) + R·cosθ·cos(tilt)
+%   depth    = R·sinθ·sinφ·cos(tilt) - R·cosθ·sin(tilt)  [> 0 = far side]
+%
+% A latitude circle at colatitude θ projects to an ellipse centred at
+% (0, R·cosθ·cos(tilt)) with semi-axes (R·sinθ, R·sinθ·sin(tilt)).
+% The far-side arc (behind the sphere) spans ellipse angles limbT to
+% 180°−limbT, where sinφ_limb = cotθ·tan(tilt).
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Parameters ──────────────────────────────────────────────────────
+  \def\R{1.8}                              % sphere radius (cm)
+  \pgfmathsetmacro{\tilt}{30}              % elevation above equatorial plane (°)
+  \pgfmathsetmacro{\eqb}{\R*sin(\tilt)}   % equator semi-minor axis
+
+  % ── Sphere outline and shading ──────────────────────────────────────
+  \shade[ball color=EHMarginGray!8, draw=EHMarginGray, thin]
+    (0,0) circle (\R);
+
+  % ── Great circle 1: equator ─────────────────────────────────────────
+  % Far side (behind sphere)
+  \draw[EHAccretionGold, thick, opacity=0.3]
+    ({-\R},0) arc (180:360:{\R} and {\eqb});
+  % Near side
+  \draw[EHAccretionGold, thick]
+    ({\R},0) arc (0:180:{\R} and {\eqb});
+
+  % ── Great circle 2: tilted ~35° clockwise in the picture plane ──────
+  \begin{scope}[rotate=35]
+    \draw[EHAccretionGold, thick, opacity=0.3]
+      ({-\R},0) arc (180:360:{\R} and {\R*0.15});
+    \draw[EHAccretionGold, thick]
+      ({\R},0) arc (0:180:{\R} and {\R*0.15});
+  \end{scope}
+
+  % ── Great circle 3: tilted ~40° anticlockwise ──────────────────────
+  \begin{scope}[rotate=-40]
+    \draw[EHAccretionGold, thick, opacity=0.3]
+      ({-\R},0) arc (180:360:{\R} and {\R*0.18});
+    \draw[EHAccretionGold, thick]
+      ({\R},0) arc (0:180:{\R} and {\R*0.18});
+  \end{scope}
+
+  % ── Latitude line at θ = π/4 (non-geodesic) ────────────────────────
+  %
+  % Correct orthographic projection of a latitude circle at colatitude θ:
+  %   centre:     (0, R·cosθ·cos(tilt))
+  %   semi-major: R·sinθ               (horizontal, no foreshortening)
+  %   semi-minor: R·sinθ·sin(tilt)     (vertical, foreshortened)
+  %
+  % The far-side arc (behind the limb) spans ellipse parameter
+  % t ∈ [limbT, 180°−limbT], where limbT = arcsin(cotθ · tan(tilt)).
+  % At the limb-crossing points the projected curve sits exactly on
+  % the sphere outline (distance R from origin).
+  %
+  \pgfmathsetmacro{\latR}{\R*sin(45)}
+  \pgfmathsetmacro{\latY}{\R*cos(45)*cos(\tilt)}      % centre y
+  \pgfmathsetmacro{\latb}{\latR*sin(\tilt)}            % semi-minor
+  \pgfmathsetmacro{\limbT}{asin(cos(45)/sin(45)*tan(\tilt))}  % ≈ 35.3°
+
+  % Far-side arc (behind the sphere): limbT to 180−limbT
+  \draw[EHMarginGray, densely dashed, thick, opacity=0.3]
+    ({\latR*cos(\limbT)}, {\latY + \latb*sin(\limbT)})
+    arc ({\limbT}:{180-\limbT}:{\latR} and {\latb});
+
+  % Near-side arc (visible): 180−limbT through 360 back to limbT
+  \draw[EHMarginGray, densely dashed, thick]
+    ({-\latR*cos(\limbT)}, {\latY + \latb*sin(\limbT)})
+    arc ({180-\limbT}:{360+\limbT}:{\latR} and {\latb});
+
+  % ── Tangent vector on the equator (geodesic) ───────────────────────
+  % Point at ~65° on the near-side equator arc
+  \pgfmathsetmacro{\eqPx}{\R*cos(65)}
+  \pgfmathsetmacro{\eqPy}{\eqb*sin(65)}
+  % Tangent direction: derivative of ellipse parametrisation at t=65°
+  \pgfmathsetmacro{\eqTx}{-sin(65)}
+  \pgfmathsetmacro{\eqTy}{\eqb/\R*cos(65)}
+  \pgfmathsetmacro{\eqTlen}{sqrt(\eqTx*\eqTx + \eqTy*\eqTy)}
+  \pgfmathsetmacro{\eqTxn}{0.7*\eqTx/\eqTlen}
+  \pgfmathsetmacro{\eqTyn}{0.7*\eqTy/\eqTlen}
+  \draw[->, EHJetBlue, very thick]
+    (\eqPx, \eqPy) -- ++(\eqTxn, \eqTyn)
+    node[above left, inner sep=1pt, font=\scriptsize, text=EHJetBlue]
+    {$\dot{x}^\mu$};
+
+  % ── Tangent vector on the latitude line (non-geodesic) ─────────────
+  % Point at ~330° (on the visible near-side arc, right of centre)
+  \pgfmathsetmacro{\ltAng}{330}
+  \pgfmathsetmacro{\ltPx}{\latR*cos(\ltAng)}
+  \pgfmathsetmacro{\ltPy}{\latY + \latb*sin(\ltAng)}
+  % Tangent direction along the latitude ellipse
+  \pgfmathsetmacro{\ltTx}{-sin(\ltAng)}
+  \pgfmathsetmacro{\ltTy}{\latb/\latR*cos(\ltAng)}
+  \pgfmathsetmacro{\ltTlen}{sqrt(\ltTx*\ltTx + \ltTy*\ltTy)}
+  \pgfmathsetmacro{\ltTxn}{0.65*\ltTx/\ltTlen}
+  \pgfmathsetmacro{\ltTyn}{0.65*\ltTy/\ltTlen}
+  \draw[->, EHJetBlue, very thick]
+    (\ltPx, \ltPy) -- ++(\ltTxn, \ltTyn)
+    node[above right, inner sep=1pt, font=\scriptsize, text=EHJetBlue]
+    {$\dot{x}^\mu$};
+
+  % ── Labels ─────────────────────────────────────────────────────────
+
+  % Equator label — outside the sphere to the lower-right
+  \node[font=\scriptsize, text=EHAccretionGold!80!black, anchor=west]
+    at ({\R + 0.12}, {-\eqb*0.4}) {equator};
+
+  % Latitude label — near the top of the dashed arc, above vectors
+  \node[font=\scriptsize, text=EHMarginGray, anchor=south]
+    at ({0.4}, {\latY + \latb + 0.08})
+    {$\theta = \pi/4$};
+
+  % Sphere label
+  \node[font=\small] at (0, {-\R - 0.35}) {$S^2$};
+
+\end{tikzpicture}

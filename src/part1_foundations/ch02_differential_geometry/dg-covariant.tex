@@ -1,0 +1,264 @@
+% sec:dg-covariant — Covariant Derivatives and Christoffel Symbols
+\section{Covariant Derivatives and Christoffel Symbols}
+\label{sec:dg-covariant}
+
+Differentiating a scalar field on a manifold is straightforward --- the partial
+derivative $\pd{\mu} f$ transforms as a covector under coordinate changes, as
+we saw in \cref{sec:dg-manifolds}.  But the ray tracer doesn't only work with
+scalars.  It tracks a photon's four-momentum $p_\mu$ along a trajectory, and at
+every step it must compute how that covector changes as the photon moves through
+curved spacetime.  A naive partial derivative $\pd{\mu} V^\nu$ of a vector
+field's components does not transform as a tensor: the coordinate basis vectors
+themselves vary from point to point, and their variation contaminates the
+derivative with non-tensorial terms.  The covariant derivative fixes this by
+accounting for the twisting of the coordinate basis.
+
+\paragraph{The failure of partial derivatives.}
+
+To see the problem concretely, consider a vector field $V = V^\mu\,\pd{\mu}$ on
+a manifold.  Under a coordinate change $x^\mu \to x'^\mu$, the components
+transform as $V'^\mu = (\partial x'^\mu / \partial x^\nu)\, V^\nu$.  Taking
+the partial derivative of both sides with respect to a new coordinate
+$x'^\alpha$ yields
+%
+\begin{equation}
+  \frac{\partial V'^\mu}{\partial x'^\alpha}
+  = \frac{\partial x'^\mu}{\partial x^\nu}\,
+    \frac{\partial V^\nu}{\partial x'^\alpha}
+  + \frac{\partial^2 x'^\mu}{\partial x^\nu\,\partial x^\sigma}\,
+    \frac{\partial x^\sigma}{\partial x'^\alpha}\, V^\nu \,.
+  \label{eq:partial-nontensor}
+\end{equation}
+%
+The first term is what a tensorial transformation would produce; the second term
+--- involving the second derivative of the coordinate transformation --- is the
+spoiler.  It vanishes only when the coordinate transformation is linear (as for
+Lorentz transformations in flat spacetime), which is why partial derivatives
+were perfectly adequate throughout \cref{ch:special-relativity}.  On a curved
+manifold, no global linear coordinate system exists, and the second term is
+generically non-zero.
+\physnote{The non-tensorial term $\partial^2 x'^\mu / \partial x^\nu\,\partial
+x^\sigma$ encodes how the coordinate grid itself curves.  The covariant
+derivative cancels this term by subtracting out the basis variation.}
+
+\paragraph{The covariant derivative.}
+
+A \emph{covariant derivative} (or \emph{connection}) $\cd{\mu}$ is a map
+that takes a tensor field and produces a new tensor field of one higher
+covariant rank, while satisfying linearity, the Leibniz rule, and agreement
+with partial derivatives on scalar fields ($\cd{\mu} f = \pd{\mu} f$).  For a
+contravariant vector field, the covariant derivative takes the form
+%
+\begin{equation}
+  \cd{\mu} V^\nu = \pd{\mu} V^\nu
+    + \christoffel{\nu}{\mu}{\alpha}\, V^\alpha \,.
+  \label{eq:covariant-deriv-vector}
+\end{equation}
+%
+The additional term $\christoffel{\nu}{\mu}{\alpha}\, V^\alpha$ compensates for
+the variation of the coordinate basis: it is precisely the non-tensorial
+contribution that makes the combination transform as a $(1,1)$ tensor.  The
+coefficients $\christoffel{\nu}{\mu}{\alpha}$ are called \emph{connection
+coefficients} or, when derived from the metric, \emph{Christoffel symbols}.
+
+For a covector field $\omega_\nu$, the corresponding formula has a minus sign
+and the contraction is on a different index:
+%
+\begin{equation}
+  \cd{\mu} \omega_\nu = \pd{\mu} \omega_\nu
+    - \christoffel{\alpha}{\mu}{\nu}\, \omega_\alpha \,.
+  \label{eq:covariant-deriv-covector}
+\end{equation}
+%
+The sign flip and index placement follow from requiring the Leibniz rule to hold
+for the contraction $\omega_\nu V^\nu$: differentiating a scalar must yield a
+partial derivative, so the connection terms from the vector and covector must
+cancel.
+\warnnote{The plus sign in \cref{eq:covariant-deriv-vector} and the minus sign
+in \cref{eq:covariant-deriv-covector} are a frequent source of sign errors.
+The mnemonic: upper indices get a plus, lower indices get a minus.}
+
+The extension to arbitrary tensors follows the same pattern.  For a $(1,1)$
+tensor $T^\mu{}_\nu$, the covariant derivative is
+%
+\begin{equation}
+  \cd{\alpha} T^\mu{}_\nu = \pd{\alpha} T^\mu{}_\nu
+    + \christoffel{\mu}{\alpha}{\beta}\, T^\beta{}_\nu
+    - \christoffel{\beta}{\alpha}{\nu}\, T^\mu{}_\beta \,.
+  \label{eq:covariant-deriv-mixed}
+\end{equation}
+%
+Each upper index contributes a $+\Gamma$ term; each lower index contributes a
+$-\Gamma$ term.  This pattern generalises to tensors of any rank.
+
+\paragraph{The Levi-Civita connection.}
+
+The covariant derivative is not unique: any choice of connection coefficients
+satisfying the algebraic requirements defines a valid covariant derivative.
+General relativity singles out a unique connection by imposing two additional
+conditions:
+%
+\begin{enumerate}
+  \item \emph{Metric compatibility}: $\cd{\alpha}\, \metric = 0$.  Parallel
+    transport preserves inner products --- lengths and angles are conserved
+    along any curve.
+  \item \emph{Torsion-free}: $\christoffel{\lambda}{\mu}{\nu} =
+    \christoffel{\lambda}{\nu}{\mu}$.  The connection is symmetric in its lower
+    two indices.
+\end{enumerate}
+%
+The unique connection satisfying both conditions is the \emph{Levi-Civita
+connection}, and its coefficients are the \emph{Christoffel symbols of the
+second kind}.
+
+\paragraph{Deriving the Christoffel symbols.}
+
+The two conditions above determine the Christoffel symbols entirely in terms of
+the metric.  The strategy is to write metric compatibility
+$\cd{\alpha}\, g_{\mu\nu} = 0$ in component form and then exploit the
+torsion-free symmetry to isolate $\Gamma$.  Expanding $\cd{\alpha}\,g_{\mu\nu}$
+using \cref{eq:covariant-deriv-covector} on each lower index gives
+%
+\begin{equation}
+  \pd{\alpha}\, g_{\mu\nu}
+    = \christoffel{\lambda}{\alpha}{\mu}\, g_{\lambda\nu}
+    + \christoffel{\lambda}{\alpha}{\nu}\, g_{\mu\lambda} \,.
+  \label{eq:metric-compat-expanded}
+\end{equation}
+%
+This is one equation relating partial derivatives of the metric to Christoffel
+symbols.  To solve for $\Gamma$, write the same identity for two cyclic
+permutations of the free indices:
+%
+\begin{align}
+  \pd{\mu}\, g_{\nu\alpha}
+    &= \christoffel{\lambda}{\mu}{\nu}\, g_{\lambda\alpha}
+    + \christoffel{\lambda}{\mu}{\alpha}\, g_{\nu\lambda} \,,
+  \label{eq:metric-compat-perm1} \\
+  \pd{\nu}\, g_{\alpha\mu}
+    &= \christoffel{\lambda}{\nu}{\alpha}\, g_{\lambda\mu}
+    + \christoffel{\lambda}{\nu}{\mu}\, g_{\alpha\lambda} \,.
+  \label{eq:metric-compat-perm2}
+\end{align}
+%
+Adding these two equations and subtracting \cref{eq:metric-compat-expanded},
+then using the torsion-free condition
+$\christoffel{\lambda}{\mu}{\nu} = \christoffel{\lambda}{\nu}{\mu}$ to cancel
+four of the six $\Gamma$ terms, leaves
+$2\,\christoffel{\lambda}{\mu}{\nu}\, g_{\lambda\alpha}$ on the right.
+Contracting with $g^{\alpha\sigma}$ and relabelling gives
+%
+\begin{equation}
+  \christoffel{\lambda}{\mu}{\nu} = \frac{1}{2}\,g^{\lambda\sigma}\!
+    \left(
+      \pd{\mu}\, g_{\nu\sigma}
+    + \pd{\nu}\, g_{\mu\sigma}
+    - \pd{\sigma}\, g_{\mu\nu}
+    \right) .
+  \label{eq:christoffel-formula}
+\end{equation}
+%
+This is the Christoffel symbol in terms of first derivatives of the metric and
+the inverse metric.  Each index $\lambda,\mu,\nu$ runs from 0 to 3, so in four
+dimensions there are $4 \times 10 = 40$ independent Christoffel symbols
+(the factor of 10 comes from the symmetry in the lower pair).
+\histnote{The notation $\christoffel{\lambda}{\mu}{\nu}$ for these coefficients
+is due to Elwin Bruno Christoffel, who introduced them in 1869 --- decades
+before Einstein's general relativity gave them a physical role.}
+
+\paragraph{A worked example: the two-sphere.}
+
+Returning to the two-sphere $S^2$ from \cref{sec:dg-metric}, with
+the metric of \cref{eq:sphere-metric}, we compute the Christoffel symbols
+from \cref{eq:christoffel-formula}.  Since the
+metric is diagonal and $g_{\theta\theta} = R^2$ is constant, the only
+components that survive are those involving $\pd{\theta}\, g_{\varphi\varphi}$.
+As a concrete illustration, take $\christoffel{\theta}{\varphi}{\varphi}$:
+%
+\begin{align}
+  \christoffel{\theta}{\varphi}{\varphi}
+    &= \tfrac{1}{2}\, g^{\theta\theta}
+      \bigl(\pd{\varphi}\,g_{\varphi\theta}
+      + \pd{\varphi}\,g_{\varphi\theta}
+      - \pd{\theta}\,g_{\varphi\varphi}\bigr)
+  \notag \\
+    &= \tfrac{1}{2} \cdot \frac{1}{R^2}
+      \bigl(-2R^2 \sin\theta\cos\theta\bigr)
+    = -\sin\theta\cos\theta \,.
+  \label{eq:sphere-christoffel-detail}
+\end{align}
+%
+The factor $R^2$ cancels between the metric derivative and the inverse metric.
+Computing the remaining components similarly, the only non-vanishing Christoffel
+symbols are
+%
+\begin{equation}
+  \christoffel{\theta}{\varphi}{\varphi} = -\sin\theta\cos\theta \,,\qquad
+  \christoffel{\varphi}{\theta}{\varphi}
+    = \christoffel{\varphi}{\varphi}{\theta} = \cot\theta \,.
+  \label{eq:sphere-christoffel}
+\end{equation}
+%
+The Christoffel symbols of a sphere are independent of its radius --- they
+encode the directions in which the basis vectors rotate, not the overall scale
+of the geometry.
+
+At the equator ($\theta = \pi/2$), all Christoffel symbols vanish: the
+coordinate basis is parallel-transported along any direction through a point on
+the equator, consistent with the equator being a geodesic of the sphere.
+\physnote{The connection between Christoffel symbols and geodesics is made
+precise by the geodesic equation in \cref{sec:dg-geodesic}.}
+
+\paragraph{Metric compatibility in action.}
+
+The condition $\cd{\alpha}\,\metric = 0$ has a direct computational
+consequence: index raising and lowering commute with the covariant derivative.
+That is, for any vector field $V^\mu$,
+%
+\begin{equation}
+  \cd{\alpha}(g_{\mu\nu}\, V^\nu) = g_{\mu\nu}\, \cd{\alpha} V^\nu \,.
+  \label{eq:metric-commutes-cd}
+\end{equation}
+%
+The metric passes through the derivative like a constant.  This property is used
+implicitly throughout the geodesic and ray-tracing chapters whenever we switch
+between the momentum $p_\mu$ and the velocity
+$\dot{x}^\mu = g^{\mu\alpha}\, p_\alpha$ --- the two formulations are
+interchangeable precisely because the Levi-Civita connection preserves the
+metric.
+\xrefnote{The geodesic equation in \cref{sec:dg-geodesic} exploits metric
+compatibility to move freely between Lagrangian ($\dot{x}^\mu$) and Hamiltonian
+($p_\mu$) formulations.}
+
+\paragraph{From explicit formulae to automatic differentiation.}
+
+The Christoffel symbol formula (\cref{eq:christoffel-formula}) involves first
+partial derivatives of the metric components --- 40 derivatives for a general
+four-dimensional metric.  For a known analytic metric like Schwarzschild, one
+can compute these by hand (or, more realistically, with a computer algebra
+system).  For the Kerr metric, each of the 40 Christoffel symbols is a rational
+function of $r$ and $\theta$ spanning several lines --- hand-differentiating and
+transcribing them is error-prone and must be repeated for every new metric.  The
+event-horizon codebase takes a different approach: it never computes Christoffel
+symbols from hand-coded derivative expressions.
+\coderef{Math.Tensor}{Christoffel4}
+\implnote{The type \texttt{Christoffel4} stores four \texttt{Sym4 'Covariant}
+values, one per upper index, exploiting the symmetry
+$\christoffel{\lambda}{\mu}{\nu} = \christoffel{\lambda}{\nu}{\mu}$.  Each
+\texttt{Sym4} stores 10 independent components.}
+
+Instead, the codebase uses \emph{automatic differentiation}: the metric
+function is written polymorphically (accepting any \texttt{Floating} type), and
+the same code that evaluates $\metric$ at a point can compute exact
+derivatives $\pd{\sigma}\,g_{\mu\nu}$ by passing an AD type instead of
+\texttt{Double}.  The Christoffel formula (\cref{eq:christoffel-formula})
+is then evaluated numerically at each integration step, using these exact
+derivatives.  This strategy eliminates hand-coded derivative expressions,
+reduces the surface area for implementation errors, and generalises
+immediately to any metric the user supplies.
+\xrefnote{The automatic differentiation strategy is developed in detail in
+\cref{ch:autodiff}.}
+
+The machinery is now in place to write down the equation that governs both
+massive particles and photons in curved spacetime: the geodesic equation, which
+states that freely falling worldlines have zero covariant acceleration.

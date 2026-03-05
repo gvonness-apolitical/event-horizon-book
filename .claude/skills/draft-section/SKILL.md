@@ -69,7 +69,7 @@ Write LaTeX prose following the IFI cycle from `tone.md`. Include:
 - **Interpreting sentence** after every displayed equation
 - `\label{eq:...}` on all displayed equations
 - `\coderef{}{}` margin notes at first encounter of codebase-implemented concepts
-- **Figure placeholders** with description, source type, parameters, draft caption, and label (see tone.md §5)
+- **Figure placeholders** with description, source type, parameters, draft caption (full and short for List of Figures), and label (see tone.md §5)
 - **Margin notes** (`\physnote`, `\implnote`, `\histnote`, `\xrefnote`, `\warnnote`) where appropriate
 - `\cite{}` references — flag missing bibliography keys as `\cite{TODO:AuthorYear}`
 - Use macros from `ehcommands.tex` consistently (never raw `g_{\mu\nu}` when `\metric` exists)
@@ -200,7 +200,7 @@ Process returned reviews. If a reviewer does not return, proceed without them.
 - Use specific numbers to ground abstractions (masses, radii, timescales)
 - Show all derivation steps with justification
 - Connect to the codebase with `\coderef` and code excerpts
-- Write substantial figure captions (3–5 sentences, self-contained)
+- Write substantial figure captions (3–5 sentences, self-contained) with a short caption for the List of Figures: `\caption[Short title]{Full caption...}`
 - Check that cross-reference targets (`\cref{sec:...}`) exist in the chapter stub
 - Distinguish between `\starmark` and non-`\starmark` content
 

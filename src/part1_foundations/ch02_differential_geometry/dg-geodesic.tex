@@ -1,0 +1,279 @@
+% sec:dg-geodesic — The Geodesic Equation
+\section{The Geodesic Equation}
+\label{sec:dg-geodesic}
+
+A freely falling particle --- one subject to no forces other than gravity ---
+follows the straightest possible path through curved spacetime.  In flat
+spacetime, ``straightest'' means ``straight line'': a particle at rest stays at
+rest, and a moving particle continues at constant velocity.  On a curved
+manifold, straight lines don't exist, but the concept of ``straightest''
+survives as a curve whose tangent vector doesn't turn relative to the geometry
+itself.  The geodesic equation makes this precise, and every photon trajectory
+computed by the ray tracer is a solution of it.
+\physnote{``Freely falling'' in GR means subject only to gravity.  Gravity
+is not a force --- it is the curvature of spacetime.  A particle in free fall
+follows a geodesic; a particle that feels a non-gravitational force does not.}
+
+\paragraph{Parallel transport and autoparallels.}
+
+Consider a curve $x^\mu(\lambda)$ parametrised by $\lambda$, with tangent
+vector $\dot{x}^\mu = \d x^\mu / \d\lambda$.  A vector field $V^\mu$ defined
+along this curve is \emph{parallel-transported} if its covariant rate of change
+in the direction of the tangent vanishes:
+%
+\begin{equation}
+  \dot{x}^\alpha\,\cd{\alpha} V^\mu = 0 \,.
+  \label{eq:parallel-transport}
+\end{equation}
+%
+Expanding the covariant derivative using \cref{eq:covariant-deriv-vector}
+gives the component form
+%
+\begin{equation}
+  \frac{\d V^\mu}{\d\lambda}
+  + \christoffel{\mu}{\alpha}{\beta}\,\dot{x}^\alpha\, V^\beta = 0 \,.
+  \label{eq:parallel-transport-components}
+\end{equation}
+%
+The first term is the ordinary rate of change of $V^\mu$ along the curve; the
+second corrects for the rotation of the coordinate basis, exactly as the
+covariant derivative was designed to do in \cref{sec:dg-covariant}.
+
+A geodesic is a curve that parallel-transports its own tangent vector --- it
+is as straight as the geometry allows.  Setting $V^\mu = \dot{x}^\mu$ in
+\cref{eq:parallel-transport-components} yields the \emph{geodesic equation}:
+%
+\begin{equation}
+  \ddot{x}^\mu + \christoffel{\mu}{\alpha}{\beta}\,
+  \dot{x}^\alpha\,\dot{x}^\beta = 0 \,,
+  \label{eq:geodesic}
+\end{equation}
+%
+where $\ddot{x}^\mu = \d^2 x^\mu / \d\lambda^2$.  This is a system of four
+coupled second-order ODEs for the coordinate functions $x^\mu(\lambda)$.  The
+Christoffel symbols encode a position-dependent ``force'' that bends the
+trajectory, but it is not a physical force --- it is the geometry itself,
+determined by the metric derivatives in \cref{eq:christoffel-formula}, that
+shapes freely falling worldlines.
+\xrefnote{The geodesic equation is the curved-spacetime generalisation of
+the photon trajectory equation from \cref{sec:sr-causal}.}
+
+\paragraph{The variational principle.}
+
+The same equation arises from a different starting point: extremising the
+action along a curve.  Define the Lagrangian
+%
+\begin{equation}
+  L = \tfrac{1}{2}\,\metric\,\dot{x}^\mu\,\dot{x}^\nu \,,
+  \label{eq:geodesic-lagrangian}
+\end{equation}
+%
+so that $2L$ is the squared norm of the tangent vector.  The factor of
+$\tfrac{1}{2}$ simplifies the algebra.  Demanding that the action
+$S = \int L\,\d\lambda$ be stationary under variations with fixed endpoints
+yields the Euler--Lagrange equations
+%
+\begin{equation}
+  \frac{\d}{\d\lambda}\frac{\partial L}{\partial \dot{x}^\mu}
+  - \frac{\partial L}{\partial x^\mu} = 0 \,.
+  \label{eq:euler-lagrange}
+\end{equation}
+%
+The canonical momentum is
+$\partial L / \partial\dot{x}^\mu = \metric\,\dot{x}^\nu$, and the
+position derivative is
+$\partial L / \partial x^\mu = \tfrac{1}{2}\,(\pd{\mu}\,
+g_{\alpha\beta})\,\dot{x}^\alpha\,\dot{x}^\beta$.  Substituting into
+\cref{eq:euler-lagrange} and expanding
+$\tfrac{\d}{\d\lambda}(\metric\,\dot{x}^\nu)$ with the product rule yields
+three metric-derivative terms.  Since $\dot{x}^\alpha\,\dot{x}^\beta$ is
+symmetric, these combine into the three-term Christoffel combination
+$\pd{\alpha}\,g_{\mu\beta} + \pd{\beta}\,g_{\mu\alpha}
+- \pd{\mu}\,g_{\alpha\beta}$ from \cref{eq:christoffel-formula}; contracting
+with the inverse metric recovers \cref{eq:geodesic}.
+
+The two derivations --- parallel transport and the variational principle ---
+yield the same equation.  This is a theorem, not a coincidence: for a
+metric-compatible, torsion-free connection (the Levi-Civita connection of
+\cref{sec:dg-covariant}), autoparallels and extremals coincide
+\cite{Carroll2004}.
+\histnote{The equivalence between variational and parallel-transport geodesics
+depends on the torsion-free condition.  In Einstein--Cartan theory, which
+permits torsion, the two notions diverge.}
+
+\paragraph{Affine parametrisation and the null--timelike split.}
+
+\Cref{eq:geodesic} holds only for \emph{affine} parameters --- those related
+to any other affine parameter by a linear transformation
+$\lambda \to a\lambda + b$ with $a \neq 0$.  The Lagrangian $L$ is constant
+along any affinely parametrised geodesic, which gives the causal
+classification:
+%
+\begin{equation}
+  2L = \metric\,\dot{x}^\mu\,\dot{x}^\nu =
+  \begin{cases}
+    -1 & \text{timelike ($\lambda = \tau$, proper time)} \\
+    \phantom{-}0 & \text{null (photons)} \\
+    +1 & \text{spacelike}
+  \end{cases}
+  \label{eq:geodesic-constraint}
+\end{equation}
+%
+For timelike geodesics, the natural affine parameter is proper time $\tau$, and
+the tangent vector $\dot{x}^\mu = \fourvel$ is the four-velocity with
+$\metric\,u^\mu\,u^\nu = -1$.  For null geodesics, proper time vanishes along
+the worldline, so the affine parameter $\lambda$ has no direct physical
+interpretation --- it can be rescaled by any positive constant without changing
+the trajectory.  The ray tracer exploits this freedom by setting the photon
+energy $E = 1$, as in \cref{sec:sr-causal}.
+\warnnote{The constraint \cref{eq:geodesic-constraint} is a first integral,
+not an additional equation.  If the initial tangent vector satisfies the
+constraint, the geodesic equation preserves it automatically.}
+
+\paragraph{The Hamiltonian formulation.}
+
+The geodesic equation is a second-order system: four equations for four
+unknowns $x^\mu(\lambda)$.  Numerical integrators prefer first-order systems,
+since standard adaptive methods (Runge--Kutta, symplectic integrators) are
+designed for that form.  The Legendre transform of the Lagrangian defines the
+conjugate momentum
+%
+\begin{equation}
+  p_\mu = \frac{\partial L}{\partial \dot{x}^\mu}
+        = \metric\,\dot{x}^\nu \,,
+  \label{eq:conjugate-momentum}
+\end{equation}
+%
+which is the index-lowered tangent vector --- the same covariant four-momentum
+introduced in \cref{sec:sr-causal}.  The Hamiltonian is $\mathcal{H} =
+p_\mu\,\dot{x}^\mu - L$; substituting
+$\dot{x}^\mu = \inversemetric\,p_\nu$ and simplifying gives the
+\emph{geodesic super-Hamiltonian}:
+%
+\begin{equation}
+  \mathcal{H} = \tfrac{1}{2}\,\inversemetric\,p_\mu\,p_\nu \,.
+  \label{eq:geodesic-hamiltonian}
+\end{equation}
+%
+Hamilton's equations then provide eight first-order ODEs:
+%
+\begin{align}
+  \dot{x}^\mu &= \frac{\partial\mathcal{H}}{\partial p_\mu}
+               = \inversemetric\,p_\nu \,,
+  \label{eq:hamilton-xdot} \\
+  \dot{p}_\mu &= -\frac{\partial\mathcal{H}}{\partial x^\mu}
+               = -\tfrac{1}{2}\,(\pd{\mu}\,g^{\alpha\beta})\,
+                 p_\alpha\,p_\beta \,.
+  \label{eq:hamilton-pdot}
+\end{align}
+%
+The first equation is the algebraic inversion of
+\cref{eq:conjugate-momentum} using the non-degenerate inverse metric.  The
+second shows that $\dot{p}_\mu$ depends on partial derivatives of the metric
+components, not on Christoffel symbols directly.
+\coderef{Geodesic.Hamiltonian}{hamiltonianRHS}
+
+An equivalent form of the momentum equation follows directly from the
+Euler--Lagrange equation: $\dot{p}_\mu = \partial L / \partial x^\mu$ gives
+%
+\begin{equation}
+  \dot{p}_\mu = \tfrac{1}{2}\,(\pd{\mu}\,g_{\alpha\beta})\,
+    \dot{x}^\alpha\,\dot{x}^\beta \,,
+  \label{eq:hamilton-pdot-covariant}
+\end{equation}
+%
+which involves derivatives of the \emph{covariant} metric rather than the
+inverse.  The sign change relative to \cref{eq:hamilton-pdot} arises from the
+identity $\pd{\mu}\,g^{\alpha\beta} =
+-g^{\alpha\gamma}\,g^{\beta\delta}\,\pd{\mu}\,g_{\gamma\delta}$ (obtained by
+differentiating $g^{\alpha\gamma}\,g_{\gamma\beta} = \delta^\alpha{}_\beta$).
+The codebase uses this form: the automatic differentiation strategy from
+\cref{sec:dg-covariant} differentiates the covariant metric function directly,
+and \cref{eq:hamilton-pdot-covariant} consumes those derivatives without ever
+requiring the inverse metric to be differentiated.  Hamilton's equations thus
+need only the metric, its inverse, and first derivatives of the metric.
+\implnote{The function \texttt{hamiltonianRHS} computes $\dot{x}^\mu$ via
+\cref{eq:hamilton-xdot}, then evaluates \cref{eq:hamilton-pdot-covariant}
+using AD-computed metric derivatives.}
+
+Metric compatibility ($\cd{\alpha}\,\metric = 0$) guarantees that the
+Lagrangian ($\dot{x}^\mu$) and Hamiltonian ($p_\mu$) formulations are fully
+interchangeable --- the result promised in \cref{sec:dg-covariant}.
+
+\paragraph{Constraint preservation.}
+
+Since $\mathcal{H}$ depends on $x^\mu$ and $p_\mu$ but not on $\lambda$
+explicitly, the chain rule applied to Hamilton's equations gives
+$\dot{\mathcal{H}} = \partial\mathcal{H}/\partial\lambda = 0$: the
+Hamiltonian is conserved along any solution.  Comparing with the normalisation
+conditions in \cref{eq:geodesic-constraint}:
+%
+\begin{equation}
+  \mathcal{H} =
+  \begin{cases}
+    -\tfrac{1}{2} & \text{timelike} \\
+    \phantom{-}0 & \text{null}
+  \end{cases}
+  \label{eq:hamiltonian-constraint}
+\end{equation}
+%
+For null geodesics, $\mathcal{H} = 0$ is preserved exactly by the continuous
+equations; any drift during numerical integration is entirely due to
+discretisation error.  The codebase monitors $\abs{\mathcal{H}}$ at every
+step --- for a well-tuned adaptive integrator, this quantity remains below
+$10^{-12}$ throughout a typical ray trace, providing a built-in accuracy
+diagnostic at no extra computational cost.
+\xrefnote{The full numerical integration strategy --- adaptive step control,
+Killing-vector conservation, and termination conditions --- is developed in
+\cref{ch:geodesics}.}
+
+\paragraph{A worked example: great circles on $S^2$.}
+
+The geodesic equation on the two-sphere, with the Christoffel symbols of
+\cref{eq:sphere-christoffel}, gives two component equations:
+%
+\begin{align}
+  \ddot{\theta} - \sin\theta\cos\theta\;\dot{\varphi}^2 &= 0 \,,
+  \label{eq:sphere-geodesic-theta} \\
+  \ddot{\varphi} + 2\cot\theta\;\dot{\theta}\,\dot{\varphi} &= 0 \,.
+  \label{eq:sphere-geodesic-phi}
+\end{align}
+%
+Consider the equator: $\theta(\lambda) = \pi/2$ for all $\lambda$, with
+$\varphi(\lambda) = \omega\lambda$ for constant angular speed $\omega$.  Then
+$\dot{\theta} = \ddot{\theta} = 0$ and $\ddot{\varphi} = 0$.
+\Cref{eq:sphere-geodesic-theta} requires
+$-\sin(\pi/2)\cos(\pi/2)\,\omega^2 = 0$, which holds since
+$\cos(\pi/2) = 0$.  \Cref{eq:sphere-geodesic-phi} reduces to $0 = 0$.  The
+equator is a geodesic --- a great circle traversed at constant angular speed.
+By contrast, a latitude circle at $\theta_0 \neq \pi/2$ fails
+\cref{eq:sphere-geodesic-theta} because $\cos\theta_0 \neq 0$ --- the curve
+must constantly accelerate poleward to maintain its latitude, confirming that
+only great circles are geodesics on $S^2$.
+\physnote{Every great circle on $S^2$ is a geodesic.  A rotation of
+coordinates maps any great circle to the equator, so verifying the equator
+suffices by symmetry.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/sphere-geodesics}
+  \caption[Geodesics on the two-sphere]{Geodesics on the two-sphere are great circles --- curves whose
+    centres coincide with the centre of the sphere.  Three great circles
+    (solid gold) are shown, including the equator.  The dashed grey curve
+    is a latitude line at $\theta = \pi/4$; it is not a geodesic because
+    a parallel-transported tangent vector rotates away from the curve's
+    tangent direction.  All spheres share the same geodesic structure
+    regardless of radius, since the factor $R^2$ cancels from the
+    geodesic equation.}
+  \label{fig:sphere-geodesics}
+\end{figure}
+
+The geodesic equation, in either its second-order form (\cref{eq:geodesic}) or
+the Hamiltonian system (\cref{eq:hamilton-xdot,eq:hamilton-pdot}), is the
+equation of motion that the ray tracer integrates at every step.  The
+Hamiltonian form is preferred computationally: it yields a first-order system
+whose conserved Hamiltonian provides a built-in error diagnostic, and any
+coordinate absent from the metric produces a conserved component of $p_\mu$
+directly from \cref{eq:hamilton-pdot}.  The remaining geometric ingredient is a
+measure of how the gravitational field curves nearby geodesics apart --- the
+subject of the next section.

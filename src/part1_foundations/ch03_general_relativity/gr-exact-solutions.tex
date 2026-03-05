@@ -1,0 +1,215 @@
+% sec:gr-exact-solutions — Exact Solutions: An Overview
+\section{Exact Solutions: An Overview}
+\label{sec:gr-exact-solutions}
+
+The field equations tell us how geometry responds to matter, but to
+integrate geodesics we need an explicit metric at every spacetime
+point.  Finding exact solutions to the vacuum equations $\ricci = 0$
+(\cref{eq:vacuum-efe}) is notoriously difficult --- the nonlinear
+coupling means that even elementary symmetry assumptions lead to
+lengthy calculations --- yet the known solutions include precisely the
+spacetimes that generate the most dramatic images: non-rotating and
+rotating black holes, and traversable wormholes.  Three exact solutions
+are implemented in the codebase, each corresponding to a physically
+distinct geometry, and they provide the input for everything the ray
+tracer computes.
+\coderef{Spacetime}{Class}
+
+\paragraph{The Schwarzschild metric.}
+
+The simplest black hole solution assumes no rotation and no charge.
+Birkhoff's theorem (\cref{sec:schw-derivation}) guarantees that
+spherical symmetry alone, combined with the vacuum equations,
+determines the metric uniquely up to the mass parameter~$M$.  In
+Boyer--Lindquist coordinates $(t, r, \theta, \varphi)$, the line
+element is
+%
+\begin{equation}
+  \d s^2 = -\!\left(1 - \frac{2M}{r}\right)\d t^2
+           + \left(1 - \frac{2M}{r}\right)^{-1}\!\d r^2
+           + r^2\!\left(\d\theta^2 + \sin^2\!\theta\;\d\varphi^2\right) .
+  \label{eq:schwarzschild-metric}
+\end{equation}
+%
+The time--time component $g_{00} = -(1 - 2M/r)$ is the gravitational
+potential identified in the weak-field analysis (\cref{eq:g00-potential});
+the exact redshift formula (\cref{eq:redshift-schwarzschild}) follows
+directly from it.  Three radii organise the physics: the event
+horizon at $r = 2M$, where photons are infinitely redshifted; the
+photon sphere at $r = 3M$, where unstable circular photon orbits
+produce the bright ring visible in resolved black hole images; and the
+innermost stable circular orbit (ISCO) at $r = 6M$, the inner edge
+of a thin accretion disc (\cref{sec:schw-orbits}).  For a
+$10\,M_\odot$ stellar-mass black hole, these correspond to roughly
+$30\;\text{km}$, $44\;\text{km}$, and $89\;\text{km}$ --- city-scale
+distances for an object containing ten solar masses.
+\histnote{Schwarzschild found this solution in December 1915, just
+weeks after Einstein published the field equations --- while serving
+on the Eastern Front in World War~I.  He communicated the result
+to Einstein by letter; it was the first exact solution.}
+
+The divergence of $g_{rr}$ at $r = 2M$ is a coordinate artefact, not
+a physical singularity: the Kretschmann scalar
+$R_{\alpha\beta\gamma\delta}R^{\alpha\beta\gamma\delta} = 48M^2/r^6$
+is finite there and diverges only at $r = 0$.  But for the ray tracer,
+coordinates that break at the horizon are unacceptable --- photons
+must be tracked smoothly through $r = 2M$.
+\xrefnote{The full treatment of coordinate singularities and
+their resolution appears in \cref{sec:schw-coordinates}.}
+
+\paragraph{The Kerr--Schild form.}
+
+The coordinate singularity at $r = 2M$ demands a metric form that
+remains finite across the horizon.  Both the Schwarzschild and Kerr
+spacetimes admit such a form --- a decomposition in which the full
+metric is a flat background plus a single tensor correction:
+%
+\begin{equation}
+  \metric = \eta_{\mu\nu} + f\,l_\mu\,l_\nu \,,
+  \label{eq:kerr-schild-form}
+\end{equation}
+%
+where $f$ is a scalar function and $l_\mu$ is a null covector with
+respect to both $\eta_{\mu\nu}$ and $\metric$ --- a property unique
+to the Kerr--Schild class.  Because $l_\mu$ is null with respect to
+$\eta_{\mu\nu}$, the cross-terms that would normally appear in a
+matrix inversion vanish, and the inverse metric takes a remarkably
+simple form: $\inversemetric = \eta^{\mu\nu} - f\,l^\mu\,l^\nu$.
+For the Schwarzschild spacetime in Cartesian coordinates
+$(t, x, y, z)$, the Kerr--Schild data are $f = 2M/r$ and
+$l_\mu = (1,\; x/r,\; y/r,\; z/r)$ with $r = \sqrt{x^2 + y^2 + z^2}$.
+Every component of $\metric$ remains finite at $r = 2M$, so geodesics
+can be integrated without special treatment as they cross the horizon.
+The codebase uses Kerr--Schild coordinates as its default for both
+Schwarzschild and Kerr spacetimes (\cref{sec:schw-kerr-schild}).
+\coderef{Spacetime}{SchwarzschildKS}
+
+\paragraph{The Kerr metric.}
+
+Astrophysical black holes rotate.  The Kerr solution adds a single
+parameter --- the specific angular momentum $a = J/M$ --- and breaks
+spherical symmetry down to axisymmetry.  The Boyer--Lindquist line
+element (derived in \cref{ch:kerr}) is governed by two functions:
+%
+\begin{equation}
+  \Sigma = r^2 + a^2 \cos^2\!\theta \,, \qquad
+  \Delta = r^2 - 2Mr + a^2 \,,
+  \label{eq:kerr-sigma-delta}
+\end{equation}
+%
+The function $\Sigma$ encodes the oblate-spheroid geometry
+introduced by the spin; $\Delta$ is a quadratic in $r$ whose roots
+are the event horizons.  Setting $\Delta = 0$ yields two horizons:
+the outer event horizon at $r_+ = M + \sqrt{M^2 - a^2}$ and the
+inner (Cauchy) horizon at $r_- = M - \sqrt{M^2 - a^2}$.  Both exist
+only for $\abs{a} \leq M$ --- the bound separating black holes from
+naked singularities.  The limiting case $\abs{a} = M$ is an extremal
+Kerr black hole, whose two horizons merge at $r = M$.
+
+Rotation introduces physics absent from the Schwarzschild case.
+The off-diagonal component $g_{t\varphi}$ couples time and azimuth,
+dragging spacetime along with the black hole --- an effect called
+\emph{frame dragging}.  Inside the \emph{ergosphere}, frame dragging
+is so strong that no observer can remain stationary relative to
+infinity.  For the ray tracer, this produces the characteristic
+brightness asymmetry of a rotating black hole: co-rotating photons
+are blueshifted while counter-rotating photons are redshifted.
+
+The Kerr metric also admits the Kerr--Schild form
+(\cref{eq:kerr-schild-form}), with
+$f = 2Mr^3/(r^4 + a^2 z^2)$ --- where $r$ is now the Boyer--Lindquist
+radius, an implicit function of the Cartesian coordinates that reduces
+to the Euclidean radius when $a = 0$ --- and a null covector $l_\mu$
+adapted to the spin.  Setting $a = 0$ recovers the Schwarzschild case
+exactly.
+\coderef{Spacetime}{KerrKS}
+
+\paragraph{The Morris--Thorne wormhole.}
+
+Not every exact solution describes a black hole.  The Morris--Thorne
+metric is a static, spherically symmetric spacetime with a
+\emph{throat} --- a minimal-area sphere connecting two asymptotically
+flat regions \cite{MorrisThorne1988}.  In terms of the proper radial
+distance $\ell$ from the throat, the line element is
+%
+\begin{equation}
+  \d s^2 = -\d t^2 + \d\ell^2
+           + (b_0^2 + \ell^2)\!\left(\d\theta^2
+             + \sin^2\!\theta\;\d\varphi^2\right) ,
+  \label{eq:morris-thorne-metric}
+\end{equation}
+%
+where $b_0$ is the throat radius.  The circumferential radius
+$r(\ell) = \sqrt{b_0^2 + \ell^2}$ reaches its minimum $b_0$ at the
+throat ($\ell = 0$) but never vanishes: there is no singularity and
+no horizon.  Geodesics pass freely through the throat from one
+asymptotic region to the other.
+
+The general Morris--Thorne family includes a redshift function
+$\Phi(\ell)$ multiplying $g_{tt}$; the codebase implements the
+zero-redshift case $\Phi = 0$, giving a globally constant
+$g_{tt} = -1$ and no gravitational redshift anywhere in the
+spacetime.  This simplicity has a cost: sustaining the throat requires
+matter that violates the null energy condition (\cref{eq:nec}), as
+discussed in \cref{sec:gr-stress-energy}.  In the codebase, the
+Morris--Thorne wormhole serves as a visually striking test case ---
+the double sky visible through the throat and the lensing ring around
+its rim provide a stringent check on the geodesic integrator's
+handling of nontrivial topology.
+\warnnote{No known classical or quantum matter satisfies the
+NEC violation required to sustain a wormhole throat.  The
+Morris--Thorne spacetime is a valid solution to the Einstein
+equations, but the matter source it demands has no known physical
+realisation --- it is a mathematical existence proof, not a
+prediction.}
+\coderef{Spacetime}{MorrisThorne}
+
+\begin{figure}[ht]
+  \centering
+  \input{../figures/embedding-diagrams}
+  \caption[Embedding diagrams for Schwarzschild and Morris-Thorne spacetimes]{%
+    Embedding diagrams for the Schwarzschild black hole (left) and the
+    Morris--Thorne wormhole (right).  Each curve shows the cross-section
+    of the equatorial ($\theta = \pi/2$) spatial slice embedded into
+    Euclidean three-space.  The Schwarzschild geometry terminates at the
+    event horizon $r = 2M$, where the funnel pinches off; the curvature
+    singularity at $r = 0$ lies beyond.  The Morris--Thorne geometry has
+    a smooth throat of finite circumference $2\pi b_0$ that connects two
+    asymptotically flat regions.  Sustaining this throat geometry requires
+    exotic matter that violates the null energy condition.}
+  \label{fig:embedding-diagrams}
+\end{figure}
+
+\paragraph{Codebase architecture.}
+
+The three spacetimes share a common interface: the
+\texttt{Spacetime} type class.  Each instance provides the covariant
+metric, its inverse, and the Christoffel symbols at any point:
+%
+\begin{lstlisting}[language=Haskell]
+class Spacetime s where
+  metric4      :: s -> Point s -> Sym4 'Covariant
+  invMetric4   :: s -> Point s -> Sym4 'Contravariant
+  christoffel4 :: s -> Point s -> Christoffel4
+\end{lstlisting}
+%
+The type-level variance tags (\texttt{'Covariant},
+\texttt{'Contravariant}) prevent accidental mixing of index positions
+at compile time.  Because every spacetime exposes the same three
+functions, the geodesic integrator developed in the following chapters
+is entirely spacetime-agnostic: switching from Schwarzschild to Kerr
+requires changing only the spacetime instance, not the integration
+code.
+\implnote{The Christoffel symbols are computed via automatic
+differentiation by default.  Each spacetime provides a polymorphic
+metric function of type \texttt{Floating~a~=>~[a]~->~[a]} that works
+with both \texttt{Double} and AD types, eliminating hand-coded
+derivatives entirely.  The AD strategy is developed in
+\cref{ch:autodiff}.}
+
+The exact solutions stated above are the inputs to the ray tracer;
+the remaining chapters in this part derive each from first principles,
+develop the geodesic machinery that turns $\metric$ and
+$\christoffel{\lambda}{\mu}{\nu}$ into photon trajectories, and build
+the spectral calculations that assign a colour and brightness to each
+ray.

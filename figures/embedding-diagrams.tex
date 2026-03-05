@@ -1,0 +1,143 @@
+% embedding-diagrams.tex — Side-by-side embedding diagrams:
+%   (a) Schwarzschild black hole, (b) Morris-Thorne wormhole
+% Inputable TikZ fragment for fig:embedding-diagrams
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Each panel shows the 2D cross-section (r, z) of the equatorial
+% spatial slice embedded into Euclidean 3-space.
+%
+% Schwarzschild:  z(r) = ± 2 sqrt(2M(r - 2M)),  M = 1,  r in [2, 8]
+% Morris-Thorne:  r(ell) = sqrt(b0^2 + ell^2),   b0 = 2, ell in [-7.5, 7.5]
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Scale parameters ──────────────────────────────────────────────
+  \def\rscale{0.45}      % cm per unit of circumferential radius r
+  \def\zscale{0.33}      % cm per unit of embedding height z or ell
+  \def\panelsep{4.8}     % horizontal offset between panel origins (cm)
+
+  % ====================================================================
+  %  Panel (a): Schwarzschild embedding
+  % ====================================================================
+  \begin{scope}
+
+    % ── Axes ──────────────────────────────────────────────────────────
+    \draw[->, EHMarginGray, thin]
+      (0, 0) -- ({8.5*\rscale}, 0)
+      node[right, font=\scriptsize, text=EHMarginGray] {$r$};
+    \draw[->, EHMarginGray, thin]
+      (0, {-2.8*\zscale}) -- (0, {7.5*\zscale})
+      node[above, font=\scriptsize, text=EHMarginGray] {$z$};
+
+    % ── Upper branch: z(r) = +2 sqrt(2(r - 2)) ──────────────────────
+    \draw[EHAccretionGold, thick] plot[smooth, tension=0.55] coordinates {
+      ({2.00*\rscale}, {0.0000*\zscale})   % r=2.00  z=0.000 (horizon)
+      ({2.02*\rscale}, {0.4000*\zscale})   % r=2.02  z=0.400
+      ({2.05*\rscale}, {0.6325*\zscale})   % r=2.05  z=0.632
+      ({2.10*\rscale}, {0.8944*\zscale})   % r=2.10  z=0.894
+      ({2.20*\rscale}, {1.2649*\zscale})   % r=2.20  z=1.265
+      ({2.40*\rscale}, {1.7889*\zscale})   % r=2.40  z=1.789
+      ({2.70*\rscale}, {2.3664*\zscale})   % r=2.70  z=2.366
+      ({3.00*\rscale}, {2.8284*\zscale})   % r=3.00  z=2.828
+      ({3.50*\rscale}, {3.4641*\zscale})   % r=3.50  z=3.464
+      ({4.00*\rscale}, {4.0000*\zscale})   % r=4.00  z=4.000
+      ({4.50*\rscale}, {4.4721*\zscale})   % r=4.50  z=4.472
+      ({5.00*\rscale}, {4.8990*\zscale})   % r=5.00  z=4.899
+      ({5.50*\rscale}, {5.2915*\zscale})   % r=5.50  z=5.292
+      ({6.00*\rscale}, {5.6569*\zscale})   % r=6.00  z=5.657
+      ({6.50*\rscale}, {6.0000*\zscale})   % r=6.50  z=6.000
+      ({7.00*\rscale}, {6.3246*\zscale})   % r=7.00  z=6.325
+      ({7.50*\rscale}, {6.6332*\zscale})   % r=7.50  z=6.633
+      ({8.00*\rscale}, {6.9282*\zscale})   % r=8.00  z=6.928
+    };
+
+    % ── Lower branch: z(r) = -2 sqrt(2(r - 2)) ──────────────────────
+    \draw[EHAccretionGold, thick] plot[smooth, tension=0.55] coordinates {
+      ({2.00*\rscale}, {-0.0000*\zscale})  % r=2.00  z=0.000 (horizon)
+      ({2.02*\rscale}, {-0.4000*\zscale})  % r=2.02  z=-0.400
+      ({2.05*\rscale}, {-0.6325*\zscale})  % r=2.05  z=-0.632
+      ({2.10*\rscale}, {-0.8944*\zscale})  % r=2.10  z=-0.894
+      ({2.20*\rscale}, {-1.2649*\zscale})  % r=2.20  z=-1.265
+      ({2.40*\rscale}, {-1.7889*\zscale})  % r=2.40  z=-1.789
+      ({2.70*\rscale}, {-2.3664*\zscale})  % r=2.70  z=-2.366
+    };
+
+    % ── Horizon marker ────────────────────────────────────────────────
+    \draw[EHHorizonCrimson, dashed, thin]
+      ({2*\rscale}, {-2.5*\zscale}) -- ({2*\rscale}, {1.5*\zscale});
+    \fill[EHHorizonCrimson] ({2*\rscale}, 0) circle (1.5pt);
+    \node[font=\scriptsize, text=EHHorizonCrimson, anchor=south east]
+      at ({2*\rscale - 0.08}, {1.8*\zscale}) {$r\!=\!2M$};
+
+    % ── Singularity arrow ─────────────────────────────────────────────
+    \draw[->, EHHorizonCrimson, thick, shorten >=1pt]
+      ({1.6*\rscale}, 0) -- ({0.2*\rscale}, 0);
+    \node[font=\scriptsize, text=EHHorizonCrimson, anchor=east]
+      at ({0.15*\rscale}, 0) {$r\!=\!0$};
+
+    % ── Panel label ───────────────────────────────────────────────────
+    \node[font=\small, anchor=north] at ({4.5*\rscale}, {-3.4*\zscale})
+      {(a) Schwarzschild};
+
+  \end{scope}
+
+  % ====================================================================
+  %  Panel (b): Morris-Thorne embedding
+  % ====================================================================
+  \begin{scope}[xshift=\panelsep cm]
+
+    % ── Axes ──────────────────────────────────────────────────────────
+    \draw[->, EHMarginGray, thin]
+      (0, 0) -- ({8.5*\rscale}, 0)
+      node[right, font=\scriptsize, text=EHMarginGray] {$r$};
+    \draw[->, EHMarginGray, thin]
+      (0, {-8.0*\zscale}) -- (0, {8.0*\zscale})
+      node[above, font=\scriptsize, text=EHMarginGray] {$\ell$};
+
+    % ── Embedding profile: (r(ell), ell) ─────────────────────────────
+    %    r(ell) = sqrt(b0^2 + ell^2),  b0 = 2
+    \draw[EHAccretionGold, thick] plot[smooth, tension=0.55] coordinates {
+      ({7.7621*\rscale}, {-7.50*\zscale})  % ell=-7.5  r=7.762
+      ({6.8007*\rscale}, {-6.50*\zscale})  % ell=-6.5  r=6.801
+      ({5.8523*\rscale}, {-5.50*\zscale})  % ell=-5.5  r=5.852
+      ({4.9244*\rscale}, {-4.50*\zscale})  % ell=-4.5  r=4.924
+      ({4.0311*\rscale}, {-3.50*\zscale})  % ell=-3.5  r=4.031
+      ({3.2016*\rscale}, {-2.50*\zscale})  % ell=-2.5  r=3.202
+      ({2.5000*\rscale}, {-1.50*\zscale})  % ell=-1.5  r=2.500
+      ({2.2361*\rscale}, {-1.00*\zscale})  % ell=-1.0  r=2.236
+      ({2.0616*\rscale}, {-0.50*\zscale})  % ell=-0.5  r=2.062
+      ({2.0000*\rscale}, { 0.00*\zscale})  % ell= 0.0  r=2.000 (throat)
+      ({2.0616*\rscale}, { 0.50*\zscale})  % ell=+0.5  r=2.062
+      ({2.2361*\rscale}, { 1.00*\zscale})  % ell=+1.0  r=2.236
+      ({2.5000*\rscale}, { 1.50*\zscale})  % ell=+1.5  r=2.500
+      ({3.2016*\rscale}, { 2.50*\zscale})  % ell=+2.5  r=3.202
+      ({4.0311*\rscale}, { 3.50*\zscale})  % ell=+3.5  r=4.031
+      ({4.9244*\rscale}, { 4.50*\zscale})  % ell=+4.5  r=4.924
+      ({5.8523*\rscale}, { 5.50*\zscale})  % ell=+5.5  r=5.852
+      ({6.8007*\rscale}, { 6.50*\zscale})  % ell=+6.5  r=6.801
+      ({7.7621*\rscale}, { 7.50*\zscale})  % ell=+7.5  r=7.762
+    };
+
+    % ── Throat marker ─────────────────────────────────────────────────
+    \draw[EHAccretionGold!80!black, dashed, thin]
+      ({2*\rscale}, {-1.2*\zscale}) -- ({2*\rscale}, {1.2*\zscale});
+    \fill[EHAccretionGold!80!black] ({2*\rscale}, 0) circle (1.5pt);
+    \node[font=\scriptsize, text=EHAccretionGold!80!black, anchor=south east]
+      at ({2*\rscale - 0.08}, {1.5*\zscale}) {$r\!=\!b_0$};
+
+    % ── Universe labels ───────────────────────────────────────────────
+    \node[font=\scriptsize, text=EHJetBlue, anchor=west]
+      at ({8.0*\rscale}, {7.3*\zscale}) {universe I};
+    \node[font=\scriptsize, text=EHJetBlue, anchor=west]
+      at ({8.0*\rscale}, {-7.3*\zscale}) {universe II};
+
+    % ── Panel label ───────────────────────────────────────────────────
+    \node[font=\small, anchor=north] at ({4.5*\rscale}, {-8.6*\zscale})
+      {(b) Morris--Thorne};
+
+  \end{scope}
+
+\end{tikzpicture}

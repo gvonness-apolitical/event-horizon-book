@@ -100,6 +100,49 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $\eta = 1 - 2\sqrt{2}/3 \approx 5.7\%$ | `sec:schw-orbits` | Radiative efficiency for accretion onto Schwarzschild black hole |
 | $\bar{t} = v - r$ | `sec:schw-kerr-schild` | Kerr-Schild time coordinate; differs from Schwarzschild $t$ by $2M\ln(r/2M-1)$ for $r > 2M$ |
 | $n^i = x^i/r$ | `sec:schw-kerr-schild` | Euclidean unit radial vector ($i = 1,2,3$); $n_i = n^i$ in Cartesian coordinates |
+| $\Sigma$ | `sec:gr-exact-solutions`, re-derived `sec:kerr-bl` | $r^2 + a^2\cos^2\theta$; oblate-spheroid factor; $\Sigma = 0$ at ring singularity |
+| $\Delta$ | `sec:gr-exact-solutions`, re-derived `sec:kerr-bl` | $r^2 - 2Mr + a^2$; horizon function; roots $r_\pm$ are horizons |
+| $A = (r^2 + a^2)^2 - a^2\Delta\sin^2\theta$ | `sec:kerr-bl` | Azimuthal metric auxiliary; governs circumferential radius |
+| eq:kerr-bl-metric | `sec:kerr-bl` | Full Boyer--Lindquist line element for Kerr |
+| eq:bl-quartic | `sec:kerr-bl` | BL-to-Cartesian radius relation; $r^4 - (p^2 - a^2)r^2 - a^2z^2 = 0$ |
+| $\bar{t}$, $\bar{\varphi}$ (Kerr) | `sec:kerr-ks` | Ingoing Kerr--Schild time and azimuthal coordinates; defined differentially via eq:kerr-ks-transform |
+| $f = 2Mr/\Sigma = 2Mr^3/(r^4 + a^2z^2)$ | `sec:gr-exact-solutions`, used `sec:kerr-ks` | Kerr KS scalar function; specialises to $2M/r$ at $a=0$ |
+| $l_\mu$ (Kerr KS) | `sec:gr-exact-solutions`, used `sec:kerr-ks` | Kerr ingoing KS null covector; twisted by spin; eq:kerr-ks-null |
+| eq:kerr-ks-metric | `sec:kerr-ks` | $\metric = \eta_{\mu\nu} + f\,l_\mu\,l_\nu$ for Kerr |
+| eq:kerr-ks-inverse | `sec:kerr-ks` | $\inversemetric = \eta^{\mu\nu} - f\,l^\mu\,l^\nu$ for Kerr |
+| eq:kerr-oblate-spheroidal | `sec:kerr-ks` | Oblate spheroidal coordinate relations; $x+iy = (r+ia)e^{i\bar{\varphi}}\sin\theta$ |
+| $p^2 \equiv x^2 + y^2 + z^2$ | `sec:kerr-bl-quartic` | Squared Euclidean distance; local to quartic derivation; disambiguated from pressure $p$ (`sec:gr-stress-energy`) and momentum $p_\mu$ (`sec:sr-causal`) |
+| $\mathcal{D} = (p^2 - a^2)^2 + 4a^2z^2$ | `sec:kerr-bl-quartic` | Discriminant of BL radius quadratic; non-negative (sum of squares) |
+| $u = r^2$ | `sec:kerr-bl-quartic` | Substitution variable for biquadratic reduction; local to derivation |
+| eq:bl-quartic-derived | `sec:kerr-bl-quartic` | Re-derivation of eq:bl-quartic from oblate spheroidal relations |
+| eq:bl-r-solution | `sec:kerr-bl-quartic` | Closed-form BL radius; $r = \sqrt{u_+}$ with $u_+$ from quadratic formula |
+| eq:kerr-horizons | `sec:kerr-horizons` | $r_\pm = M \pm \sqrt{M^2 - a^2}$; event and Cauchy horizon radii |
+| eq:kerr-gtt | `sec:kerr-horizons` | $g_{tt} = -(\Delta - a^2\sin^2\theta)/\Sigma$; time--time metric component |
+| $r_{\text{ergo}}(\theta)$ | `sec:kerr-horizons` | $M + \sqrt{M^2 - a^2\cos^2\theta}$; outer ergosphere boundary |
+| eq:kerr-ergosphere | `sec:kerr-horizons` | Ergosphere radius as function of polar angle |
+| $\omega = 2Mar/A$ | `sec:kerr-horizons` | ZAMO angular velocity; frame-dragging rate |
+| eq:kerr-omega | `sec:kerr-horizons` | ZAMO angular velocity formula |
+| $\omega_H = a/(r_+^2 + a^2)$ | `sec:kerr-horizons` | Horizon angular velocity |
+| eq:kerr-omega-horizon | `sec:kerr-horizons` | Horizon angular velocity formula |
+| eq:kerr-omega-far | `sec:kerr-horizons` | Far-field frame dragging; $\omega \approx 2Ma/r^3$ |
+| $a_* \equiv a/M$ | `sec:kerr-isco` | Dimensionless spin parameter; $\abs{a_*} \leq 1$ for black holes |
+| $R(r)$ | `sec:kerr-isco` | Kerr radial quartic polynomial; eq:kerr-radial-R. Note: glyph collides with Ricci scalar $\ricciscalar$; context distinguishes |
+| eq:kerr-radial-R | `sec:kerr-isco` | $R(r) = [E(r^2+a^2)-aL]^2 - \Delta[r^2+(L-aE)^2]$; Kerr radial quartic |
+| eq:kerr-circ-E | `sec:kerr-isco` | Specific energy for circular Kerr orbit; $\pm$ upper sign = prograde |
+| eq:kerr-circ-L | `sec:kerr-isco` | Specific angular momentum for circular Kerr orbit |
+| $Z_1$, $Z_2$ | `sec:kerr-isco` | Bardeen--Press--Teukolsky auxiliary functions for ISCO; local to derivation |
+| eq:kerr-Z1, eq:kerr-Z2 | `sec:kerr-isco` | Auxiliary function definitions |
+| eq:kerr-isco | `sec:kerr-isco` | $r_{\text{ISCO}} = M(3 + Z_2 \mp \sqrt{(3-Z_1)(3+Z_1+2Z_2)})$; $\mp$ upper sign = prograde |
+| $\eta = 1 - E_{\text{ISCO}}$ | `sec:kerr-isco` | General Kerr radiative efficiency; extends $\eta \approx 5.7\%$ from `sec:schw-orbits` |
+| $\eta_{\text{max}} = 1 - 1/\sqrt{3} \approx 42.3\%$ | `sec:kerr-isco` | Extremal prograde Kerr efficiency |
+| eq:kerr-efficiency, eq:kerr-efficiency-max | `sec:kerr-isco` | Radiative efficiency formulae |
+| $\rho = \abs{\ell}$ | `sec:kerr-wormhole` | Cartesian radial coordinate for Morris--Thorne; $\rho = \sqrt{x^2+y^2+z^2}$; throat at $\rho = 0$. Note: glyph collides with energy density $\rho$ (`sec:gr-stress-energy`); context distinguishes |
+| eq:mt-metric | `sec:kerr-wormhole` | Morris--Thorne line element in $(\ell,\theta,\varphi)$ coordinates; reproduces eq:morris-thorne-metric |
+| eq:mt-cartesian-spatial | `sec:kerr-wormhole` | $g_{ij} = (1+b_0^2/\rho^2)\delta_{ij} - (b_0^2/\rho^2)n_in_j$; Cartesian spatial metric |
+| eq:mt-cartesian-inverse | `sec:kerr-wormhole` | Inverse spatial metric from eigenvalue decomposition |
+| eq:mt-null-radial | `sec:kerr-wormhole` | $\dot{\ell}^2 = E^2 - L^2/(b_0^2+\ell^2)$; null geodesic radial equation |
+| $V(\ell) = L^2/(b_0^2+\ell^2)$ | `sec:kerr-wormhole` | Effective potential for null geodesics; maximum at $\ell=0$ (throat = photon sphere) |
+| $b_c = b_0$ | `sec:kerr-wormhole` | Critical impact parameter for Morris--Thorne; $b < b_0$ → throat passage, $b > b_0$ → deflection |
 
 ## Analogy Registry
 
@@ -124,7 +167,9 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Newton's shell theorem (gravitational analogue) | `sec:schw-derivation` | Birkhoff's theorem = GR shell theorem: spherically symmetric vacuum exterior is static and unique regardless of interior dynamics. Maps: spherical symmetry → external field depends only on total mass. Breaks: GR version also forces staticity, which has no Newtonian analogue. |
 | One-way membrane (event horizon) | `sec:schw-coordinates` | Light cones tilt inward at $r = 2M$; all future-directed null rays have $\d r < 0$ inside. Maps: door that opens only inward. Breaks: nothing locally special happens at the membrane; it is a global causal property. |
 | Newtonian effective potential (structural analogy) | `sec:schw-orbits` | GR $V_{\text{eff}}$ = Newtonian terms + $-2ML^2/r^3$ correction. Maps: same gravitational + centrifugal structure; same turning-point analysis. Breaks: GR uses $\dot{r}^2 = E^2 - V$ (not $\frac{1}{2}\dot{r}^2 = E - V$); magnitudes differ by factors of 2. |
-| Neumann series truncation (null property) | `sec:schw-kerr-schild` | Generic metric inverse requires infinite Neumann series; null rank-one perturbation truncates after one term. Maps: explains why KS inverse is a simple sign flip. Breaks: only applies to rank-one perturbations with null vector; Kerr case works because the same structure holds. |
+| Neumann series truncation (null property) | `sec:schw-kerr-schild`, reused `sec:kerr-ks` | Generic metric inverse requires infinite Neumann series; null rank-one perturbation truncates after one term. Maps: explains why KS inverse is a simple sign flip. Breaks: only applies to rank-one perturbations with null vector; Kerr case works because the same structure holds. |
+| Potential barrier at throat (wormhole) | `sec:kerr-wormhole` | Effective potential $V(\ell) = L^2/(b_0^2+\ell^2)$ has maximum at throat ($\ell=0$); photons with $b < b_0$ cross the barrier (pass through), $b > b_0$ are reflected (deflect back). Maps: same turning-point analysis as Schwarzschild $V_{\text{eff}}$. Breaks: no capture regime — below-barrier photons pass through rather than being absorbed. |
+| Wormhole photon ring = black hole photon ring mechanism | `sec:kerr-wormhole` | Unstable circular orbits at the throat produce a lensing ring by the same mechanism as black hole photon rings. Maps: connects to photon sphere concept from `sec:schw-orbits`. Breaks: wormhole throat replaces photon sphere at finite $r$; no shadow because no capture. |
 
 ## Forward / Backward References
 
@@ -164,15 +209,20 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Birkhoff's theorem derivation | `sec:gr-exact-solutions` | `sec:schw-derivation` ✓ |
 | Schwarzschild orbits: photon sphere, ISCO | `sec:gr-exact-solutions` | `sec:schw-orbits` ✓ |
 | Coordinate singularity resolution | `sec:gr-exact-solutions` | `sec:schw-coordinates` ✓ |
-| Kerr ISCO prograde efficiency $\eta \approx 42\%$ | `sec:schw-orbits` | `sec:kerr-isco` (TBD) |
+| Kerr ISCO prograde efficiency $\eta \approx 42\%$ | `sec:schw-orbits` | `sec:kerr-isco` ✓ |
 | Kerr--Schild coordinates for Schwarzschild | `sec:gr-exact-solutions` | `sec:schw-kerr-schild` ✓ |
-| Kerr Boyer--Lindquist derivation | `sec:gr-exact-solutions` | `ch:kerr` (TBD) |
+| Kerr Boyer--Lindquist derivation | `sec:gr-exact-solutions` | `sec:kerr-bl` ✓ |
 | AD strategy for Christoffel computation | `sec:gr-exact-solutions` | `ch:autodiff` (TBD) |
 | Coordinate singularity resolution at $r=2M$ | `sec:schw-derivation` | `sec:schw-coordinates` ✓ |
 | Weak-field identification of $M$ | `sec:schw-derivation` | `sec:gr-weak-field` (backward ref ✓) |
 | Kruskal--Szekeres construction and Penrose diagrams | `sec:schw-coordinates` | `sec:schw-kruskal` (TBD) |
 | Kerr--Schild coordinates as codebase default | `sec:schw-coordinates` | `sec:schw-kerr-schild` ✓ |
-| Kerr--Schild form of Kerr metric | `sec:schw-kerr-schild` | `sec:kerr-ks` (TBD) |
+| Kerr--Schild form of Kerr metric | `sec:schw-kerr-schild` | `sec:kerr-ks` ✓ |
+| BL quartic derivation and properties | `sec:kerr-bl` | `sec:kerr-bl-quartic` ✓ |
+| Frame-dragging consequences | `sec:kerr-bl` | `sec:kerr-horizons` ✓ |
+| Horizon-penetrating coordinates for Kerr | `sec:kerr-bl` | `sec:kerr-ks` ✓ |
+| AD for Kerr Christoffel symbols | `sec:kerr-ks` | `ch:autodiff` (TBD) |
+| Morris--Thorne detailed treatment | `sec:gr-exact-solutions` | `sec:kerr-wormhole` ✓ |
 
 ## Key Decisions
 
@@ -219,3 +269,26 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $\dot{r}^2 = E^2 - V_{\text{eff}}$ convention | Follows Carroll/Wald; differs from Newtonian $\frac{1}{2}\dot{r}^2 = E - V$ by factors of 2; noted in warnnote | `sec:schw-orbits` |
 | $n_i$ vs $n^i$ in KS components | Covariant metric uses $n_i$, contravariant uses $n^i$; parenthetical notes $n_i = n^i$ in Cartesian coordinates | `sec:schw-kerr-schild` |
 | $f = 2M/r$ specialisation of KS scalar | Schwarzschild case of the general Kerr--Schild scalar $f$ introduced in `sec:gr-exact-solutions` | `sec:schw-kerr-schild` |
+| $A$ as azimuthal auxiliary function | $(r^2 + a^2)^2 - a^2\Delta\sin^2\theta$; defined before line element, not after (per review) | `sec:kerr-bl` |
+| $r_- = 0$ at $a = 0$ noted as singularity, not Cauchy horizon | In Schwarzschild limit, inner "horizon" coincides with $r = 0$ curvature singularity | `sec:kerr-bl` |
+| BL coordinates pedagogical, KS computational | BL used for analytic structure (horizons, limiting cases); KS used by codebase for integration | `sec:kerr-bl` |
+| Ingoing KS form (not outgoing) | Ingoing principal null rays are coordinate lines; codebase uses ingoing form; outgoing variant acknowledged but not developed | `sec:kerr-ks` |
+| Differential-only KS transformation for Kerr | Unlike Schwarzschild where $\bar{t}$ has a closed-form integral, Kerr KS time is defined only differentially; sufficient for computing the metric | `sec:kerr-ks` |
+| physnote on oblate spheroidal: coordinate property, not physical | Euclidean radius $\sqrt{r^2+a^2}$ is a coordinate feature; proper circumference involves full metric factors $\Sigma$, $A$ | `sec:kerr-ks` |
+| $p$ disambiguation note at first use | $p^2$ for Euclidean distance collides with pressure ($p$) and momentum ($p_\mu$); parenthetical disambiguation with cross-refs at point of introduction | `sec:kerr-bl-quartic` |
+| Ring singularity in Cartesian distance, not circumference | physnote quotes Euclidean radius $\abs{a} \approx 13\;\text{km}$, not the proper circumference (which requires $g_{\varphi\varphi}$ at $\Sigma = 0$) | `sec:kerr-bl-quartic` |
+| Biquadratic reduction as explicit pedagogical step | Quartic reduced to quadratic in $u = r^2$ before applying quadratic formula; biquadratic property named at first encounter | `sec:kerr-bl-quartic` |
+| Horizon intuition before formalism | One-sentence physical definition of horizon before $g_{rr}$ divergence condition; restores IFI cycle | `sec:kerr-horizons` |
+| Cauchy horizon explained in physnote | "Predictability breaks down" unpacked physically (signals from singularity) rather than left as jargon | `sec:kerr-horizons` |
+| ZAMO defined by $p_\varphi = 0$ explicitly | "Zero conserved angular momentum" qualifier precedes ZAMO name; distinguishes from generic freely falling observer | `sec:kerr-horizons` |
+| "Weak-field post-Newtonian" instead of "gravitomagnetic" | More accessible term for graduate audience; avoids undefined jargon | `sec:kerr-horizons` |
+| Penrose process explained in physnote | Brief mechanism (particle splits; negative-energy fragment falls in) rather than bare name-drop | `sec:kerr-horizons` |
+| $R(r)$ quartic displayed with derivation sketch | Quartic shown explicitly (eq:kerr-radial-R) so reader can verify E/L formulae; glyph collision with Ricci scalar noted | `sec:kerr-isco` |
+| $E_{\text{ISCO}} = 1/\sqrt{3}$ as a limit, not direct evaluation | At exact extremality the formula is $0/0$; the limit $a_* \to 1$ is well defined | `sec:kerr-isco` |
+| Infinite throat at extremal degenerate horizon | physnote warns that proper distance from $r > M$ to horizon diverges at $a_* = 1$ | `sec:kerr-isco` |
+| $Z_1$, $Z_2$ with inline limiting values | Limiting values at $a_* = 0$ and $a_* = 1$ given immediately after each definition, not deferred to a later paragraph | `sec:kerr-isco` |
+| Worked example shows intermediate $Z_1$, $Z_2$ | For $a_* = 0.9$: $Z_1 \approx 1.98$, $Z_2 \approx 2.52$ shown so reader can verify | `sec:kerr-isco` |
+| $\rho = \abs{\ell}$ coordinate identification for Morris--Thorne | Codebase uses $\rho = \sqrt{x^2+y^2+z^2} = \abs{\ell}$ (proper distance), NOT circumferential radius $r(\ell) = \sqrt{b_0^2+\ell^2}$; throat at $\rho=0$ with coordinate singularity | `sec:kerr-wormhole` |
+| Throat IS photon sphere | Effective potential $V(\ell)$ has maximum at $\ell=0$; unstable circular orbits exist at the throat; lensing ring from same mechanism as black hole photon ring | `sec:kerr-wormhole` |
+| Eigenvalue decomposition for MT inverse metric | Radial--transverse split makes inversion algebraic; not "standard matrix inversion" | `sec:kerr-wormhole` |
+| Throat geometry analysed in $(\ell,\theta,\varphi)$ chart | Cartesian chart has coordinate singularity at $\rho=0$; metric smooth in proper-distance chart | `sec:kerr-wormhole` |

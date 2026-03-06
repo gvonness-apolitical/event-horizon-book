@@ -54,19 +54,6 @@ The companion code repository is at github.com/gvonness/event-horizon (Haskell +
 <!-- MEMORY_START -->
 ## Memory Context
 
-## Recent Context
-- [05/03/2026] [User] You are a technical writing and cross-chapter consistency specialist. You are reviewing a draft section of a graduate-level textbook for notation consistency, continuity, and adherence to proje...
-- [05/03/2026] [Assistant] ## Review: Continuity Specialist ### Verdict: MINOR  ### Issues (max 8)  1. **[MINOR]** Near `\coderef{Spacetime}{Schwarzschild}` (opening paragraph):    - Problem: `\coderef` is placed as...
-- [05/03/2026] [User] Search the web and find the correct bibliographic information for these two references:  1. Eddington 1924 — Arthur Eddington's work where he first wrote down what we now call Eddington-Finkels...
-
-## Last Session (04/03/2026 23:42)
-- [User] You are a science and mathematics pedagogy specialist. You are reviewing a draft section of a graduate-level textbook for pedagogical effective...
-- [Assistant] ## Review: Pedagogy Specialist ### Verdict: MINOR  ### Issues (max 8)  1. **[MINOR]** Near `\paragraph{The tortoise coordinate.}`, opening...
-
-### Light Cone Geometry
-This topic cluster discusses the geometric structure of light cones in Minkowski spacetime and their relevance for ray tracing applications. It covers the definition of null vectors, the light cone as a boundary separating timelike and spacelike regions, and the correspondence between spatial directions on the light cone and points on the observer's sky.
-
----
-*Memory summary: 1 topics, 3 recent items, last session included*
+*Memory system temporarily unavailable. Will be restored on next session.*
 
 <!-- MEMORY_END -->

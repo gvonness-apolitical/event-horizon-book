@@ -1,0 +1,172 @@
+% sec:kerr-bl-quartic — The Boyer-Lindquist Radius Quartic
+\section{The Boyer-Lindquist Radius Quartic}
+\label{sec:kerr-bl-quartic}
+
+The Kerr--Schild metric~\cref{eq:kerr-ks-metric} is expressed in
+Cartesian coordinates $(\bar{t}, x, y, z)$, but the scalar function
+$f = 2Mr/\Sigma$ and the null covector $l_\mu$ both depend on the
+Boyer--Lindquist radius $r$, which is not a coordinate in the
+Kerr--Schild chart.  Every evaluation of the metric --- and therefore
+every step of the geodesic integrator --- requires extracting $r$
+from the Cartesian position.  The relationship between $r$ and
+$(x, y, z)$ is algebraic but nonlinear, governed by a quartic whose
+derivation and closed-form solution are the subject of this section.
+
+The key geometric idea is that surfaces of constant Boyer--Lindquist
+radius are not spheres but oblate ellipsoids, flattened along the
+spin axis by the parameter $a$.  A Cartesian point $(x, y, z)$ lies
+on exactly one such ellipsoid, and identifying which one amounts to
+solving a polynomial in $r$.  The polynomial turns out to be quartic,
+but its special structure --- only even powers of $r$ appear ---
+reduces it to a quadratic in $r^2$ with a closed-form solution.
+\coderef{Spacetime.Kerr}{blRadius}
+
+\paragraph{Derivation.}
+
+The oblate spheroidal relations~\cref{eq:kerr-oblate-spheroidal}
+connect the Kerr--Schild Cartesian coordinates to the
+Boyer--Lindquist radius $r$ and polar angle $\theta$.  Taking the
+squared modulus of $x + iy = (r + ia)\,e^{i\bar{\varphi}}\sin\theta$
+gives
+%
+\begin{equation}
+  x^2 + y^2 = (r^2 + a^2)\sin^2\!\theta \,,
+  \label{eq:bl-xy-relation}
+\end{equation}
+%
+and the second relation $z = r\cos\theta$ yields
+$\cos^2\!\theta = z^2/r^2$, hence
+$\sin^2\!\theta = 1 - z^2/r^2$.  Writing $p^2 \equiv x^2 + y^2 + z^2$
+for the squared Euclidean distance from the origin (unrelated to the
+pressure $p$ of \cref{sec:gr-stress-energy} or the four-momentum
+$p_\mu$ of \cref{sec:sr-causal}; the codebase variable
+\texttt{p2} uses the same symbol), we find
+%
+\begin{equation}
+  p^2 = (r^2 + a^2)\!\left(1 - \frac{z^2}{r^2}\right) + z^2
+      = r^2 + a^2 - \frac{a^2 z^2}{r^2} \,.
+  \label{eq:bl-p2-relation}
+\end{equation}
+%
+The first equality substitutes \cref{eq:bl-xy-relation} and $z^2$;
+the second expands and collects terms.  Multiplying through by $r^2$
+clears the denominator and yields the quartic stated in
+\cref{sec:kerr-bl}:
+%
+\begin{equation}
+  r^4 - (p^2 - a^2)\,r^2 - a^2 z^2 = 0 \,.
+  \label{eq:bl-quartic-derived}
+\end{equation}
+%
+This is the implicit definition of the Boyer--Lindquist radius as a
+function of Cartesian position.  Despite being quartic in $r$, the
+equation contains only even powers --- it is biquadratic, and
+therefore reducible to a quadratic in $r^2$.
+
+\paragraph{Closed-form solution.}
+
+Writing $u = r^2$, the quartic becomes
+%
+\begin{equation}
+  u^2 - (p^2 - a^2)\,u - a^2 z^2 = 0 \,.
+  \label{eq:bl-quadratic-u}
+\end{equation}
+%
+The quadratic formula gives two roots:
+%
+\begin{equation}
+  u_\pm = \frac{(p^2 - a^2) \pm
+    \sqrt{(p^2 - a^2)^2 + 4a^2 z^2}}{2} \,.
+  \label{eq:bl-u-roots}
+\end{equation}
+%
+The discriminant $\mathcal{D} = (p^2 - a^2)^2 + 4a^2 z^2$ is a sum
+of two squares --- $(p^2 - a^2)^2$ and $(2az)^2$ --- and therefore
+non-negative for all $(x, y, z)$, guaranteeing real roots.  Since
+$\sqrt{\mathcal{D}} \geq \abs{p^2 - a^2}$, the smaller root
+satisfies
+$u_- = \tfrac{1}{2}\bigl[(p^2 - a^2) - \sqrt{\mathcal{D}}\bigr]
+\leq \tfrac{1}{2}\bigl[(p^2 - a^2) - \abs{p^2 - a^2}\bigr] \leq 0$,
+with equality only at the ring singularity ($p = \abs{a}$, $z = 0$)
+where both roots vanish.  Only the larger root $u_+$ yields a
+positive value of $r^2$, so the Boyer--Lindquist radius is uniquely
+determined:
+%
+\begin{equation}
+  r = \sqrt{u_+}
+    = \sqrt{\frac{(p^2 - a^2)
+      + \sqrt{(p^2 - a^2)^2 + 4a^2 z^2}}{2}} \,.
+  \label{eq:bl-r-solution}
+\end{equation}
+%
+The expression involves one square root nested inside another, but no
+transcendental functions --- the cost is comparable to a handful of
+multiplications, making it negligible relative to the full metric
+evaluation.
+\implnote{The codebase variable \texttt{disc} in \texttt{blRadius}
+stores $\mathcal{D}$; \texttt{diff} stores $p^2 - a^2$.  The nested
+square roots appear as \texttt{sqrt r2} where
+\texttt{r2 = (diff + sqrt disc) / 2}.}
+
+\paragraph{Limiting cases.}
+
+Setting $a = 0$ collapses the discriminant to
+$\mathcal{D} = p^4$ and the solution to $r = \sqrt{p^2} = p$: the
+Boyer--Lindquist radius equals the Euclidean distance, confirming
+the Schwarzschild limit.  The codebase guards this case with an
+exact-equality branch in \texttt{blRadius}
+(\cref{sec:kerr-bl}), avoiding the unnecessary discriminant
+computation.
+
+In the equatorial plane ($z = 0$), the discriminant reduces to
+$(p^2 - a^2)^2$ and therefore
+$\sqrt{\mathcal{D}} = \abs{p^2 - a^2}$, giving
+$u_+ = \tfrac{1}{2}\bigl[(p^2-a^2) + \abs{p^2-a^2}\bigr]
+= \max(p^2 - a^2,\; 0)$.
+The solution simplifies to
+%
+\begin{equation}
+  r\big|_{z=0} = \sqrt{\max(p^2 - a^2,\; 0)} \,.
+  \label{eq:bl-equatorial}
+\end{equation}
+%
+The BL radius vanishes when $p^2 = a^2$ and $z = 0$,
+i.e.\ when $x^2 + y^2 = a^2$ --- a circle of Euclidean radius
+$\abs{a}$ in the equatorial plane.  This is the ring singularity at
+$r = 0$, $\theta = \pi/2$, where $\Sigma = 0$ and the curvature
+diverges (\cref{sec:kerr-bl}).
+\physnote{The ring singularity lies at Cartesian distance $\abs{a}$
+from the spin axis in the Kerr--Schild embedding.  For a
+$10\,M_\odot$ black hole with $a/M = 0.9$, this Euclidean radius is
+$\abs{a} \approx 13\;\text{km}$.}
+
+Along the spin axis ($x = y = 0$), we have $p^2 = z^2$, so
+$\mathcal{D} = (z^2 - a^2)^2 + 4a^2 z^2 = (z^2 + a^2)^2$, giving
+$r = \sqrt{z^2} = \abs{z}$.  On the axis, the BL and Euclidean
+radii coincide regardless of the spin --- the oblate spheroidal
+distortion vanishes at the poles.
+
+These limits serve as consistency checks: the formula recovers
+ordinary spherical geometry when spin vanishes, and localises the
+coordinate pathology exactly where the curvature is known to diverge.
+
+\paragraph{Numerical robustness.}
+
+The closed-form solution \cref{eq:bl-r-solution} is numerically
+well-behaved everywhere except in the immediate neighbourhood of
+the ring singularity, where $r \to 0$ while $f \to \infty$.
+Because $\mathcal{D}$ is a sum of non-negative terms, the
+floating-point subtraction that causes catastrophic cancellation in
+expressions of the form $A - B$ cannot arise in its computation.
+The only subtlety is the outer square root: when $p^2 \gg a^2$, the
+expression $u_+ \approx p^2 - a^2 z^2/p^2$ is dominated by $p^2$,
+and expanding both square roots yields $r \approx p$ with relative
+error $\order{a^2/p^2}$.  No iterative refinement or
+special-function evaluation is needed; the codebase computes $r$
+with a fixed number of floating-point operations at every
+integration step.
+\warnnote{The quartic \cref{eq:bl-quartic-derived} has no solution
+with $r^2 > 0$ when $\mathcal{D} < 0$, but this cannot occur since
+$\mathcal{D}$ is a sum of squares.  Any negative discriminant in a
+numerical implementation indicates a programming error, not a
+physical edge case.}

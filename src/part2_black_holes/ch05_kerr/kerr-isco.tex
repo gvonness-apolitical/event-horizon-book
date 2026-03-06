@@ -1,0 +1,245 @@
+% sec:kerr-isco — ISCO Formulae
+\section{ISCO Formulae}
+\label{sec:kerr-isco}
+
+Rotation breaks the degeneracy between prograde and retrograde
+orbits.  In the Schwarzschild geometry, the innermost stable circular
+orbit sits at $r_{\text{ISCO}} = 6M$ regardless of the orbital
+direction (\cref{sec:schw-orbits}); once the black hole spins,
+co-rotating orbits spiral closer before losing stability while
+counter-rotating orbits are pushed outward.  The ISCO radius drops
+from $6M$ all the way to $M$ for a prograde orbit around an extremal
+Kerr black hole --- and the radiative efficiency of accretion rises
+from roughly $5.7\%$ to $42\%$.
+
+\paragraph{Circular orbit conditions.}
+
+Consider a massive test particle on a circular equatorial orbit in
+the Kerr spacetime.  As in \cref{sec:schw-orbits}, the conserved
+specific energy $E$ and specific angular momentum $L$ arise from
+the Killing vectors $\partial_t$ and $\partial_\varphi$.  In the
+equatorial plane ($\theta = \pi/2$, $\Sigma = r^2$), the radial
+equation of motion separates into $r^4\dot{r}^2 = R(r)$, where
+primes denote $\d/\d r$ throughout this section and $R(r)$ is the
+radial quartic \cite{Bardeen1972}
+%
+\begin{equation}
+  R(r) = \bigl[E(r^2 + a^2) - aL\bigr]^2
+    - \Delta\bigl[r^2 + (L - aE)^2\bigr] \,.
+  \label{eq:kerr-radial-R}
+\end{equation}
+%
+The first term captures the coupling between the particle's energy
+and angular momentum and the black hole's spin; the second,
+proportional to the horizon function $\Delta$ from
+\cref{eq:kerr-bl-metric}, vanishes at the horizons and controls
+turning points.
+
+A circular orbit at radius $r$ requires both $R = 0$ (the particle
+stays at constant $r$) and $R' = 0$ (no net radial force).
+Eliminating $L$ between these two algebraic conditions produces a
+quadratic in $E^2$; solving and back-substituting yields the
+specific energy and angular momentum for a circular orbit at
+radius $r$ \cite{Bardeen1972}:
+%
+\begin{equation}
+  E = \frac{r^{3/2} - 2Mr^{1/2} \pm aM^{1/2}}
+            {r^{3/4}\bigl(r^{3/2} - 3Mr^{1/2} \pm 2aM^{1/2}\bigr)^{1/2}} \,,
+  \label{eq:kerr-circ-E}
+\end{equation}
+%
+\begin{equation}
+  L = \pm\frac{M^{1/2}\bigl(r^2 \mp 2aM^{1/2}r^{1/2} + a^2\bigr)}
+              {r^{3/4}\bigl(r^{3/2} - 3Mr^{1/2} \pm 2aM^{1/2}\bigr)^{1/2}} \,.
+  \label{eq:kerr-circ-L}
+\end{equation}
+%
+The upper sign corresponds to prograde orbits (co-rotating with
+the black hole) and the lower sign to retrograde orbits
+(counter-rotating).  These expressions are valid for
+$r > r_{\text{ph}}^{\pm}$, where $r_{\text{ph}}^{\pm}$ is the
+prograde or retrograde photon orbit radius at which the denominator
+vanishes; below that radius no circular timelike orbit exists.  For
+Schwarzschild ($a = 0$), the photon orbit sits at $r = 3M$
+(\cref{sec:schw-orbits}); with spin it splits into a prograde
+photon orbit at smaller $r$ and a retrograde one at larger $r$.
+Setting $a = 0$ in \cref{eq:kerr-circ-E} recovers
+$E_{\text{ISCO}} = 2\sqrt{2}/3$ at $r = 6M$, consistent with
+\cref{eq:isco-efficiency}.
+\physnote{The fractional powers of $r$ arise from working in
+Boyer--Lindquist coordinates with geometric units $G = c = 1$.
+Despite their appearance, these expressions are exact closed-form
+solutions of the two algebraic conditions $R = R' = 0$.}
+
+\paragraph{Stability and the ISCO.}
+
+Stability of a circular orbit requires $R'' \leq 0$: the quartic
+$R(r)$ must be concave at the circular orbit, so that any radial
+displacement makes $R < 0$ and $\dot{r}^2 < 0$, trapping the
+particle.  The marginally stable orbit --- the ISCO --- sits
+at the boundary $R'' = 0$.  Rather than solving the resulting
+equation in $r$ directly (which produces a high-order polynomial),
+Bardeen et al.\ \cite{Bardeen1972} introduce auxiliary functions
+that parametrise the solution cleanly.  Define the dimensionless
+spin $a_* \equiv a/M$ and the auxiliary
+%
+\begin{equation}
+  Z_1 = 1 + (1 - a_*^2)^{1/3}
+    \bigl[(1 + a_*)^{1/3} + (1 - a_*)^{1/3}\bigr] \,,
+  \label{eq:kerr-Z1}
+\end{equation}
+%
+which ranges from $Z_1 = 3$ at zero spin to $Z_1 = 1$ at extremal
+spin --- the cube roots encode the algebraic structure of the
+stability condition.  A second auxiliary combines $Z_1$ with the
+spin:
+%
+\begin{equation}
+  Z_2 = \sqrt{3a_*^2 + Z_1^2} \,,
+  \label{eq:kerr-Z2}
+\end{equation}
+%
+ranging from $Z_2 = 3$ at $a_* = 0$ to $Z_2 = 2$ at $a_* = 1$.
+In terms of $Z_1$ and $Z_2$, the ISCO radius is
+%
+\begin{equation}
+  r_{\text{ISCO}} = M\bigl(3 + Z_2 \mp
+    \sqrt{(3 - Z_1)(3 + Z_1 + 2Z_2)}\,\bigr) \,,
+  \label{eq:kerr-isco}
+\end{equation}
+%
+where the upper sign gives the prograde ISCO and the lower sign
+the retrograde ISCO.  The prograde orbit corresponds to the upper
+sign in all formulae throughout this section: $+$ in the $\pm$ of
+\cref{eq:kerr-circ-E,eq:kerr-circ-L}, and $-$ in the $\mp$ of
+\cref{eq:kerr-isco}.
+\warnnote{The algebraic sign associated with prograde orbits
+flips between $+$ in \cref{eq:kerr-circ-E,eq:kerr-circ-L} and
+$-$ in \cref{eq:kerr-isco}, because the former use $\pm$ while
+the latter uses $\mp$.  This follows \cite{Bardeen1972}; some
+references adopt a uniform convention.}
+
+\paragraph{Limiting cases.}
+
+Two limits anchor the formula.  At zero spin ($a_* = 0$),
+$Z_1 = 3$ and $Z_2 = 3$, so both signs in \cref{eq:kerr-isco}
+give $r_{\text{ISCO}} = 6M$, recovering the Schwarzschild result
+of \cref{sec:schw-orbits}.  At extremal spin ($a_* = 1$),
+$Z_1 = 1$ and $Z_2 = \sqrt{3 + 1} = 2$, giving
+%
+\begin{align}
+  r_{\text{ISCO}}^{\text{pro}} &= M
+    \bigl(3 + 2 - \sqrt{(3-1)(3+1+4)}\bigr)
+    = M\bigl(5 - \sqrt{16}\bigr) = M \,,
+    \label{eq:kerr-isco-pro-extremal} \\[3pt]
+  r_{\text{ISCO}}^{\text{retro}} &= M
+    \bigl(3 + 2 + \sqrt{(3-1)(3+1+4)}\bigr)
+    = M\bigl(5 + 4\bigr) = 9M \,.
+    \label{eq:kerr-isco-retro-extremal}
+\end{align}
+%
+The prograde ISCO descends to the event horizon $r_+ = M$ at
+extremality --- the orbit grazes the horizon.  The retrograde ISCO
+moves outward from $6M$ to $9M$, reflecting the increased
+frame-dragging penalty for counter-rotating orbits.  Between these
+extremes, the prograde and retrograde ISCOs vary monotonically
+with spin, as shown in \cref{fig:kerr-isco}.
+\physnote{The prograde ISCO touching the horizon at $a_* = 1$ does
+not mean the orbit is ``at'' the singularity.  In Boyer--Lindquist
+coordinates, $r = M$ at extremality is merely a coordinate value;
+the orbit remains outside the ring singularity and its proper
+circumference stays finite.  However, the proper radial distance
+from any $r > M$ to the degenerate horizon diverges --- the
+near-horizon geometry develops an infinite throat.}
+
+For a $10\,M_\odot$ black hole with $a_* = 0.9$ (a spin typical of
+X-ray binary candidates), the intermediate values are
+$Z_1 \approx 1.98$, $Z_2 \approx 2.52$, giving
+$r_{\text{ISCO}}^{\text{pro}} \approx 2.32M \approx 34\;\text{km}$,
+roughly one-third of the Schwarzschild value.  The retrograde ISCO
+sits at $r_{\text{ISCO}}^{\text{retro}} \approx 8.72M \approx
+129\;\text{km}$.
+
+\paragraph{Radiative efficiency.}
+
+The radiative efficiency of a thin accretion disc follows from a
+simple physical argument.  Gas in the disc follows quasi-circular
+orbits, slowly spiralling inward and radiating binding energy at
+each radius.  Once it reaches the ISCO, no stable orbit exists:
+the gas plunges toward the horizon on a nearly geodesic trajectory,
+radiating negligibly during the plunge \cite{Novikov1973,Page1974}.
+The total energy radiated per unit rest mass is therefore the
+difference between the rest-mass energy and the orbital energy at
+the ISCO:
+%
+\begin{equation}
+  \eta = 1 - E_{\text{ISCO}} \,,
+  \label{eq:kerr-efficiency}
+\end{equation}
+%
+where $E_{\text{ISCO}}$ is the specific energy from
+\cref{eq:kerr-circ-E} evaluated at $r = r_{\text{ISCO}}$.
+At extremal spin, the prograde ISCO coincides with the horizon
+($r = M$, $a = M$), and both the numerator and denominator of
+\cref{eq:kerr-circ-E} vanish; the limit $a_* \to 1$ is
+well defined and gives $E_{\text{ISCO}} = 1/\sqrt{3}$, so
+%
+\begin{equation}
+  \eta_{\text{max}} = 1 - \frac{1}{\sqrt{3}} \approx 42.3\% \,.
+  \label{eq:kerr-efficiency-max}
+\end{equation}
+%
+This is the most efficient steady-state energy extraction mechanism
+known in astrophysics, converting over seven times more rest-mass
+energy than the $5.7\%$ of a non-spinning black hole
+(\cref{eq:isco-efficiency}).  Observed AGN luminosities imply
+efficiencies of $10$--$30\%$, consistent with moderately to rapidly
+spinning black holes \cite{Thorne1974}.
+\histnote{Thorne \cite{Thorne1974} showed that accretion
+itself limits the spin to $a_* \lesssim 0.998$ through
+capture of retrograde photons, capping the practical efficiency
+at roughly $30\%$.  The precise limit depends on the disc model.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/kerr-isco.pgf}
+  \caption[Kerr ISCO radius and radiative efficiency vs spin]{%
+    Kerr ISCO radius and radiative efficiency as functions of
+    dimensionless spin $a/M$.  Left axis: the prograde ISCO (solid
+    gold) decreases from $6M$ to $M$; the retrograde ISCO (dashed
+    blue) increases from $6M$ to $9M$.  The vertical dotted line
+    marks $a/M = 0.9$, a spin typical of observed X-ray binary
+    candidates, with markers at $r_{\text{ISCO}}^{\text{pro}}
+    \approx 2.3M$ and $r_{\text{ISCO}}^{\text{retro}} \approx
+    8.7M$.  Right axis: the prograde radiative efficiency $\eta$
+    (dash-dotted crimson) rises from $5.7\%$ (Schwarzschild) to a
+    theoretical maximum of $42.3\%$ at extremal spin; Thorne's
+    photon-capture limit \cite{Thorne1974} caps practical spins at
+    $a_* \lesssim 0.998$.}
+  \label{fig:kerr-isco}
+\end{figure}
+
+\paragraph{Connection to the ray tracer.}
+
+The ISCO radius enters the ray tracer as the inner edge of the
+accretion disc model.  The \texttt{TerminationConfig} record
+(\cref{sec:schw-orbits}) stores an inner disc radius that the
+geodesic integrator checks at each equatorial-plane crossing: if
+the crossing radius satisfies
+$r_{\text{ISCO}} \leq r \leq r_{\text{outer}}$, the photon
+intersects the disc and a flux calculation is triggered.  For Kerr
+black holes, $r_{\text{ISCO}}$ is computed from
+\cref{eq:kerr-isco} using the black hole's spin parameter, ensuring
+that the disc inner edge contracts for prograde emission as the
+spin increases.
+\implnote{The ISCO radius is computed once per render configuration,
+not per ray.  It depends only on $M$ and $a$, both of which are
+constant throughout a single image.}
+
+The visual consequence is striking.  A rapidly spinning black hole
+has its accretion disc extending much closer to the event horizon
+than a Schwarzschild black hole does.  Photons emitted from these
+inner orbits experience stronger gravitational redshift and more
+pronounced frame-dragging asymmetry (\cref{sec:kerr-horizons}),
+producing a brighter, more asymmetric image --- the signature that
+allows spin measurement from resolved black hole images.

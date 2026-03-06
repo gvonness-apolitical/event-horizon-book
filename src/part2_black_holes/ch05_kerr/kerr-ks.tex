@@ -1,0 +1,214 @@
+% sec:kerr-ks — Kerr-Schild Form
+\section{Kerr-Schild Form}
+\label{sec:kerr-ks}
+
+The Boyer--Lindquist line element~\eqref{eq:kerr-bl-metric} displays
+the horizon and ergosphere structure of the Kerr spacetime
+transparently, but the divergence of $g_{rr} = \Sigma/\Delta$ at
+$\Delta = 0$ makes it unsuitable for numerical integration through
+either horizon.  The Schwarzschild Kerr--Schild construction
+(\cref{sec:schw-kerr-schild}) resolved the analogous problem at
+$r = 2M$ by writing the metric as flat space plus a null rank-one
+correction.  The same decomposition carries over to the rotating case:
+the Kerr metric admits an \emph{ingoing} Kerr--Schild form with a
+spin-dependent scalar $f$ and a twisted null covector $l_\mu$
+\cite{KerrSchild1965,Visser2007}.  As in the Schwarzschild case, the
+qualifier ``ingoing'' means that ingoing principal null rays of the
+Kerr geometry are coordinate lines; an outgoing variant exists but is
+not used in the codebase.
+
+\paragraph{The coordinate transformation.}
+
+The strategy mirrors the Schwarzschild case: absorb the divergent
+$\Delta^{-1}$ factors from the Boyer--Lindquist metric into new time
+and azimuthal coordinates, producing a line element that is regular at
+$\Delta = 0$.  Two differential relations effect the conversion from
+Boyer--Lindquist $(t, r, \theta, \varphi)$ to ingoing Kerr--Schild
+$(\bar{t}, r, \theta, \bar{\varphi})$:
+%
+\begin{equation}
+  \d\bar{t} = \d t + \frac{2Mr}{\Delta}\,\d r \,,
+  \qquad
+  \d\bar{\varphi} = \d\varphi + \frac{a}{\Delta}\,\d r \,.
+  \label{eq:kerr-ks-transform}
+\end{equation}
+%
+The first is the spinning generalisation of the Schwarzschild relation
+$\d v = \d t + (1-2M/r)^{-1}\d r$ (\cref{eq:ef-v-def}); setting
+$a = 0$ recovers it exactly, since $\Delta = r(r-2M)$ and
+$2Mr/\Delta = (1 - 2M/r)^{-1}$.  The second differential absorbs the
+frame-dragging correction.  Both expressions have $\Delta$ in the
+denominator, so the transformation is singular at the horizons --- but
+the resulting metric is not: the divergent contributions cancel when
+assembled into $\metric$.  Unlike the Schwarzschild case, where
+$\bar{t} = t + 2M\ln(r/2M - 1)$ has a closed-form integral, the Kerr
+transformation \eqref{eq:kerr-ks-transform} does not integrate to a
+simple expression for $\bar{t}(t,r)$; the differential form is all
+that is needed for computing the metric.
+
+Cartesian spatial coordinates are then introduced through oblate
+spheroidal relations adapted to the spin:
+%
+\begin{equation}
+  x + iy = (r + ia)\,e^{i\bar{\varphi}}\sin\theta \,,
+  \qquad z = r\cos\theta \,.
+  \label{eq:kerr-oblate-spheroidal}
+\end{equation}
+%
+These reduce to the standard spherical-to-Cartesian conversion when
+$a = 0$.  The key consequence is that
+$x^2 + y^2 = (r^2 + a^2)\sin^2\!\theta$ rather than
+$r^2\sin^2\!\theta$: surfaces of constant Boyer--Lindquist radius $r$
+are oblate ellipsoids in the flat background, not spheres, and the
+Euclidean distance $\sqrt{x^2+y^2+z^2}$ differs from the
+Boyer--Lindquist radius $r$ whenever $a \neq 0$.
+\physnote{The oblate spheroidal coordinates map a circle of constant
+BL radius $r$ in the equatorial plane to Euclidean radius
+$\sqrt{r^2 + a^2}$.  This is a property of the coordinate
+transformation, not the physical geometry; the proper circumference
+in the full Kerr metric differs by factors involving $\Sigma$ and
+$A$ from \cref{eq:kerr-Sigma,eq:kerr-A}.}
+
+\paragraph{Kerr--Schild data.}
+
+Substituting the coordinate transformation into the Boyer--Lindquist
+line element~\eqref{eq:kerr-bl-metric} and collecting terms yields the
+Kerr--Schild decomposition previewed in
+\cref{sec:gr-exact-solutions}:
+%
+\begin{equation}
+  \metric = \eta_{\mu\nu} + f\,l_\mu\,l_\nu \,,
+  \label{eq:kerr-ks-metric}
+\end{equation}
+%
+the same rank-one structure as the Schwarzschild Kerr--Schild metric
+(\cref{eq:ks-schw-metric}), now with spin-dependent data.  The scalar
+function that controls the perturbation strength is
+%
+\begin{equation}
+  f = \frac{2Mr}{\Sigma}
+    = \frac{2Mr^3}{r^4 + a^2 z^2} \,,
+  \label{eq:kerr-ks-f}
+\end{equation}
+%
+where the second equality uses
+$\Sigma = r^2 + a^2\cos^2\!\theta = (r^4 + a^2 z^2)/r^2$ from
+$z = r\cos\theta$.  Setting $a = 0$ recovers $f = 2M/r$
+(\cref{eq:ks-schw-metric}).  The Boyer--Lindquist radius $r$ appearing
+here is not a coordinate but an implicit function of $(x, y, z)$
+determined by the quartic (\cref{eq:bl-quartic}).  The null covector
+in Cartesian Kerr--Schild coordinates $(\bar{t}, x, y, z)$ is
+%
+\begin{equation}
+  l_\mu = \left(1,\;
+    \frac{rx + ay}{r^2 + a^2},\;
+    \frac{ry - ax}{r^2 + a^2},\;
+    \frac{z}{r}\right) .
+  \label{eq:kerr-ks-null}
+\end{equation}
+%
+The spatial components of $l_\mu$ mix $x$ and $y$ through the spin
+parameter $a$: the covector is twisted by the black hole's rotation
+relative to its Schwarzschild counterpart.  Setting $a = 0$ recovers
+$l_\mu = (1, x/r, y/r, z/r)$, the radial null covector of
+\cref{eq:ks-null-oneform}.
+\histnote{Kerr and Schild introduced this decomposition in 1965
+\cite{KerrSchild1965}.  The Schwarzschild Kerr--Schild metric of
+\cref{sec:schw-kerr-schild} is a special limit.}
+
+\paragraph{The null property.}
+
+The sign-flip formula for the inverse metric
+(\cref{eq:ks-inverse}) relied on $l_\mu$ being null with respect
+to the flat metric.  The same property must be verified for the
+spinning covector \eqref{eq:kerr-ks-null} before the inverse can
+be written down.  Using $x^2 + y^2 = (r^2 + a^2)\sin^2\!\theta$
+from \cref{eq:kerr-oblate-spheroidal},
+%
+\begin{align}
+  \eta^{\mu\nu}l_\mu\,l_\nu
+  &= -1 + \frac{(rx+ay)^2 + (ry-ax)^2}{(r^2+a^2)^2}
+    + \frac{z^2}{r^2} \notag \\
+  &= -1 + \sin^2\!\theta + \cos^2\!\theta = 0 \,.
+  \label{eq:kerr-ks-null-verify}
+\end{align}
+%
+In the intermediate step, expanding $(rx+ay)^2 + (ry-ax)^2$ gives
+$r^2(x^2+y^2) + a^2(x^2+y^2)$ after the $\pm 2raxy$ cross terms
+cancel; dividing by $(r^2+a^2)^2$ produces
+$(x^2+y^2)/(r^2+a^2) = \sin^2\!\theta$.  With the null property
+established, the inverse metric follows by the same sign-flip
+argument as in \cref{sec:schw-kerr-schild}:
+%
+\begin{equation}
+  \inversemetric = \eta^{\mu\nu} - f\,l^\mu\,l^\nu \,,
+  \label{eq:kerr-ks-inverse}
+\end{equation}
+%
+with $l^\mu = \eta^{\mu\alpha}l_\alpha$, whose components are
+$l^\mu = \bigl(-1,\; (rx+ay)/(r^2+a^2),\;
+(ry-ax)/(r^2+a^2),\; z/r\bigr)$.  The verification is identical to
+\cref{eq:ks-inverse-verify}: the $f^2$ term vanishes because
+$l^\alpha l_\alpha = 0$.
+\warnnote{The null property holds with respect to $\eta_{\mu\nu}$,
+not $\metric$.  For a generic perturbation, the inverse requires
+the full Neumann series.  The Kerr--Schild class truncates it after
+one term because the perturbation is rank-one and null.}
+
+\paragraph{Properties in Cartesian form.}
+
+The three computational advantages identified for the Schwarzschild
+Kerr--Schild form in \cref{sec:schw-kerr-schild} carry over
+unchanged.  Every component of $\metric$ from
+\cref{eq:kerr-ks-metric} is finite at $r = r_+$ and $r = r_-$: the
+scalar $f$ is regular wherever $\Sigma \neq 0$, and $l_\mu$ has no
+singularity at the horizons.  The metric determinant is
+$\det(\metric) = -1$, by the matrix determinant lemma:
+$\det(\eta + f\,l\,l^T) = (1 + f\,\eta^{-1\mu\nu}l_\mu\,l_\nu)
+\det(\eta) = \det(\eta)$ since $l_\mu$ is null.  And the inverse
+metric is as cheap to evaluate as the forward metric, since the
+sign-flip formula \eqref{eq:kerr-ks-inverse} involves only a change
+of sign in front of the $f\,l\,l$ correction.
+
+Setting $a = 0$ recovers the Schwarzschild Kerr--Schild metric
+exactly: the scalar function reduces to $f = 2M/r$
+(\cref{eq:ks-schw-metric}), the null covector to
+$l_\mu = (1, x/r, y/r, z/r)$ (\cref{eq:ks-null-oneform}), and the
+oblate spheroidal coordinates collapse to standard spherical
+coordinates.
+
+\paragraph{Codebase implementation.}
+
+The Kerr spacetime is represented by the type \texttt{KerrKS}, which
+stores the mass $M$ and spin $a$.  The function
+\texttt{kerrMetricFn} computes all ten independent components of
+$\metric$ directly from
+\cref{eq:kerr-ks-metric,eq:kerr-ks-f,eq:kerr-ks-null}:
+%
+\begin{lstlisting}[language=Haskell]
+kerrMetricFn :: Floating a => a -> a -> [a] -> [a]
+kerrMetricFn m a [_, cx, cy, cz] =
+  let r  = ...  -- BL radius from quartic
+      h  = 2*m*r2*r / (r4 + a2*cz*cz)
+      lx = (r*cx + a*cy) / (r2 + a2)
+      ly = (r*cy - a*cx) / (r2 + a2)
+      lz = cz / r
+  in [ -1+h,   h*lx,       h*ly,       h*lz
+     ,         1+h*lx*lx,  h*lx*ly,    h*lx*lz
+     ,                     1+h*ly*ly,   h*ly*lz
+     ,                                  1+h*lz*lz ]
+\end{lstlisting}
+%
+\coderef{Spacetime.Kerr}{kerrMetricFn}
+The variable \texttt{h} is the scalar $f$ from \cref{eq:kerr-ks-f},
+and \texttt{(lx, ly, lz)} are the spatial components of $l_\mu$ from
+\cref{eq:kerr-ks-null}.  Each entry in the returned list maps
+directly to $\eta_{\mu\nu} + f\,l_\mu\,l_\nu$ in upper-triangular
+order, matching the Schwarzschild layout in
+\cref{sec:schw-kerr-schild}.  The function is polymorphic in its
+numeric type, accepting both \texttt{Double} for production ray
+tracing and automatic differentiation types for exact Christoffel
+symbol computation (\cref{ch:autodiff}).
+\implnote{The inverse metric \texttt{invMetric4} uses the sign-flip
+formula \eqref{eq:kerr-ks-inverse} directly, avoiding a
+$4\times 4$ matrix inversion at every integration step.}

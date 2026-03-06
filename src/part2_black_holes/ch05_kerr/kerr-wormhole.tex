@@ -1,0 +1,183 @@
+% sec:kerr-wormhole — The Morris-Thorne Wormhole
+\section{The Morris--Thorne Wormhole\starmark{}}
+\label{sec:kerr-wormhole}
+\coderef{Spacetime}{MorrisThorne}
+
+The Morris--Thorne wormhole is a static, spherically symmetric
+solution to the Einstein field equations that replaces the
+singularity and event horizon with a smooth throat connecting two
+asymptotically flat regions \cite{MorrisThorne1988}.  No photon is
+ever captured: every geodesic either passes through the throat to the
+other universe or deflects back to infinity.  The bright lensing ring
+formed by unstable photon orbits at the throat, together with the
+double sky visible through it, produces images visually distinct from
+any black hole --- making the wormhole an ideal stress test for the
+geodesic integrator.
+
+\paragraph{The line element.}
+
+The zero-tidal-force Morris--Thorne metric, written in terms of the
+proper radial distance $\ell$ from the throat, is
+%
+\begin{equation}
+  \d s^2 = -\d t^2 + \d\ell^2
+    + \bigl(b_0^2 + \ell^2\bigr)
+      \bigl(\d\theta^2 + \sin^2\!\theta\;\d\varphi^2\bigr) \,,
+  \label{eq:mt-metric}
+\end{equation}
+%
+reproducing \cref{eq:morris-thorne-metric} for convenience.  The
+parameter $b_0$ is the throat radius: the circumferential radius
+$r(\ell) = \sqrt{b_0^2 + \ell^2}$ reaches its minimum $b_0$ at
+$\ell = 0$ and grows without bound as $\abs{\ell} \to \infty$.
+The coordinate $\ell$ runs from $-\infty$ to $+\infty$, with
+negative values labelling one asymptotic region and positive values
+the other.
+
+Three properties set this geometry apart from the Schwarzschild
+and Kerr spacetimes.  First, $g_{tt} = -1$ is everywhere negative
+--- the time Killing vector never changes character, so there is no
+ergoregion and no horizon.
+\physnote{Setting $g_{tt} = -1$ everywhere means there is no
+gravitational redshift: a photon emitted at the throat arrives at
+infinity with unchanged frequency.  The general Morris--Thorne
+family includes a redshift function $\Phi(\ell)$ in
+$g_{tt} = -e^{2\Phi}$, but the codebase implements only the
+$\Phi = 0$ case.}
+Second, the angular part
+$(b_0^2 + \ell^2)(\d\theta^2 + \sin^2\!\theta\;\d\varphi^2)$ is a
+sphere of radius $r(\ell)$ that shrinks to a minimum at $\ell = 0$
+but never pinches off --- the topology is
+$\mathbb{R} \times S^2$, not $\mathbb{R}^3$.  Third, the metric
+coefficients are everywhere finite and smooth, so there is no
+coordinate or curvature singularity anywhere.
+
+\paragraph{Cartesian form and the codebase.}
+
+The geodesic integrator works in Cartesian coordinates, not the
+$(\ell, \theta, \varphi)$ chart of \cref{eq:mt-metric}.  The
+conversion identifies the Euclidean distance
+$\rho = \sqrt{x^2 + y^2 + z^2}$ with the magnitude of the proper
+radial distance, $\rho = \abs{\ell}$, so that the throat maps to
+the Cartesian origin $\rho = 0$.  Writing $n_i = x_i/\rho$ for the
+unit radial vector, the flat-space line element decomposes as
+$\d\rho^2 = n_i n_j \,\d x^i \d x^j$ for the radial part and
+$\rho^2(\d\theta^2 + \sin^2\!\theta\;\d\varphi^2) =
+  (\delta_{ij} - n_i n_j)\,\d x^i \d x^j$
+for the angular part.  Since $\d\ell^2 = \d\rho^2$ and
+$b_0^2 + \ell^2 = b_0^2 + \rho^2$, substituting into
+\cref{eq:mt-metric} gives the spatial metric
+%
+\begin{equation}
+  g_{ij} = \Bigl(1 + \frac{b_0^2}{\rho^2}\Bigr)\delta_{ij}
+           - \frac{b_0^2}{\rho^2}\,n_i\,n_j \,,
+  \label{eq:mt-cartesian-spatial}
+\end{equation}
+%
+with $g_{tt} = -1$ and $g_{ti} = 0$.  The eigenvalues of $g_{ij}$
+separate cleanly: the radial eigenvalue is
+$(1 + b_0^2/\rho^2) - b_0^2/\rho^2 = 1$, confirming that $\rho$
+measures proper radial distance, and each transverse eigenvalue is
+$1 + b_0^2/\rho^2 = r^2/\rho^2$, encoding the ratio of the
+circumferential radius $r = \sqrt{b_0^2 + \rho^2}$ to the coordinate
+radius.  Near the throat this ratio diverges: a circle at small
+$\rho$ has circumference $2\pi r \gg 2\pi\rho$.
+\implnote{The function \texttt{morrisThorneMetricFn} implements
+\cref{eq:mt-cartesian-spatial} directly: it takes the throat radius
+$b_0$ and a coordinate list $[t, x, y, z]$, returning the ten
+independent metric components in \texttt{Sym4} order.  The
+polymorphic type signature
+\texttt{Floating a => a -> [a] -> [a]} enables automatic
+differentiation of the Christoffel symbols, following the same
+strategy as the Kerr metric (\cref{sec:kerr-ks}).}
+
+The inverse spatial metric follows from the eigenvalue decomposition:
+inverting $1$ in the radial direction and $\rho^2/(\rho^2 + b_0^2)$
+in each transverse direction gives
+%
+\begin{equation}
+  g^{ij} = \frac{\rho^2}{\rho^2 + b_0^2}\,\delta^{ij}
+           + \frac{b_0^2}{\rho^2 + b_0^2}\,n^i\,n^j \,.
+  \label{eq:mt-cartesian-inverse}
+\end{equation}
+%
+Unlike the Kerr--Schild inverse, which follows from a rank-one null
+perturbation (\cref{sec:kerr-ks}), the Morris--Thorne inverse relies
+on the radial--transverse decomposition of $g_{ij}$, making the
+inversion algebraic rather than requiring a general $3\times 3$
+matrix calculation.
+\warnnote{The Cartesian chart covers a single sheet of the wormhole
+($\ell \geq 0$, say) and maps the throat to the origin $\rho = 0$.
+The metric coefficients diverge as $\rho \to 0$ --- a coordinate
+singularity, not a physical one.  The codebase handles throat
+crossings in the Rust integrator, which clamps $\rho$ near the
+throat and matches the geodesic onto the second sheet.}
+
+\paragraph{Throat geometry.}
+
+The throat at $\ell = 0$ is a two-sphere of circumference
+$2\pi b_0$.  In the $(\ell, \theta, \varphi)$ chart, the metric
+\cref{eq:mt-metric} is perfectly smooth there: $g_{\ell\ell} = 1$
+and $g_{\theta\theta} = b_0^2$, so the throat is a regular minimal
+surface rather than a coordinate singularity.  Every radial geodesic
+passes through this minimal sphere and emerges in the other
+asymptotic region.  The embedding diagram of
+\cref{fig:embedding-diagrams} shows the geometry as a smooth funnel,
+symmetric about $\ell = 0$, whose circumferential radius
+$r(\ell) = \sqrt{b_0^2 + \ell^2}$ increases monotonically away from
+the throat.
+\physnote{The curvature is concentrated near the throat.  Far
+from it ($\abs{\ell} \gg b_0$, equivalently $\rho \gg b_0$),
+$b_0^2/\rho^2 \to 0$ and the metric approaches flat Minkowski space,
+as required for an asymptotically flat spacetime.  The Riemann tensor
+components decay as $b_0^2/r^4$.}
+
+\paragraph{Geodesic structure.}
+
+The effective potential for null geodesics in the equatorial plane
+follows from the constants of motion.  With conserved energy $E$ and
+angular momentum $L$, the radial equation of motion reduces to
+%
+\begin{equation}
+  \dot{\ell}^{\,2} = E^2 - \frac{L^2}{b_0^2 + \ell^2} \,,
+  \label{eq:mt-null-radial}
+\end{equation}
+%
+where the dot denotes differentiation with respect to an affine
+parameter.  The effective potential
+$V(\ell) = L^2/(b_0^2 + \ell^2)$ has a unique maximum at
+$\ell = 0$: the throat is an unstable circular photon orbit, the
+wormhole's analogue of the black hole photon sphere
+(\cref{sec:schw-orbits}).
+
+The critical impact parameter follows immediately: setting
+$\dot{\ell} = 0$ at $\ell = 0$ gives $b_c \equiv L/E = b_0$.
+Photons with $b < b_0$ have enough energy to cross the potential
+barrier and thread the throat to the other universe.  Photons with
+$b > b_0$ are reflected by the barrier and return to infinity.
+Photons with $b \approx b_0$ wind multiple times around the throat
+before escaping, producing a bright lensing ring in the rendered
+image --- formed by the same mechanism of unstable circular orbits
+that creates the photon ring of a black hole
+(\cref{sec:schw-orbits}).
+
+Inside this ring, the observer sees a second copy of the sky: the
+universe on the other side of the throat.  The absence of an event
+horizon means no photons are absorbed, so the wormhole image has no
+shadow --- a stark visual contrast with the dark Kerr silhouette of
+\cref{sec:kerr-horizons}.
+
+\paragraph{Exotic matter and the NEC.}
+
+The price of a traversable throat is exotic matter.  The Einstein
+field equations require the stress-energy tensor sustaining the
+throat to violate the null energy condition
+$\stressenergy\, k^\mu k^\nu \geq 0$ for all null $k^\mu$
+(\cref{sec:gr-stress-energy}).  No known classical matter
+achieves this violation in a controlled setting
+\cite{MorrisThorne1988}.  The Morris--Thorne spacetime is therefore a
+mathematical existence proof rather than an astrophysical prediction
+--- but as a test bed for the ray tracer, its value lies precisely in
+its exotic character: the absence of horizons, the nontrivial
+topology, and the double-sky images all exercise code paths that
+black hole spacetimes leave untouched.

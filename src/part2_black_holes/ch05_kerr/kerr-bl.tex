@@ -1,0 +1,159 @@
+% sec:kerr-bl — Boyer-Lindquist Coordinates
+\section{Boyer-Lindquist Coordinates}
+\label{sec:kerr-bl}
+
+Every astrophysical black hole for which we have observational data
+carries angular momentum.  The unique stationary, axisymmetric vacuum
+solution to the Einstein field equations is the Kerr metric, governed
+by two parameters: the mass~$M$ and the specific angular momentum
+$a = J/M$.  Cosmic censorship requires $\abs{a} \leq M$; the upper
+bound $\abs{a} = M$ marks the extremal limit.
+\coderef{Spacetime}{KerrKS}
+\histnote{Roy Kerr found this solution in 1963 by studying
+algebraically special spacetimes \cite{Kerr1963}.  Boyer and
+Lindquist recast it into the coordinate system used here
+\cite{BoyerLindquist1967}.}
+
+\paragraph{Structural functions.}
+
+The Boyer--Lindquist form of the Kerr metric is built from two
+auxiliary functions that encode how rotation deforms the
+Schwarzschild geometry.  The first measures the oblate-spheroid shape
+of surfaces of constant~$r$:
+%
+\begin{equation}
+  \Sigma = r^2 + a^2 \cos^2\!\theta \,.
+  \label{eq:kerr-Sigma}
+\end{equation}
+%
+Setting $a = 0$ gives $\Sigma = r^2$, recovering spherical symmetry.
+For $a \neq 0$, $\Sigma$ vanishes only at $r = 0$, $\theta = \pi/2$
+--- the location of the Kerr ring singularity, where the Kretschmann
+invariant
+$R_{\alpha\beta\gamma\delta}R^{\alpha\beta\gamma\delta}$ diverges
+(\cref{sec:dg-curvature}).  The second function governs the radial
+structure:
+%
+\begin{equation}
+  \Delta = r^2 - 2Mr + a^2 \,.
+  \label{eq:kerr-Delta}
+\end{equation}
+%
+The roots $r_\pm = M \pm \sqrt{M^2 - a^2}$ locate the outer (event)
+and inner (Cauchy) horizons; both exist precisely when
+$\abs{a} \leq M$.
+
+\paragraph{The line element.}
+
+With $\Sigma$ and $\Delta$ in hand, we also define an auxiliary
+function that appears in the azimuthal part of the metric:
+%
+\begin{equation}
+  A = (r^2 + a^2)^2 - a^2 \Delta \sin^2\!\theta \,.
+  \label{eq:kerr-A}
+\end{equation}
+%
+The quantity $A/\Sigma$ governs the circumferential radius in the
+azimuthal direction; its excess over $(r^2 + a^2)^2$ measures
+how strongly rotation inflates the equatorial geometry.  The full
+Boyer--Lindquist line element is
+%
+\begin{multline}
+  \d s^2 = -\!\left(1 - \frac{2Mr}{\Sigma}\right)\d t^2
+           - \frac{4Mar\sin^2\!\theta}{\Sigma}\,\d t\,\d\varphi
+           + \frac{\Sigma}{\Delta}\,\d r^2 \\
+           + \Sigma\,\d\theta^2
+           + \frac{A\sin^2\!\theta}{\Sigma}\,\d\varphi^2 \,.
+  \label{eq:kerr-bl-metric}
+\end{multline}
+%
+The off-diagonal $\d t\,\d\varphi$ term --- absent in the
+Schwarzschild metric (\cref{eq:schwarzschild-metric}) --- couples time
+and azimuth, encoding the frame-dragging effect that is the hallmark
+of a rotating spacetime.  This coupling means that no Boyer--Lindquist
+observer at fixed $(r, \theta, \varphi)$ can avoid being dragged along
+in the direction of the black hole's rotation; the detailed
+consequences are explored in \cref{sec:kerr-horizons}.
+\physnote{The cross-term $g_{t\varphi}$ is responsible for the
+brightness asymmetry in images of rotating black holes: photons
+co-rotating with the hole are blueshifted, while counter-rotating
+photons are redshifted.}
+
+\paragraph{Coordinate singularities.}
+
+Two coordinate pathologies appear in the
+line element~\eqref{eq:kerr-bl-metric}.  The coefficient $g_{rr} =
+\Sigma/\Delta$ diverges when $\Delta = 0$, i.e.\ at the horizons
+$r = r_\pm$.  This is a coordinate artefact of the same kind as the
+$r = 2M$ singularity in Schwarzschild coordinates
+(\cref{sec:schw-coordinates}): the Kretschmann scalar remains finite
+at both horizons, and horizon-penetrating coordinates
+(\cref{sec:kerr-ks}) remove the divergence.  The second pathology is
+the usual axis singularity at $\sin\theta = 0$, shared with all
+spherical coordinate systems.  Neither singularity is physical, but
+both make Boyer--Lindquist coordinates unsuitable for numerical
+integration near the horizons --- the codebase uses Kerr--Schild
+coordinates instead (\cref{sec:kerr-ks}).
+\warnnote{The genuine curvature singularity of the Kerr spacetime is
+at $\Sigma = 0$ ($r = 0$, $\theta = \pi/2$): a ring of
+coordinate radius zero in the equatorial plane.  Unlike the
+Schwarzschild point singularity at $r = 0$, the Kerr singularity has
+the topology of a circle.}
+
+\paragraph{Limiting cases.}
+
+The Boyer--Lindquist metric interpolates between two clean limits.
+Setting $a = 0$ reduces $\Delta$ to $r(r - 2M)$, $\Sigma$ to $r^2$,
+and $A$ to $r^4$; the line element collapses to the Schwarzschild
+metric~\eqref{eq:schwarzschild-metric}.  Of the two horizon radii,
+$r_+ = 2M$ becomes the Schwarzschild event horizon; $r_- = 0$
+coincides with the curvature singularity and does not represent a
+Cauchy horizon.
+
+At the opposite extreme, $a = M$ gives the extremal Kerr black hole:
+$\Delta = (r - M)^2$, so the two horizons merge at $r_+ = r_- = M$
+and the surface gravity vanishes.  X-ray reflection spectroscopy of
+accreting black holes suggests that spin parameters approaching this
+limit occur in nature, with measured upper bounds near
+$a/M \approx 0.998$ \cite{Thorne1974}.  For a
+$10\,M_\odot$ black hole with near-maximal spin, the outer horizon
+lies at $r_+ \approx M \approx 15\;\text{km}$ --- half the
+Schwarzschild value.
+
+\paragraph{Codebase representation.}
+
+The ray tracer works in Cartesian Kerr--Schild coordinates, not
+Boyer--Lindquist, so the BL radius $r$ is not a coordinate but a
+derived quantity.  Given Cartesian coordinates $(x, y, z)$, the
+relation between BL and Cartesian radii is
+%
+\begin{equation}
+  r^4 - (x^2 + y^2 + z^2 - a^2)\,r^2 - a^2 z^2 = 0 \,,
+  \label{eq:bl-quartic}
+\end{equation}
+%
+a quartic in $r$ (biquadratic in $r^2$); its derivation and
+properties are the subject of \cref{sec:kerr-bl-quartic}.  The
+closed-form solution selects the larger of the two real roots of the
+associated quadratic in $r^2$:
+%
+\begin{lstlisting}[language=Haskell]
+blRadius :: Double -> Vec4 'Contravariant -> Double
+blRadius a (Vec4 _ x y z)
+  | a == 0    = sqrt (x*x + y*y + z*z)
+  | otherwise =
+      let p2   = x*x + y*y + z*z
+          a2   = a*a
+          diff = p2 - a2
+          disc = diff*diff + 4*a2*z*z
+          r2   = (diff + sqrt disc) / 2
+      in sqrt r2
+\end{lstlisting}
+%
+\coderef{Spacetime.Kerr}{blRadius}
+The fast path for $a = 0$ recovers the Euclidean radius, confirming
+the Schwarzschild limit at the code level.
+\implnote{The full quartic (\cref{eq:bl-quartic}) is solved by
+treating it as a quadratic in $r^2$.  The discriminant
+$(p^2 - a^2)^2 + 4a^2 z^2$ is manifestly non-negative, so the square
+root is always real.}

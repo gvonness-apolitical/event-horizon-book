@@ -1,0 +1,194 @@
+% sec:kerr-horizons — Horizons, Ergosphere, and Frame Dragging
+\section{Horizons, Ergosphere, and Frame Dragging}
+\label{sec:kerr-horizons}
+
+A non-rotating black hole has one important surface: the event
+horizon at $r = 2M$.  Rotation splits this into two horizons and
+creates a third surface --- the ergosphere boundary --- that has no
+Schwarzschild analogue.  Inside the ergosphere, no observer can
+remain stationary with respect to distant stars; the spacetime
+itself drags everything in the direction of the hole's rotation.
+Understanding these surfaces and the dragging they encode is
+essential for the ray tracer: horizon radii set the termination
+condition for captured photons, and the frame-dragging angular
+velocity controls the brightness asymmetry between the approaching
+and receding sides of the accretion disc.
+\coderef{Spacetime.Kerr}{kerrHorizonRadius}
+
+\paragraph{Event horizons.}
+
+A horizon is a surface from which no outward-directed causal
+signal can escape to infinity; in Boyer--Lindquist coordinates
+this condition surfaces as a divergence of the radial metric
+coefficient.  The horizons of the Kerr spacetime are the surfaces
+where $g_{rr} = \Sigma/\Delta$ diverges, i.e.\ where the horizon
+function $\Delta = r^2 - 2Mr + a^2$ from \cref{eq:kerr-Delta}
+vanishes.  This is a quadratic in $r$ with roots
+%
+\begin{equation}
+  r_\pm = M \pm \sqrt{M^2 - a^2} \,.
+  \label{eq:kerr-horizons}
+\end{equation}
+%
+Both roots are real and positive precisely when $\abs{a} \leq M$.
+The outer root $r_+$ is the event horizon: no future-directed
+causal curve can escape from $r < r_+$ to spatial infinity.  The
+inner root $r_-$ is the Cauchy horizon, a surface beyond which the
+initial-value problem for the field equations ceases to have a
+unique solution.
+\physnote{At the Cauchy horizon, signals from the singularity can
+reach an infalling observer, so the past no longer uniquely
+determines the future.  The physical relevance of the Kerr interior
+below $r_-$ remains an open question in classical and quantum
+gravity \cite{Wald1984}.}
+Setting $a = 0$ recovers
+$r_+ = 2M$ and $r_- = 0$, reproducing the Schwarzschild
+horizon and singularity (\cref{sec:kerr-bl}).
+\implnote{The codebase function \texttt{kerrHorizonRadius} computes
+$r_+$ directly: \texttt{m + sqrt (m*m - a*a)}.  The geodesic
+integrator terminates a ray when its Boyer--Lindquist radius drops
+below $r_+$.}
+
+For a $10\,M_\odot$ black hole, the event horizon shrinks from
+$r_+ = 2M \approx 30\;\text{km}$ at zero spin to
+$r_+ = M \approx 15\;\text{km}$ at the extremal limit $a = M$.
+At extremality the two horizons merge:
+$\Delta = (r - M)^2$, and the surface gravity vanishes,
+giving a degenerate horizon whose thermodynamic
+consequences are discussed in the literature
+\cite{Bardeen1972}.
+
+\paragraph{The ergosphere.}
+
+A second characteristic surface arises from the time--time component
+of the Boyer--Lindquist metric.  An observer at fixed
+$(r, \theta, \varphi)$ has four-velocity proportional to
+$\partial_t$, so the squared norm of the time Killing vector is
+%
+\begin{equation}
+  g_{tt} = -\!\left(1 - \frac{2Mr}{\Sigma}\right)
+         = -\frac{\Delta - a^2\sin^2\!\theta}{\Sigma} \,.
+  \label{eq:kerr-gtt}
+\end{equation}
+%
+The second form follows from
+$\Sigma - 2Mr = (r^2 - 2Mr + a^2) - a^2\sin^2\!\theta
+= \Delta - a^2\sin^2\!\theta$.
+The quantity $g_{tt}$ vanishes when
+%
+\begin{equation}
+  r = r_{\text{ergo}}(\theta) = M + \sqrt{M^2 - a^2\cos^2\!\theta} \,,
+  \label{eq:kerr-ergosphere}
+\end{equation}
+%
+which defines the outer boundary of the ergosphere (we discard the
+smaller root, which lies inside the inner horizon).  The
+discriminant $M^2 - a^2\cos^2\!\theta \geq 0$ follows from
+$\abs{a} \leq M$, so $r_{\text{ergo}}$ is real for all
+$\theta$.  The surface $r = r_{\text{ergo}}$ touches the event
+horizon at the poles ($\theta = 0, \pi$), where
+$r_{\text{ergo}} = r_+$, and bulges outward at the equator, where
+$r_{\text{ergo}} = 2M$ regardless of the spin --- matching the
+Schwarzschild event horizon radius.
+\physnote{The region $r_+ < r < r_{\text{ergo}}$ is the
+ergoregion.  Inside it, $g_{tt} > 0$: the Killing vector
+$\partial_t$ is spacelike, and no observer can remain
+stationary.  This is the arena for the Penrose process,
+in which a particle entering the ergoregion splits so that
+one fragment falls into the hole with negative energy (as
+measured at infinity) while the other escapes with more
+energy than the original --- extracting rotational energy
+from the black hole \cite{Wald1984}.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/kerr-horizons-ergosphere}
+  \caption[Kerr horizons and ergosphere]{%
+    Meridional cross-section of the Kerr black hole structure for spin
+    $a/M = 0.9$, plotted in Boyer--Lindquist coordinates
+    ($r\sin\theta$ horizontal, $r\cos\theta$ vertical).  The outer
+    horizon $r_+$ (solid crimson) and inner horizon $r_-$ (dashed
+    crimson) are circles because surfaces of constant BL radius are
+    spheres.  The ergosphere boundary $r_{\text{ergo}}(\theta)$ (solid
+    gold) touches $r_+$ at the poles and bulges out to $r = 2M$ at the
+    equator, creating the ergoregion (gold shading).  The dotted grey
+    circle marks $r = 2M$, the Schwarzschild event horizon radius.
+    The ring singularity at $r = 0$, $\theta = \pi/2$ is marked at
+    the origin.}
+  \label{fig:kerr-horizons-ergosphere}
+\end{figure}
+
+\paragraph{Frame-dragging angular velocity.}
+
+The off-diagonal $g_{t\varphi}$ term in the Boyer--Lindquist
+metric~\cref{eq:kerr-bl-metric} couples time and azimuth, meaning
+that a freely falling observer with zero conserved angular momentum
+($p_\varphi = 0$) acquires azimuthal velocity.  The angular
+velocity of such a zero-angular-momentum observer (ZAMO) is
+%
+\begin{equation}
+  \omega = -\frac{g_{t\varphi}}{g_{\varphi\varphi}}
+         = \frac{2Mar}{A} \,,
+  \label{eq:kerr-omega}
+\end{equation}
+%
+where $A = (r^2 + a^2)^2 - a^2\Delta\sin^2\!\theta$ is the
+azimuthal auxiliary from \cref{eq:kerr-A}.  A nonzero $\omega$
+means that a locally non-rotating observer is nonetheless carried
+around the hole azimuthally, and photons inherit this rotation: the
+spacetime drags everything in the direction of the black hole's
+spin.  At the event horizon, $\Delta = 0$ gives
+$A = (r_+^2 + a^2)^2$ and therefore
+%
+\begin{equation}
+  \omega_H = \frac{2Mar_+}{(r_+^2 + a^2)^2}
+           = \frac{a}{r_+^2 + a^2} \,,
+  \label{eq:kerr-omega-horizon}
+\end{equation}
+%
+using $2Mr_+ = r_+^2 + a^2$ (which follows from
+$\Delta(r_+) = 0$).  This is the angular velocity of the
+horizon itself: all objects, including photons, co-rotate
+with the horizon at $r = r_+$.  For $a = 0$, $\omega_H = 0$
+and the non-rotating limit is recovered.
+\histnote{The angular velocity $\omega_H$ also appears in black
+hole thermodynamics: the first law of black hole mechanics relates
+changes in mass, area, and angular momentum through $\omega_H$
+\cite{Bardeen1972}.}
+
+At large radii, $A \approx r^4$ and $\omega$ falls off as
+%
+\begin{equation}
+  \omega \approx \frac{2Ma}{r^3} \,,
+  \label{eq:kerr-omega-far}
+\end{equation}
+%
+the same $1/r^3$ fall-off as the angular velocity field of a
+rotating body in the weak-field post-Newtonian approximation
+(\cref{sec:gr-weak-field}).  For a
+$10\,M_\odot$ black hole with $a/M = 0.9$ at $r = 10M$, this
+gives $\omega \approx 1.8 \times 10^{-3}/M \approx 37\;\text{rad\,s}^{-1}$
+--- fast enough to produce observable Doppler shifts in photons
+from the accretion disc.
+
+\paragraph{Frame dragging and the ray tracer.}
+
+The ZAMO angular velocity enters the ray tracer indirectly through
+the metric.  In Kerr--Schild coordinates, the frame-dragging
+information is encoded in the twist of the null covector $l_\mu$
+(\cref{eq:kerr-ks-null}): the terms $ay$ and $-ax$ in the
+spatial components of $l_\mu$ mix the $x$ and $y$ directions by an
+amount proportional to $a$.  The geodesic integrator does not
+compute $\omega$ explicitly --- it integrates Hamilton's equations
+using the full metric --- but the physical effect is the same:
+photons co-rotating with the black hole follow shorter paths and
+arrive blueshifted, while counter-rotating photons travel longer
+paths and arrive redshifted.  This asymmetry is the dominant
+visual feature in rendered images of Kerr black holes with
+optically thin accretion flows.
+\warnnote{Frame dragging is often described loosely as ``the
+black hole dragging spacetime around with it''.  More precisely:
+the Killing vector $\partial_t$ acquires a nonzero inner product
+with $\partial_\varphi$, so the locally non-rotating frame
+rotates relative to observers at infinity.  No physical medium is
+being dragged.}

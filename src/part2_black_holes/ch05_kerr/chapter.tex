@@ -2,53 +2,55 @@
 \chapter{The Kerr Solution}
 \label{ch:kerr}
 
-Astrophysical black holes carry angular momentum. This chapter presents the
-Kerr metric, its horizon and ergosphere structure, and the coordinate systems
-used in the codebase. We also derive the ISCO formulae that set the inner edge
-of accretion disc models and briefly discuss the Morris-Thorne wormhole as an
-alternative spacetime.
+The Schwarzschild metric of \cref{ch:schwarzschild} describes a non-rotating
+black hole --- a useful idealisation, but not a realistic one.  X-ray binary
+observations and Event Horizon Telescope imaging consistently find
+dimensionless spins $a_* = a/M$ in the range $0.5$--$0.998$; a non-spinning
+black hole is the exception, not the rule.  Rotation introduces qualitative
+changes that go beyond the incremental: the single event horizon splits into
+an outer and inner pair, frame-dragging creates an ergosphere where no
+stationary observer can exist, and the innermost stable circular orbit
+migrates from $6M$ to as close as $M$ for a maximally spinning prograde disc.
+Each of these features shapes the images that the ray tracer produces.
 
-\section{Boyer-Lindquist Coordinates}
-\label{sec:kerr-bl}
-\coderef{Spacetime}{Kerr}
+Two coordinate systems carry the analysis.  Boyer--Lindquist coordinates
+generalise the Schwarzschild $(t, r, \theta, \varphi)$ chart and expose the
+analytic structure: the horizon function $\Delta = r^2 - 2Mr + a^2$ vanishes
+at the horizons, the angular metric reveals frame-dragging, and the ISCO
+formulae take closed form.  But $\Delta = 0$ is a coordinate singularity, just
+as $r = 2M$ was for Schwarzschild --- and the geodesic integrator needs a
+chart that stays finite at the horizon.  Kerr--Schild coordinates provide
+this, decomposing the full Kerr metric as flat Minkowski space plus a
+rank-one null correction, exactly as in the Schwarzschild case of
+\cref{sec:schw-kerr-schild}.  The price is a quartic equation relating the
+Boyer--Lindquist radius $r$ to the Cartesian coordinates $(x, y, z)$ --- a
+relationship that must be inverted at every point where the integrator needs
+to evaluate horizon proximity or disc geometry.
 
-We write the Kerr metric in Boyer-Lindquist form, identify the coordinate
-singularities, and define the functions $\Delta$, $\Sigma$, and $A$ that
-recur throughout the chapter.
+The chapter closes with two applications.  The ISCO radius and radiative
+efficiency of thin accretion discs depend sensitively on spin: prograde
+orbits around a rapidly spinning hole radiate over seven times more energy
+per unit rest mass than orbits around a Schwarzschild hole, a difference
+visible in both the brightness and geometry of the disc image.  A starred
+section then examines the Morris--Thorne wormhole --- a non-black-hole
+spacetime whose absence of horizons, nontrivial topology, and double-sky
+images exercise code paths that no black hole touches.  The geodesic
+machinery developed here feeds directly into \cref{ch:geodesics}, which
+treats the numerical integration strategy, conservation monitoring, and
+termination conditions that turn these metrics into rendered images.
 
-\section{Kerr-Schild Form}
-\label{sec:kerr-ks}
+% ---- Drafted sections ----
+\input{part2_black_holes/ch05_kerr/kerr-bl}
 
-We transform to Kerr-Schild coordinates, which are horizon-penetrating and
-used as the codebase's default representation for ray tracing through the
-ergosphere.
+\input{part2_black_holes/ch05_kerr/kerr-ks}
 
-\section{The Boyer-Lindquist Radius Quartic}
-\label{sec:kerr-bl-quartic}
+\input{part2_black_holes/ch05_kerr/kerr-bl-quartic}
 
-We derive the quartic equation that converts between Kerr-Schild and
-Boyer-Lindquist radial coordinates and discuss its numerical solution.
+\input{part2_black_holes/ch05_kerr/kerr-horizons}
 
-\section{Horizons, Ergosphere, and Frame Dragging}
-\label{sec:kerr-horizons}
+\input{part2_black_holes/ch05_kerr/kerr-isco}
 
-We locate the inner and outer horizons, define the ergosphere, and quantify
-frame dragging through the angular velocity of zero-angular-momentum
-observers.
-
-\section{ISCO Formulae}
-\label{sec:kerr-isco}
-
-We derive the spin-dependent ISCO radius for prograde and retrograde orbits,
-connecting to the accretion disc inner edge used by the renderer.
-
-\section{The Morris-Thorne Wormhole\starmark{}}
-\label{sec:kerr-wormhole}
-\coderef{Spacetime}{MorrisThorne}
-
-We briefly present the Morris-Thorne traversable wormhole metric as an example
-of a non-black-hole spacetime implemented in the codebase, discussing its
-throat geometry and geodesic structure.
+\input{part2_black_holes/ch05_kerr/kerr-wormhole}
 
 \paragraph{Key References.}
 The Kerr metric treatment follows \cite{Visser2007} and \cite{Wald1984}; ISCO

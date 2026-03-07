@@ -1,0 +1,206 @@
+% sec:fd-dissipation — Kreiss--Oliger Dissipation
+\section{Kreiss--Oliger Dissipation}
+\label{sec:fd-dissipation}
+
+High-order finite difference stencils converge rapidly for smooth data,
+but they are susceptible to a subtle instability: grid-scale oscillations
+--- parasitic modes with wavelength $2\,\Delta x$ --- can grow during a
+time evolution even when the underlying solution is smooth.  These
+oscillations arise from several sources: mesh refinement boundaries where
+coarse-grid data is interpolated onto a fine grid, gauge dynamics that
+introduce sharp features, or simply the nonlinear coupling in the BSSN
+equations that transfers energy from resolved scales to the grid scale.
+Once established, grid-scale noise is invisible to convergence testing
+(it doesn't converge away --- it's a fixed-wavelength artefact of the
+grid) and can destabilise the entire evolution.
+
+Kreiss--Oliger dissipation addresses this by adding a small, high-order
+diffusion term to the evolution equations.  The term is designed to damp
+the highest-frequency modes aggressively while leaving well-resolved modes
+virtually untouched, and --- crucially --- without degrading the
+convergence order of the scheme \cite{Gustafsson1995}.
+\coderef{dissipation}{rs}
+
+\paragraph{The dissipation operator.}
+
+The key observation is that grid-scale noise lives near the Nyquist
+frequency $k_{\text{max}} = \pi/\Delta x$, while the physical solution
+occupies much lower frequencies.  A dissipation operator that selectively
+targets the Nyquist neighbourhood must act like a high-pass filter: large
+response at the grid scale, negligible response at resolved scales.
+
+The simplest such operator is the undivided even difference
+$D_+^r D_-^r$, where $D_+$ and $D_-$ are the forward and backward
+difference operators ($D_+ f_i = f_{i+1} - f_i$,
+$D_- f_i = f_i - f_{i-1}$), and $r$ is a positive integer.  For $r = 1$
+this is the familiar three-point second difference
+$f_{i+1} - 2f_i + f_{i-1}$; higher $r$ produces a wider, more selective
+filter.  The Kreiss--Oliger dissipation term added to the right-hand side
+of the evolution equation $\partial_t f = \ldots$ is
+%
+\begin{equation}
+  \epsilon_{\text{diss}}
+  = (-1)^{r+1}\,\frac{\sigma}{\Delta x}\,
+    \frac{D_+^r\,D_-^r\,f_i}{2^{2r}} \,,
+  \label{eq:ko-operator}
+\end{equation}
+%
+where $\sigma > 0$ is a dimensionless dissipation strength parameter and
+the factor $2^{2r}$ normalises the operator so that its maximum value
+(at the Nyquist frequency) is $\sigma/\Delta x$.  The sign
+$(-1)^{r+1}$ ensures that the term always removes amplitude from
+every Fourier mode, regardless of $r$ --- this is the defining property
+of a dissipative operator and will be verified below.
+\physnote{The dissipation term modifies the evolution equations at the
+discrete level only.  It has no continuum counterpart: as
+$\Delta x \to 0$, the term vanishes faster than the truncation error,
+so it does not change the PDE being solved.}
+
+\paragraph{Stencil coefficients.}
+
+For a fourth-order spatial scheme, the dissipation order must be at least
+fifth to avoid degrading the convergence rate.  Setting $r = 3$ gives a
+fifth-order dissipation operator with a $2r + 1 = 7$-point stencil.
+Expanding $D_+^3 D_-^3$ by repeated application of the three-point
+second difference produces the stencil weights
+%
+\begin{equation}
+  D_+^3\,D_-^3\,f_i = f_{i-3} - 6\,f_{i-2} + 15\,f_{i-1} - 20\,f_i
+    + 15\,f_{i+1} - 6\,f_{i+2} + f_{i+3} \,,
+  \label{eq:ko-stencil}
+\end{equation}
+%
+with coefficients that are the binomial coefficients $\binom{6}{j}$
+with alternating signs --- the sixth row of Pascal's triangle.  The
+symmetry of the stencil follows from the symmetry of $D_+ D_-$: each
+application of the three-point second difference preserves the centred
+structure.
+\implnote{The codebase function \texttt{ko\_diss\_x} implements the
+seven-point stencil with coefficients $[-1, 6, -15, 20, -15, 6, -1]$
+divided by $64$, matching \cref{eq:ko-stencil} divided by $2^{2r} = 64$
+(up to the overall sign from $(-1)^{r+1}$, which is absorbed into
+the calling convention).}
+
+Including the sign $(-1)^{r+1} = (-1)^4 = 1$ and the normalisation, the
+full dissipation contribution at each grid point is
+%
+\begin{equation}
+\begin{split}
+  \epsilon_{\text{diss}}
+  = \frac{\sigma}{64\,\Delta x}
+    \bigl(&f_{i-3} - 6\,f_{i-2} + 15\,f_{i-1} - 20\,f_i \\
+    &+ 15\,f_{i+1} - 6\,f_{i+2} + f_{i+3}\bigr) \,.
+\end{split}
+  \label{eq:ko-explicit}
+\end{equation}
+%
+The large negative central weight ($-20$) means the operator measures
+how much $f_i$ deviates from a smooth interpolant through its six
+neighbours.  For a polynomial of degree five or less, the stencil
+returns exactly zero --- confirming that the operator annihilates the
+smooth component of the solution.
+
+\paragraph{Spectral analysis.}
+
+To see why the operator damps grid-scale noise without affecting
+resolved modes, consider its action on a Fourier mode
+$f_j = e^{i k j \,\Delta x}$.  The forward and backward differences have
+eigenvalues
+%
+\begin{equation}
+  D_+ \to e^{ik\Delta x} - 1 \,, \qquad
+  D_- \to 1 - e^{-ik\Delta x} \,,
+  \label{eq:forward-backward-eigenvalues}
+\end{equation}
+%
+and their product is
+%
+\begin{equation}
+  D_+ D_- \to (e^{ik\Delta x} - 1)(1 - e^{-ik\Delta x})
+  = 2\cos(k\,\Delta x) - 2 = -4\sin^2\!\bigl(\tfrac{k\,\Delta x}{2}\bigr) \,.
+  \label{eq:dpdm-eigenvalue}
+\end{equation}
+%
+The product is always non-positive: $D_+ D_-$ is a discrete diffusion
+operator.  The $r$-th power therefore has eigenvalue
+$(-1)^r\,4^r \sin^{2r}(k\,\Delta x/2)$, and the full dissipation
+operator (\cref{eq:ko-operator}) acts on a Fourier mode as
+%
+\begin{equation}
+  \epsilon_{\text{diss}} \to
+  -\frac{\sigma}{\Delta x}\,\sin^{2r}\!\bigl(\tfrac{k\,\Delta x}{2}\bigr)
+  \;\cdot\; f_j \,.
+  \label{eq:ko-transfer}
+\end{equation}
+%
+The transfer function $-(\sigma/\Delta x)\,\sin^{2r}(k\,\Delta x/2)$
+is negative for all $k > 0$: every mode is damped, never amplified.
+\warnnote{The negative sign in \cref{eq:ko-transfer} arises from the
+product $(-1)^{r+1} \cdot (-1)^r = (-1)^{2r+1} = -1$: the sign
+prefactor in \cref{eq:ko-operator} and the sign of the $(D_+D_-)^r$
+eigenvalue combine to give a universally negative transfer function.
+Getting this sign wrong produces anti-dissipation --- the operator
+amplifies grid-scale noise instead of damping it.}
+
+The damping rate depends sharply on frequency.  At the Nyquist limit
+$k\,\Delta x = \pi$, $\sin^{2r}(\pi/2) = 1$ and the damping rate is
+$\sigma/\Delta x$ --- the maximum.  For a well-resolved mode with
+$k\,\Delta x \ll 1$, $\sin(k\,\Delta x/2) \approx k\,\Delta x/2$ and
+the damping rate is approximately
+$\sigma\,(k\,\Delta x/2)^{2r}/\Delta x = \sigma\,k^{2r}\,
+\Delta x^{2r-1}/2^{2r}$, which vanishes as $\Delta x \to 0$.
+For $r = 3$, the ratio of damping rates between the Nyquist mode and a
+mode resolved by $10$ points per wavelength ($k\,\Delta x = 2\pi/10$) is
+%
+\begin{equation}
+  \frac{\sin^6(\pi/2)}{\sin^6(\pi/10)}
+  = \frac{1}{\sin^6(18°)}
+  \approx \frac{1}{(0.309)^6}
+  \approx 1150 \,.
+  \label{eq:ko-selectivity}
+\end{equation}
+%
+The operator damps the Nyquist mode over a thousand times more
+aggressively than a mode resolved by ten grid points --- a selectivity
+that justifies calling it a ``scalpel'' rather than a ``sledgehammer.''
+
+\paragraph{Order preservation.}
+
+Adding dissipation is worthless if it degrades the accuracy we worked to
+achieve.  The dissipation must not degrade the $\order{\Delta x^q}$
+convergence of the underlying spatial scheme.  Since the dissipation term
+(\cref{eq:ko-operator}) scales as $\Delta x^{2r-1}$ for smooth modes
+(the $\sin^{2r}$ factor contributes $(k\,\Delta x)^{2r}$ for fixed $k$),
+the dissipation error is $\order{\Delta x^{2r-1}}$.  This is smaller
+than the scheme's truncation error $\order{\Delta x^q}$ provided
+$2r - 1 \geq q$, i.e.\ $r \geq (q + 1)/2$.  For a fourth-order scheme ($q = 4$),
+$r \geq 3$ suffices, making the fifth-order ($r = 3$) dissipation operator
+the minimum choice that preserves convergence order.
+\xrefnote{The convergence tests of \cref{sec:fd-convergence} verify
+that the dissipation term does not alter the measured convergence rate
+at any tested resolution.}
+
+\paragraph{Choice of $\sigma$.}
+
+The dissipation strength $\sigma$ balances stability against accuracy.
+Too small, and grid-scale noise survives long enough to contaminate the
+evolution; too large, and the dissipation smears physical features.  For
+the BSSN equations evolved with a fourth-order spatial scheme and a
+Runge--Kutta time integrator, values of $\sigma$ in the range
+$0.01$--$0.1$ are typical.  The codebase uses $\sigma = 0.05$ as the
+default, which provides effective noise suppression across a wide range of
+test problems without visibly affecting convergence.
+\implnote{The function \texttt{apply\_ko\_dissipation} adds the
+dissipation contribution in each coordinate direction to the right-hand
+side for all $24$ evolved BSSN fields.  The stencil half-width of $3$
+determines the minimum ghost-zone depth, as noted in
+\cref{sec:fd-stencils}.}
+
+The three-dimensional dissipation is simply the sum of the
+one-dimensional operators applied in each coordinate direction.  No
+cross-derivative terms appear: the operator is separable by construction.
+On a uniform grid with $\Delta x = \Delta y = \Delta z$, the total
+dissipation cost per grid point is three seven-point stencil
+evaluations --- modest compared to the twelve stencil evaluations
+required for the spatial derivatives of the BSSN right-hand side
+(\cref{sec:fd-orders}).

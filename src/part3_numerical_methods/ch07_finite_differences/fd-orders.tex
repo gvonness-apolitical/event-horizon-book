@@ -1,0 +1,156 @@
+% sec:fd-orders — Second- and Fourth-Order Differences
+\section{Second- and Fourth-Order Differences}
+\label{sec:fd-orders}
+
+The Vandermonde system of \cref{sec:fd-stencils} produces stencils of any
+order, but two choices dominate numerical relativity: second order ($m = 1$,
+three-point stencils) and fourth order ($m = 2$, five-point stencils).  The
+decision between them is a trade-off: fourth-order stencils cost more
+memory accesses per evaluation but converge so much faster that they require
+far fewer grid points to reach a given accuracy.  Quantifying that trade-off
+requires the explicit stencil formulae, their leading error coefficients,
+and a direct numerical comparison.
+
+\paragraph{The four centred stencils.}
+
+The second-order first derivative was derived in
+\cref{eq:d1-second-order}; the fourth-order first and second derivatives
+in \cref{eq:d1-fourth-order,eq:d2-fourth-order}.  The remaining member of
+the set is the second-order centred second derivative, obtained from the
+Vandermonde system with $m = 1$, $p = 2$:
+%
+\begin{equation}
+  f''_i \approx \frac{f_{i+1} - 2\,f_i + f_{i-1}}{\Delta x^2} \,.
+  \label{eq:d2-second-order}
+\end{equation}
+%
+The three-point stencil is the simplest centred approximation to $f''$: it
+measures how much the central value $f_i$ deviates from the average of its
+two neighbours --- exactly the discrete analogue of curvature.
+
+\paragraph{Leading error coefficients.}
+
+Each stencil's truncation error is determined by the first uncancelled term
+in the Taylor expansion (\cref{eq:taylor-grid}).  Evaluating the coefficient
+of that term gives the leading error explicitly.  For the four centred
+stencils:
+
+\vspace{0.5\baselineskip}
+\noindent\makebox[\textwidth][c]{\begin{tabular}{llccl}
+  \toprule
+  Derivative & Order & Points & Stencil & Leading error \\
+  \midrule
+  $f'_i$ & 2nd & 3 &
+    $\dfrac{f_{i+1} - f_{i-1}}{2\,\Delta x}$ &
+    $\dfrac{\Delta x^2}{6}\,f'''_i$ \\[10pt]
+  $f'_i$ & 4th & 5 &
+    $\dfrac{-f_{i+2} + 8f_{i+1} - 8f_{i-1} + f_{i-2}}{12\,\Delta x}$ &
+    $\dfrac{\Delta x^4}{30}\,f^{(5)}_i$ \\[10pt]
+  $f''_i$ & 2nd & 3 &
+    $\dfrac{f_{i+1} - 2f_i + f_{i-1}}{\Delta x^2}$ &
+    $\dfrac{\Delta x^2}{12}\,f^{(4)}_i$ \\[10pt]
+  $f''_i$ & 4th & 5 &
+    $\dfrac{-f_{i+2} + 16f_{i+1} - 30f_i + 16f_{i-1} - f_{i-2}}
+    {12\,\Delta x^2}$ &
+    $\dfrac{\Delta x^4}{90}\,f^{(6)}_i$ \\
+  \bottomrule
+\end{tabular}\hspace*{30mm}}
+
+\vspace{0.5\baselineskip}
+\noindent The error coefficients follow from the Vandermonde analysis: the $n$-th
+uncancelled term contributes $\sum_j w_{k_j}\,k_j^n / n!$ times
+$\Delta x^{n-p}\,f^{(n)}_i$.  For centred stencils the first uncancelled
+term after the $N = 2m + 1$ conditions is the one whose parity matches
+the derivative order, so the leading exponent is always $\Delta x^{2m}$.
+\physnote{The error coefficients decrease as the stencil order increases:
+$1/6 \to 1/30$ for the first derivative, $1/12 \to 1/90$ for the second.
+This means that even at the same grid spacing, the fourth-order stencil has
+a smaller prefactor in addition to its faster convergence rate.}
+
+\paragraph{A worked comparison.}
+
+To see what the error coefficients mean in practice, consider the test
+function $f(x) = \sin(2\pi x)$ on the interval $[0, 1]$ with $N_x = 20$
+grid points ($\Delta x = 0.05$).  The first derivative at $x = 0.5$ is
+$f'(0.5) = 2\pi\cos(\pi) = -2\pi \approx -6.2832$.  The exact higher
+derivatives needed for the error terms are
+$f'''(0.5) = -(2\pi)^3\cos(\pi) = 8\pi^3$
+and $f^{(5)}(0.5) = (2\pi)^5\cos(\pi) = -32\pi^5$.
+
+The second-order stencil gives an error of approximately
+%
+\begin{equation}
+  \frac{\Delta x^2}{6}\,\abs{f'''(0.5)}
+  = \frac{(0.05)^2}{6} \cdot 8\pi^3
+  \approx 1.03 \times 10^{-1} \,,
+  \label{eq:d1-error-second-order}
+\end{equation}
+%
+while the fourth-order stencil gives
+%
+\begin{equation}
+  \frac{\Delta x^4}{30}\,\abs{f^{(5)}(0.5)}
+  = \frac{(0.05)^4}{30} \cdot 32\pi^5
+  \approx 2.04 \times 10^{-3} \,.
+  \label{eq:d1-error-fourth-order}
+\end{equation}
+%
+The fourth-order stencil is roughly $50$ times more accurate, at the cost
+of accessing two additional grid points per evaluation ($5$ versus $3$).
+Doubling the resolution to $N_x = 40$ reduces the second-order error by a
+factor of $4$ (to $\sim 2.6 \times 10^{-2}$) and the fourth-order error by
+a factor of $16$ (to $\sim 1.3 \times 10^{-4}$).  The gap widens with each
+refinement: to match the fourth-order accuracy at $N_x = 20$, the
+second-order scheme needs roughly $N_x \approx 144$ --- over seven times as
+many points per direction, and about $370$ times the three-dimensional grid
+volume.
+\implnote{The codebase's convergence tests verify these scaling predictions
+numerically.  The test \texttt{test\_d1x\_sin\_convergence} in
+\codemodule{stencils} applies the fourth-order stencil to $\sin(2\pi x)$
+at resolutions $N = 16, 32, 64$ and checks that the error ratio between
+successive doublings lies in $[12, 20]$ --- bracketing the theoretical
+value of $16$.}
+
+\paragraph{Cost-benefit analysis.}
+
+The computational cost of a stencil evaluation scales with the number of
+grid-point accesses, not with arithmetic operations --- modern processors
+can multiply and add far faster than they can fetch data from main memory.
+A three-point stencil touches $3$ values; a five-point stencil touches $5$.
+In three spatial dimensions, the BSSN right-hand side requires first and
+second derivatives in each of three directions plus mixed second derivatives
+for all three coordinate pairs, for a total of $3 + 3 + 3 \times 2 = 12$
+stencil evaluations per field per grid point (counting each pass of the
+separable mixed-derivative computation separately).
+
+At second order, each evaluation touches $3$ points, but many accesses
+overlap --- the same grid value appears in multiple stencils.  At fourth
+order the overlap is even greater because the five-point stencil in one
+direction shares its central three points with the three-point stencil of
+the lower order.  In practice, the actual cost increase from second to
+fourth order is modest: the codebase measures roughly a $30$--$50\%$
+increase in wall-clock time per right-hand-side evaluation, depending on
+cache behaviour.
+
+The accuracy gain dwarfs this cost.  Reaching a target error of $10^{-6}$
+with a second-order scheme requires roughly $\Delta x \sim 10^{-3}$, or
+about $10^3$ points per direction --- a billion grid points in three
+dimensions.  The fourth-order scheme reaches the same error with
+$\Delta x \sim 10^{-3/2} \approx 0.03$, or about $30$ points per direction
+--- roughly $27\,000$ grid points.  The memory ratio is $10^9 / 2.7 \times
+10^4 \approx 37\,000$, and the compute-time ratio is even larger because
+the time integrator's stability constraint (the CFL condition, discussed in
+\cref{ch:ode-integration}) forces smaller time steps at finer resolution.
+\warnnote{These estimates assume the solution is smooth enough that the
+truncation error dominates.  Near discontinuities or sharp features, the
+higher-order stencil can produce oscillations (Gibbs phenomenon) that the
+lower-order stencil avoids.  Kreiss--Oliger dissipation
+(\cref{sec:fd-dissipation}) addresses this by selectively damping the
+grid-scale modes that trigger oscillations.}
+
+For the smooth fields of numerical relativity --- conformal factor
+$\conformal$, extrinsic curvature $\extrinsic$, lapse $\lapse$, shift
+$\shift$ --- the fourth-order stencil is the clear
+winner, and the codebase uses it exclusively for interior spatial
+derivatives.  The second-order stencil appears only at boundaries and in
+the pedagogical comparison above.

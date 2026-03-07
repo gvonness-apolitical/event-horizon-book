@@ -1,0 +1,220 @@
+% sec:fd-convergence — Convergence Testing
+\section{Convergence Testing}
+\label{sec:fd-convergence}
+
+A stencil derivation can be flawless and its truncation analysis
+impeccable, yet the code that evaluates it may still contain an index
+error, a misplaced sign, or a factor-of-two bug in the grid spacing.
+Convergence testing catches these faults by turning the theoretical
+predictions of \cref{sec:fd-truncation} into executable experiments: if
+the code is correct, refining the grid must reduce the error at the rate
+the theory predicts.  Once the grid is fine enough to be in the
+asymptotic regime, any deviation is a reliable indicator that something
+is wrong in the implementation --- making convergence tests the single
+most powerful verification tool in numerical analysis \cite{Roache1998}.
+\coderef{eh-compute}{stencils.rs}
+
+\paragraph{Manufactured solutions.}
+
+The simplest convergence test requires an exact answer to compare against.
+For a single stencil operator, this is easy: choose a smooth function
+$f(x)$ whose derivatives are known analytically, evaluate the stencil on
+a grid of $N_x$ points, and measure the error at a representative
+interior point.  The function $f(x) = \sin(2\pi x)$ on $[0, 1]$ serves
+well: its derivatives are bounded, it exercises all stencil offsets
+symmetrically, and its periodicity means that every grid point is
+equivalent (no boundary contamination at the evaluation point).
+\xrefnote{The worked examples of \cref{sec:fd-orders,sec:fd-truncation}
+use this same test function, so the reader has already seen the errors
+being measured here.}
+
+The test proceeds as follows.  At each resolution $N_x$, compute the
+stencil approximation $D_1[f]_i$ at the midpoint $i = N_x/2$ and compare
+with the exact derivative $f'(x_i) = 2\pi\cos(2\pi x_i)$.  The absolute
+error is
+%
+\begin{equation}
+  \epsilon(N_x) = \abs{D_1[f]_i - f'(x_i)} \,.
+  \label{eq:manufactured-error}
+\end{equation}
+%
+For a $q$-th order stencil, the truncation error analysis of
+\cref{sec:fd-truncation} predicts $\epsilon \propto \Delta x^q$, so
+doubling the resolution (halving $\Delta x$) should reduce $\epsilon$ by
+a factor of $2^q$.  The measured convergence ratio between successive
+resolutions is
+%
+\begin{equation}
+  \rho = \frac{\epsilon(N_x)}{\epsilon(2 N_x)} \,.
+  \label{eq:convergence-ratio-test}
+\end{equation}
+%
+Asymptotically, $\rho \to 2^q$ as $\Delta x \to 0$.  For fourth-order
+stencils ($q = 4$), the prediction is $\rho = 16$.
+
+\paragraph{A concrete test.}
+
+The codebase implements exactly this procedure in the test
+\texttt{test\_d1x\_sin\_convergence}, which runs at resolutions
+$N_x = 16$, $32$, and $64$.  The test
+asserts that the convergence ratio lies in the interval $[12, 20]$,
+bracketing the theoretical value of $16$ with enough margin to absorb the
+$1 + \order{\Delta x^2}$ relative correction from sub-leading truncation
+terms (\cref{eq:convergence-ratio}).
+\implnote{The acceptance window $[12, 20]$ is deliberately wide: the
+test's purpose is to catch order-of-magnitude bugs (wrong stencil
+coefficients, missing grid-spacing factors), not to measure the
+truncation error coefficient to high precision.}
+
+Running the test at the three resolutions gives errors of approximately
+$2.0 \times 10^{-3}$, $1.3 \times 10^{-4}$, and $8.0 \times 10^{-6}$,
+yielding ratios $\rho_{16 \to 32} \approx 15.7$ and
+$\rho_{32 \to 64} \approx 15.9$ --- both within a few percent of $16$.
+The agreement tightens as $N_x$ increases because the higher-order
+correction terms shrink: the ratio approaches $2^q$ as
+$\Delta x \to 0$.
+
+\paragraph{Polynomial exactness tests.}
+
+A complementary verification strategy exploits the polynomial exactness
+of finite difference stencils.  The truncation error analysis of
+\cref{sec:fd-truncation} shows that the leading error term involves
+$f^{(p+q)}$, so a $q$-th order stencil for the $p$-th derivative
+reproduces polynomials of degree $p + q - 1$ exactly --- every derivative
+appearing in the error series vanishes for such polynomials.  Testing
+this property is straightforward: evaluate the stencil on a polynomial
+of the appropriate degree and check that the result matches the exact
+derivative to machine precision.
+
+For the fourth-order second derivative ($p = 2$, $q = 4$), any polynomial
+of degree five or less has zero truncation error, so the stencil must
+return the exact second derivative to machine precision.  The test
+\texttt{test\_d2x\_quadratic\_exact} verifies this with $f(x) = x^2$:
+the stencil returns $2.0$ to within $10^{-10}$, confirming that the
+coefficients and grid-spacing factors are correct.
+\warnnote{A polynomial exactness test passing does not guarantee
+convergence order.  The stencil could have the correct coefficients but a
+wrong power of $\Delta x$ in the denominator --- the polynomial test
+wouldn't catch this because the exact result is independent of $\Delta x$.
+Always combine polynomial tests with convergence-ratio tests.}
+
+The mixed-derivative test \texttt{test\_d2xy\_polynomial} applies the
+same principle to the separable stencil: with $f(x,y) = x^2 y^2$, the
+exact mixed derivative $\partial^2 f / \partial x\, \partial y = 4xy$
+must be recovered to machine precision.  This test validates both the
+separable two-pass algorithm (\cref{sec:fd-stencils}) and its
+implementation.
+
+\paragraph{Self-convergence.}
+
+Manufactured-solution tests work for isolated stencil operators, but the
+full BSSN evolution has no closed-form solution to compare against.  The
+self-convergence test addresses this by using the numerical solution
+itself as the reference.
+
+The idea is to run the same problem at three resolutions with grid
+spacings in the ratio $4 : 2 : 1$.  Label the solutions by their
+relative spacing: $u_4$ at the coarsest spacing $\Delta x$, $u_2$ at
+$\Delta x / 2$, and $u_1$ at the finest spacing $\Delta x / 4$.  If the
+dominant error is $\order{\Delta x^q}$, then the differences between
+successive resolutions satisfy
+%
+\begin{equation}
+  \frac{\norm{u_4 - u_2}}{\norm{u_2 - u_1}} = 2^q \,,
+  \label{eq:self-convergence-ratio}
+\end{equation}
+%
+where each difference is evaluated at the grid points of the coarsest
+resolution, which are a subset of all three grids.  No exact solution
+appears in this formula --- the method is self-referential, hence the
+name.
+\physnote{Self-convergence confirms that the code converges at the
+expected rate, but not that it converges to the \emph{correct} answer
+--- that requires a separate validation step, such as comparison with
+perturbation theory or an independent code.}
+
+For the BSSN equations evolved with fourth-order spatial stencils and a
+fourth-order Runge--Kutta time integrator, the self-convergence ratio
+should be $16$ in the spatial-error-dominated regime.  If the time
+integrator has a different order from the spatial scheme, the ratio
+reveals which error source dominates: for example, with a third-order
+time integrator and CFL scaling $\Delta t \propto \Delta x$, a ratio
+closer to $2^3 = 8$ would indicate that time-stepping error controls the
+convergence (the interaction between spatial and temporal accuracy is
+developed in \cref{ch:ode-integration}).  A ratio that doesn't match
+any power of $2$ usually signals a bug rather than competing error sources.
+
+\paragraph{Norm choice.}
+
+The convergence ratio (\cref{eq:self-convergence-ratio}) depends on the
+norm used to measure the solution difference.  Different norms weight
+errors differently --- an averaged norm smooths over the grid while a
+pointwise maximum exposes the worst offender --- and the choice can
+affect whether a localised problem is visible.  Three standard choices
+arise in practice:
+%
+\begin{equation}
+  \norm{e}_1 = \frac{1}{N}\sum_{i=1}^{N} \abs{e_i} \,, \qquad
+  \norm{e}_2 = \sqrt{\frac{1}{N}\sum_{i=1}^{N} e_i^2} \,, \qquad
+  \norm{e}_\infty = \max_i \abs{e_i} \,,
+  \label{eq:norms}
+\end{equation}
+%
+where $e_i$ is the pointwise error (or solution difference) at grid point
+$i$.  These are grid-function norms, scaled by the number of points so
+that they approximate the corresponding continuous $L^p$ norms and remain
+bounded as $N \to \infty$.  The $L^1$ and $L^2$ norms give a global
+measure of accuracy; the $L^\infty$ norm reports the worst single point
+and is useful for catching boundary contamination or isolated stencil
+errors.  For smooth solutions, all three norms typically yield the same
+convergence order.  Near discontinuities or sharp features, the
+$L^\infty$ norm may show a lower order because a single poorly resolved
+point dominates the maximum.  The codebase uses the $L^2$ norm as the
+default for convergence monitoring.
+
+\paragraph{Pitfalls.}
+
+Three common mistakes can produce misleading convergence results.
+
+First, evaluating the error at a point where the leading truncation
+coefficient $C_q$ vanishes.  The convergence ratio
+(\cref{eq:convergence-ratio}) requires $f^{(p+q)}_i \neq 0$; at a zero
+of that derivative, the leading error term drops out and the ratio is
+controlled by the next term in the series, producing a spuriously high
+apparent order.  The $\sin(2\pi x)$ test function avoids this at
+$x = 0.5$, where $f^{(5)}(0.5) = -(2\pi)^5 \neq 0$.
+
+Second, using resolutions too coarse for the asymptotic regime.
+At very low $N_x$, the higher-order correction terms in the truncation
+error are comparable to the leading term, so the measured ratio can
+differ substantially from $2^q$.  The Richardson extrapolation diagnostic
+of \cref{sec:fd-truncation} can detect this: if the extrapolant differs
+significantly from the fine-grid value, the grid is not yet in the
+asymptotic regime and the reported convergence rate may be misleading.
+
+Third, contamination from boundary treatment.  If the evaluation point is
+close enough to a boundary that ghost zones or one-sided stencils
+influence the result, the convergence order may reflect the lower-order
+boundary scheme rather than the interior stencil.  The safest practice is
+to evaluate at the domain midpoint, far from all boundaries.
+\xrefnote{Boundary treatment and ghost-zone filling are discussed in
+\cref{sec:fd-stencils}; the interaction with adaptive mesh refinement
+boundaries is deferred to \cref{ch:amr}.}
+
+\paragraph{The verification chain.}
+
+Convergence testing forms the first link in a verification chain that
+runs through the rest of this book.  Each subsequent chapter introduces a
+new numerical component --- time integration
+(\cref{ch:ode-integration}), mesh refinement (\cref{ch:amr}), constraint
+evolution (\cref{ch:bssn-ccz4}) --- and each comes with its own
+convergence tests that build on the methodology established here.  The
+Kreiss--Oliger dissipation of \cref{sec:fd-dissipation}, for instance,
+must not degrade the measured convergence rate; the order-preservation
+analysis predicts this, and self-convergence tests confirm it
+empirically.  The pattern is always the same: predict the convergence
+rate from the truncation analysis, measure it computationally, and treat
+any discrepancy as a bug until proven otherwise.  This discipline is not
+optional for a numerical relativity code: without convergence testing,
+there is no way to distinguish a physically meaningful result from a
+numerical artefact.

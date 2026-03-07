@@ -1,0 +1,218 @@
+% sec:fd-truncation — Truncation Error Analysis
+\section{Truncation Error Analysis}
+\label{sec:fd-truncation}
+
+The stencils of \cref{sec:fd-stencils,sec:fd-orders} carry a promise:
+refine the grid and the approximation improves at a predictable rate.  But
+the promise is only useful if we can quantify the error --- both to choose
+a resolution that meets accuracy requirements and to verify, after the
+fact, that the code produces the expected convergence.  The truncation
+error is the formal object that makes both tasks precise.
+
+\paragraph{Local truncation error.}
+
+Applying a stencil to exact function values produces a derivative
+approximation that differs from the true derivative by a remainder.  This
+remainder is the \emph{local truncation error}: the error committed at a
+single grid point on a single evaluation, assuming the underlying function
+is known exactly.
+
+To define it, consider a stencil with weights $\{w_{k_j}\}$ and offsets
+$\{k_j\}$ that approximates $f^{(p)}_i$.  The stencil formula is
+%
+\begin{equation}
+  D_p[f]_i \;\equiv\;
+  \frac{1}{\Delta x^p}\,\sum_{j=1}^{N} w_{k_j}\,f_{i+k_j} \,,
+  \label{eq:stencil-operator}
+\end{equation}
+%
+where the weights satisfy the Vandermonde conditions
+(\cref{eq:stencil-conditions}).  The local truncation error $\tau_i$ is
+the difference between this discrete operator and the exact derivative:
+%
+\begin{equation}
+  \tau_i \;\equiv\; D_p[f]_i - f^{(p)}_i \,.
+  \label{eq:lte-def}
+\end{equation}
+%
+This is a pointwise quantity: it depends on the grid spacing, the stencil
+order, and the local smoothness of $f$.
+
+\paragraph{Structure of the error.}
+
+Substituting the Taylor expansion (\cref{eq:taylor-grid}) into
+\cref{eq:stencil-operator} and using the Vandermonde conditions to cancel
+the first $N$ terms gives a series in even powers of $\Delta x$
+for centred stencils.  The leading term has the form
+%
+\begin{equation}
+  \tau_i = C_q\,\Delta x^q\,f^{(p+q)}_i
+           + \order{\Delta x^{q+2}} \,,
+  \label{eq:lte-leading}
+\end{equation}
+%
+where $q = 2m$ is the order of accuracy (the stencil uses $2m + 1$ points)
+and $C_q$ is a rational coefficient determined by the uncancelled term in
+the Vandermonde expansion.  The integer $p + q$ is the order of the
+derivative that controls the error magnitude: higher-order stencils push
+this to higher derivatives of $f$, which are typically smaller for smooth
+fields.
+\physnote{The error depends on derivatives of $f$ that were not part of
+the original approximation.  If $f$ has large high-order derivatives ---
+as near discontinuities or sharp features --- the truncation error can be
+much larger than the leading-term estimate suggests.}
+
+The error coefficients tabulated in \cref{sec:fd-orders} are specific
+values of $\abs{C_q}$: for the fourth-order first derivative,
+$\abs{C_4} = 1/30$ and the leading error magnitude is
+$(\Delta x^4/30)\,\abs{f^{(5)}_i}$; for the fourth-order second
+derivative, $\abs{C_4} = 1/90$ and the leading error magnitude is
+$(\Delta x^4/90)\,\abs{f^{(6)}_i}$.  These coefficients are not
+arbitrary --- they are fixed by the Vandermonde system and can be computed
+for any stencil.
+
+\paragraph{Order of accuracy and convergence rate.}
+
+The exponent $q$ in \cref{eq:lte-leading} controls the convergence rate
+under grid refinement.  Halving the grid spacing replaces $\Delta x$ with
+$\Delta x/2$, so the truncation error decreases by a factor of $2^q$:
+%
+\begin{equation}
+  \frac{\tau_i(\Delta x)}{\tau_i(\Delta x/2)}
+  = 2^q + \order{\Delta x^2} \,,
+  \label{eq:convergence-ratio}
+\end{equation}
+%
+provided $f^{(p+q)}_i \neq 0$ (if the leading derivative vanishes, the
+ratio is dominated by the next term and may differ from $2^q$).
+For a second-order stencil ($q = 2$), halving the grid reduces the error
+by a factor of $4$; for a fourth-order stencil ($q = 4$), the factor is
+$16$.  This ratio is directly measurable: compute a stencil derivative at
+two resolutions, compare both to the exact answer (or to a much
+finer-resolution computation), and check that the error ratio matches $2^q$.
+This is the core idea behind the convergence tests of
+\cref{sec:fd-convergence}.
+\implnote{The test \texttt{test\_d1x\_sin\_convergence} in
+\codemodule{stencils} checks that the error ratio between successive
+doublings of $N$ lies in $[12, 20]$, bracketing the fourth-order
+prediction of $16$.}
+
+\paragraph{From local to global error.}
+
+The truncation error $\tau_i$ characterises the error at a single point.
+When a finite difference scheme is used to solve a differential equation
+--- stepping forward in time using spatial derivatives --- the errors from
+every grid point and every time step accumulate.  The relationship between
+the local truncation error and the global solution error depends on the
+stability of the scheme, a topic treated in the ODE integration chapter
+(\cref{ch:ode-integration}).  The essential result is the
+\emph{Lax equivalence theorem}: for a consistent, stable linear scheme,
+the global error converges at the same order as the local truncation error
+\cite{LeVeque2007}.
+\xrefnote{Stability analysis and the CFL condition are developed in
+\cref{ch:ode-integration}.  The Lax equivalence theorem links the
+truncation error analysis here to the global convergence of the full
+discretisation.}
+
+Consistency requires that the truncation error vanish as $\Delta x \to 0$,
+which is guaranteed by construction for any stencil derived from the
+Vandermonde system.  Stability requires that the time-stepping scheme does
+not amplify errors unboundedly --- this is where the CFL condition and
+Kreiss--Oliger dissipation (\cref{sec:fd-dissipation}) enter.  When both
+conditions hold, the global error inherits the $\order{\Delta x^q}$
+scaling of the local truncation error, and the convergence ratio
+\cref{eq:convergence-ratio} applies to the solution as a whole.  In
+practice, this means that the local convergence tests we can run on
+isolated stencil operators predict the accuracy of the full evolution
+--- the most consequential result in this chapter.
+\warnnote{The Lax equivalence theorem applies to linear problems.
+Nonlinear systems --- including the BSSN equations --- require additional
+analysis, but the convergence rate $\order{\Delta x^q}$ is observed
+empirically and confirmed by the self-convergence tests of
+\cref{sec:fd-convergence}.}
+
+\paragraph{Richardson extrapolation.}
+
+The structure of the truncation error (\cref{eq:lte-leading}) implies that
+the dominant error term is a known function of $\Delta x$.  This opens a
+path to higher accuracy without higher-order stencils: compute the same
+derivative at two different resolutions and combine the results to cancel
+the leading error term.
+
+Suppose a quantity $Q$ is computed at grid spacings $\Delta x$ and
+$\Delta x/2$, with errors dominated by the leading truncation term:
+%
+\begin{align}
+  Q(\Delta x)   &= Q_{\text{exact}} + C\,\Delta x^q
+                   + \order{\Delta x^{q+2}} \,, \label{eq:richardson-coarse} \\
+  Q(\Delta x/2) &= Q_{\text{exact}} + C\,\frac{\Delta x^q}{2^q}
+                   + \order{\Delta x^{q+2}} \,.
+                   \label{eq:richardson-fine}
+\end{align}
+%
+The coefficient $C$ is the same in both expressions --- it depends on the
+derivatives of $f$, not on $\Delta x$ --- so we can eliminate it.
+Multiplying \cref{eq:richardson-fine} by $2^q$ and subtracting
+\cref{eq:richardson-coarse} gives the Richardson extrapolant:
+%
+\begin{equation}
+  Q_R \;=\; \frac{2^q\,Q(\Delta x/2) - Q(\Delta x)}{2^q - 1}
+  \;=\; Q_{\text{exact}} + \order{\Delta x^{q+2}} \,.
+  \label{eq:richardson-extrapolant}
+\end{equation}
+%
+The extrapolant $Q_R$ has an error of order $\Delta x^{q+2}$ --- two
+orders higher than either input.  A fourth-order stencil ($q = 4$)
+combined with Richardson extrapolation yields sixth-order accuracy, at the
+cost of evaluating the stencil at two resolutions.
+\histnote{Richardson introduced this technique in 1911 for improving the
+accuracy of numerical integration \cite{Richardson1911}.  It is
+sometimes called ``deferred approach to the limit'' and underpins Romberg
+integration and the Bulirsch--Stoer ODE method.}
+
+\paragraph{Richardson extrapolation as a diagnostic.}
+
+In practice, the extrapolation is more valuable as a verification
+tool than as an accuracy booster.  The key observation is that the
+extrapolant (\cref{eq:richardson-extrapolant}) is valid only when the
+error is dominated by the leading truncation term --- that is, when the
+grid is fine enough that higher-order terms are negligible.  If the
+extrapolant and the fine-grid value agree to high precision, the
+computation is in the asymptotic regime and the convergence rate is
+trustworthy.  If they disagree significantly, the grid is too coarse for
+the leading-term approximation to hold, and the reported convergence rate
+may be misleading.
+
+This diagnostic role is especially important for the BSSN equations, where
+gauge dynamics, constraint violations, and boundary effects can all
+contaminate the error.  A Richardson extrapolation that yields the
+expected order increase confirms that truncation error --- not some
+other source --- dominates the solution error at the resolutions being
+tested.  The convergence-testing framework of \cref{sec:fd-convergence}
+uses this principle systematically.
+
+\paragraph{A worked example.}
+
+To make the extrapolation concrete, return to the test function
+$f(x) = \sin(2\pi x)$ from \cref{sec:fd-orders}.  The fourth-order first
+derivative at $x = 0.5$ has errors of approximately
+$2.04 \times 10^{-3}$ at $N_x = 20$ and $1.3 \times 10^{-4}$ at
+$N_x = 40$ (\cref{eq:d1-error-fourth-order}).  With $q = 4$, the
+Richardson extrapolant is
+%
+\begin{equation}
+  Q_R = \frac{16\,Q(\Delta x/2) - Q(\Delta x)}{15} \,.
+  \label{eq:richardson-worked}
+\end{equation}
+%
+Denoting the errors at each resolution by $\epsilon_1 \approx 2.04 \times
+10^{-3}$ and $\epsilon_2 \approx 1.3 \times 10^{-4}$, the Richardson
+residual is
+$(16\,\epsilon_2 - \epsilon_1)/15
+ = (2.08 \times 10^{-3} - 2.04 \times 10^{-3})/15
+ \approx 3 \times 10^{-6}$
+--- nearly two orders of magnitude smaller than the fine-grid error alone.
+The improvement confirms that the error at these resolutions is indeed
+dominated by the fourth-order truncation term; the residual is the
+$\order{\Delta x^6}$ remainder that Richardson extrapolation cannot
+cancel.

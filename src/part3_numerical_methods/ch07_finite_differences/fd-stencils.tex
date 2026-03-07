@@ -1,0 +1,224 @@
+% sec:fd-stencils — Finite Difference Stencil Derivation
+\section{Finite Difference Stencil Derivation}
+\label{sec:fd-stencils}
+
+A grid stores numbers at discrete points; the differential equations of
+numerical relativity demand derivatives at those same points.  The gap between
+the two is bridged by a single tool: Taylor expansion.  Expanding a smooth
+function about a grid point and algebraically eliminating the function value in
+favour of its derivatives produces a \emph{finite difference stencil} --- a
+recipe for approximating a derivative from a fixed pattern of neighbouring grid
+values.  The order of the stencil determines how rapidly the approximation
+improves as the grid is refined, and the derivation itself is mechanical enough
+to be automated for arbitrary order.
+
+\paragraph{Setup and notation.}
+
+Consider a uniform grid with spacing $\Delta x$ and grid points
+$x_i = x_0 + i\,\Delta x$.  Let $f$ be a smooth function sampled on this
+grid, with $f_i = f(x_i)$.  The goal is to approximate the $p$-th derivative
+$f^{(p)}(x_i) = \d^p\!f/\d x^p\big|_{x_i}$ using the values
+$f_{i+k}$ at a finite set of offsets $k \in \{k_1, k_2, \ldots, k_N\}$
+from the point of interest.  A centred stencil uses offsets symmetric about
+$k = 0$; a one-sided stencil places all offsets on one side of the target
+point.
+\physnote{The uniform-spacing assumption is essential: non-uniform grids
+require modified stencils or coordinate mappings.  The codebase uses uniform
+grids within each refinement level, so the standard stencils apply directly.}
+
+\paragraph{Taylor expansion.}
+
+The key identity is the Taylor expansion of the shifted value
+$f_{i+k} = f(x_i + k\,\Delta x)$ about $x_i$:
+%
+\begin{multline}
+  f_{i+k} = \sum_{n=0}^{\infty} \frac{(k\,\Delta x)^n}{n!}\,f^{(n)}(x_i) \\
+  = f_i + k\,\Delta x\,f'_i + \frac{k^2\,\Delta x^2}{2}\,f''_i
+    + \frac{k^3\,\Delta x^3}{6}\,f'''_i + \cdots
+  \label{eq:taylor-grid}
+\end{multline}
+%
+Each shifted value is an infinite power series in $k\,\Delta x$ with
+coefficients built from the successive derivatives of $f$ at $x_i$.  The derivative we want ---
+say $f'_i$ --- appears as the coefficient of $k\,\Delta x$.  If we can choose
+weights $w_k$ such that $\sum_k w_k\,f_{i+k}$ cancels the unwanted
+derivatives and isolates $f'_i$, we have our stencil.
+
+\paragraph{The Vandermonde system.}
+
+To make this precise, suppose we seek weights $\{w_k\}$ for offsets
+$k \in \{k_1, \ldots, k_N\}$ such that the linear combination
+$\sum_j w_{k_j}\,f_{i+k_j}$ approximates
+$\Delta x^p\,f^{(p)}_i$.  Substituting
+\cref{eq:taylor-grid} for each $f_{i+k_j}$ and collecting powers of
+$\Delta x$ gives the conditions
+%
+\begin{equation}
+  \sum_{j=1}^{N} w_{k_j}\,\frac{k_j^n}{n!}
+  = \begin{cases}
+      1 & \text{if } n = p \,, \\
+      0 & \text{if } n \neq p \,,
+    \end{cases}
+  \qquad n = 0, 1, \ldots, N-1 \,.
+  \label{eq:stencil-conditions}
+\end{equation}
+%
+Each row of this system kills one unwanted derivative: with $N$ points we
+have $N$ degrees of freedom, enough to zero out $N - 1$ unwanted terms and
+set the coefficient of the desired derivative to one.  The coefficient
+matrix has $(n, j)$ entry $k_j^n/n!$; up to row scaling by $n!$, this is a
+Vandermonde matrix, and it is nonsingular whenever the offsets $k_j$ are
+distinct.
+\histnote{The Vandermonde system for finite difference coefficients dates to
+Fornberg's 1988 algorithm \cite{Fornberg1988}, which generates stencils of
+arbitrary order and derivative with $\order{N^2}$ operations.}
+
+The system always has a unique solution.  What varies with the choice of
+offsets is the \emph{order of accuracy}: the power of $\Delta x$ at which the
+first uncancelled derivative appears.  With $N$ stencil points, we can satisfy
+$N$ conditions in \cref{eq:stencil-conditions} and cancel derivatives through
+order $n = N - 1$.  The leading error term is then proportional to
+$\Delta x^{N-p}$, since the first uncancelled term has $n = N$ and contributes
+at order $\Delta x^N$ before dividing by $\Delta x^p$ to recover the
+derivative.
+
+\paragraph{Centred stencils.}
+
+The most efficient stencils for interior points are centred: they use offsets
+$k \in \{-m, \ldots, -1, 0, 1, \ldots, m\}$, giving $N = 2m + 1$ stencil
+points.  Symmetry about $k = 0$ forces the weights of odd-powered terms to
+cancel in pairs when approximating an even-order derivative, and vice versa.
+For first and second derivatives --- the two cases needed throughout this book
+--- a centred stencil with $2m + 1$ points achieves order $2m$.  For even
+derivatives such as $f''$, the symmetry cancellation provides one extra order
+of accuracy beyond what a one-sided stencil with the same number of points
+would achieve.
+
+For the first derivative ($p = 1$) with $m = 1$ (three points:
+$k \in \{-1, 0, 1\}$), the conditions \cref{eq:stencil-conditions} reduce to
+%
+\begin{equation}
+  w_{-1} + w_0 + w_1 = 0 \,, \qquad
+  -w_{-1} + w_1 = 1 \,, \qquad
+  \tfrac{1}{2}\,w_{-1} + \tfrac{1}{2}\,w_1 = 0 \,.
+  \label{eq:second-order-d1-system}
+\end{equation}
+%
+The first equation cancels $f_i$ (zeroth derivative); the second isolates
+$\Delta x\,f'_i$; the third cancels $\Delta x^2\,f''_i/2$.  The solution is
+$w_{-1} = -1/2$, $w_0 = 0$, $w_1 = 1/2$, giving the familiar second-order
+centred difference
+%
+\begin{equation}
+  f'_i \approx \frac{f_{i+1} - f_{i-1}}{2\,\Delta x} \,,
+  \label{eq:d1-second-order}
+\end{equation}
+%
+with a leading error term proportional to $\Delta x^2\,f'''_i / 6$.  The error
+is second order in $\Delta x$ despite using only three points --- a
+consequence of the antisymmetry of the weights, which automatically cancels the
+even-powered terms.
+
+\paragraph{Higher-order stencils.}
+
+Extending to $m = 2$ (five points: $k \in \{-2, -1, 0, 1, 2\}$) and solving
+the $5 \times 5$ Vandermonde system yields the fourth-order centred first
+derivative:
+%
+\begin{equation}
+  f'_i \approx \frac{-f_{i+2} + 8\,f_{i+1} - 8\,f_{i-1} + f_{i-2}}
+  {12\,\Delta x} \,.
+  \label{eq:d1-fourth-order}
+\end{equation}
+%
+The leading error is now $\order{\Delta x^4}$: doubling the resolution reduces
+the error by a factor of sixteen.  The same five-point width produces a
+fourth-order second derivative:
+%
+\begin{equation}
+  f''_i \approx \frac{-f_{i+2} + 16\,f_{i+1} - 30\,f_i + 16\,f_{i-1}
+    - f_{i-2}}{12\,\Delta x^2} \,.
+  \label{eq:d2-fourth-order}
+\end{equation}
+%
+The large negative central weight ($-30$) in the second derivative stencil
+reflects the operator's sensitivity to curvature: small changes in $f_i$
+relative to its neighbours produce large second-derivative estimates, which
+is why second derivatives amplify grid-scale noise more aggressively than
+first derivatives.  Both stencils appear directly in the codebase; comparing
+the numerator weights $(-1, 8, -8, 1)$ and $(-1, 16, -30, 16, -1)$ with
+the Rust implementation confirms exact correspondence.
+\coderef{stencils}{rs}
+
+\paragraph{Mixed partial derivatives.}
+
+The BSSN evolution equations require mixed second derivatives
+$\partial^2 f/\partial x\,\partial y$.  The natural two-dimensional extension
+of the five-point stencil is a $5 \times 5$ grid of $25$ points, and
+accessing $25$ scattered memory locations per grid point per derivative can
+dominate the cost of a stencil evaluation.  A more efficient approach exploits
+the fact that mixed partials commute for smooth functions: apply the
+one-dimensional first derivative stencil in $x$ at each of the five
+$y$-offsets, then apply the $y$-stencil to the five intermediate results.
+Both passes access the same $25$ grid points, but the separable structure
+improves cache behaviour --- data is read in structured row patterns rather
+than a scattered two-dimensional block --- and simplifies the implementation
+to two reuses of the one-dimensional stencil routine.
+\implnote{The codebase function \texttt{d2xy} implements the two-pass
+strategy: first computing $\partial f/\partial x$ at five $y$-neighbours,
+then applying the $y$-stencil to the five intermediate results.  The combined
+denominator is $144\,\Delta x\,\Delta y = (12)^2\,\Delta x\,\Delta y$.}
+
+The separable approach preserves the fourth-order accuracy of the individual
+stencils.  To see why, note that each one-dimensional pass introduces an error
+of $\order{\Delta x^4}$ (or $\order{\Delta y^4}$).  The total error of the
+mixed derivative approximation is therefore
+$\order{\Delta x^4 + \Delta y^4}$, the same order as the unmixed stencils.
+On a uniform grid with $\Delta x = \Delta y$, the mixed derivative
+converges at the same rate as the pure derivatives.
+
+\paragraph{Boundary stencils.}
+
+Centred stencils require data on both sides of the target point, which is
+unavailable at grid boundaries.  The standard remedy is a one-sided stencil
+that shifts all offsets to the interior.  For a second-order forward
+approximation to the first derivative, the offsets are $k \in \{0, 1, 2\}$
+and the Vandermonde system gives
+%
+\begin{equation}
+  f'_i \approx \frac{-3\,f_i + 4\,f_{i+1} - f_{i+2}}{2\,\Delta x} \,,
+  \label{eq:d1-onesided}
+\end{equation}
+%
+with a leading error of $\order{\Delta x^2}$.  The backward version
+(offsets $k \in \{0, -1, -2\}$) has the same coefficients with reversed
+signs.  The drop from fourth-order interior accuracy to second-order boundary
+accuracy is typical: one-sided stencils need more points to achieve the same
+order as centred stencils, and boundary regions are usually a small fraction
+of the total grid.
+\warnnote{One-sided boundary stencils \emph{can} reduce the global convergence
+order --- for hyperbolic problems, a boundary scheme of order $q - 1$
+typically preserves interior order $q$, but lower-order closures may degrade
+the global rate.  In practice, the boundary treatment is often dominated by
+other considerations --- outgoing wave conditions, excision, or AMR buffer
+zones --- and the second-order boundary stencil is adequate.}
+
+\paragraph{Stencil width and ghost zones.}
+
+A centred stencil with $2m + 1$ points reaches $m$ grid points on each side
+of the target.  The integer $m$ is the stencil's \emph{half-width}.  For the
+fourth-order stencils used in the codebase, $m = 2$: the stencil spans five
+points, and the function \texttt{d1x} can only be evaluated at interior points
+satisfying $2 \leq i < N_x - 2$, where $N_x$ is the number of grid points in
+the $x$ direction.  Rather than switching to one-sided stencils at every
+boundary, we can extend the grid by $m$ extra points on each side ---
+\emph{ghost zones} --- and fill them with data from boundary conditions or
+neighbouring patches in an adaptive mesh refinement hierarchy
+(\cref{ch:amr}).  The centred stencil then applies uniformly at every
+interior point, simplifying the inner loop.
+
+The Kreiss--Oliger dissipation operator (\cref{sec:fd-dissipation}) uses a
+wider seven-point stencil with half-width $m = 3$, requiring one additional
+layer of ghost zones.  The codebase respects the maximum stencil width when
+allocating ghost zones, ensuring that all stencils can be applied at every
+interior point without bounds violations.

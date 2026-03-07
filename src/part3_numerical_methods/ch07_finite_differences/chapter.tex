@@ -2,46 +2,52 @@
 \chapter{Finite Difference Methods}
 \label{ch:finite-differences}
 
-Finite differences are the simplest tool for discretising derivatives on a
-grid. This chapter derives the standard stencils used in the codebase,
-analyses their truncation error, introduces Kreiss-Oliger dissipation for
-stability, and sets up the convergence-testing framework applied throughout
-the numerical-methods chapters.
+The metrics and geodesics of Parts~I and~II are exact: analytic expressions
+evaluated at whatever spacetime point the integrator needs.  But the evolution
+equations of numerical relativity --- the BSSN system of
+\cref{ch:bssn-ccz4}, the gauge conditions that determine how coordinates
+evolve, the constraint equations that monitor solution quality --- are partial
+differential equations on a three-dimensional grid.  Grid data is discrete;
+the equations demand spatial derivatives.  Finite differences supply them,
+approximating each derivative as a weighted sum of neighbouring field values
+with an error that shrinks systematically as the grid is refined.
 
-\section{Finite Difference Stencil Derivation}
-\label{sec:fd-stencils}
-\coderef{stencils}{rs}
+The construction is remarkably clean.  Taylor-expanding a grid function about
+a point and solving for derivative approximations of a chosen order yields a
+\emph{stencil}: a fixed pattern of integer offsets and rational coefficients
+that converts discrete data into a derivative estimate.  The codebase uses
+fourth-order centred stencils for all spatial derivative operators: five-point
+stencils for first and second derivatives, a separable two-pass pattern for
+mixed partials that replaces a scattered twenty-five-point access with two
+reuses of the one-dimensional stencil, and a
+seven-point Kreiss--Oliger dissipation operator that selectively damps
+grid-scale noise.  Fourth-order accuracy means that doubling the grid
+resolution reduces the truncation error by a factor of sixteen --- a concrete,
+testable prediction that the convergence-testing framework verifies for every
+numerical scheme in the book.
 
-We derive centred finite difference stencils from Taylor expansion and show
-how the codebase generates them for arbitrary order.
+The chapter derives the stencil coefficients from Taylor expansion
+(\cref{sec:fd-stencils}), writes out the explicit second- and fourth-order
+formulae for first and second derivatives (\cref{sec:fd-orders}), formalises
+the truncation error that controls the relationship between resolution and
+accuracy (\cref{sec:fd-truncation}), introduces Kreiss--Oliger dissipation as
+the mechanism that keeps long-running evolutions stable without degrading
+convergence order (\cref{sec:fd-dissipation}), and establishes the
+verification methodology --- manufactured solutions and self-convergence
+tests --- used throughout the numerical-methods and numerical-relativity
+chapters (\cref{sec:fd-convergence}).
 
-\section{Second- and Fourth-Order Differences}
-\label{sec:fd-orders}
+% ---- Drafted sections ----
+\input{part3_numerical_methods/ch07_finite_differences/fd-stencils}
+\input{part3_numerical_methods/ch07_finite_differences/fd-orders}
 
-We write out the explicit second- and fourth-order stencils for first and
-second derivatives, comparing their accuracy per grid point.
+\input{part3_numerical_methods/ch07_finite_differences/fd-truncation}
 
-\section{Truncation Error Analysis}
-\label{sec:fd-truncation}
+\input{part3_numerical_methods/ch07_finite_differences/fd-dissipation}
 
-We define the local truncation error, relate it to the stencil order, and
-show how Richardson extrapolation can improve accuracy.
-
-\section{Kreiss-Oliger Dissipation}
-\label{sec:fd-dissipation}
-\coderef{dissipation}{rs}
-
-We introduce Kreiss-Oliger artificial dissipation as a mechanism to damp
-high-frequency grid noise without degrading the convergence order of the
-scheme.
-
-\section{Convergence Testing}
-\label{sec:fd-convergence}
-
-We describe the method of manufactured solutions and self-convergence tests,
-establishing the verification methodology used in later chapters.
+\input{part3_numerical_methods/ch07_finite_differences/fd-convergence}
 
 \paragraph{Key References.}
 Stencil derivation and error analysis follow \cite{LeVeque2007};
-Kreiss-Oliger dissipation is discussed in \cite{Gustafsson1995};
+Kreiss--Oliger dissipation is discussed in \cite{Gustafsson1995};
 convergence testing follows \cite{Roache1998}.

@@ -190,6 +190,29 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $r_{\text{ph}}^{\pm}$ | `sec:geo-photon-rings` | Equatorial prograde/retrograde photon orbit radii in Kerr; eq:kerr-photon-radii |
 | eq:kerr-photon-radii | `sec:geo-photon-rings` | $r_{\text{ph}}^{\pm} = 2M(1+\cos(\tfrac{2}{3}\arccos(\mp a_*)))$; Bardeen 1972 |
 | $q_c = \sqrt{\mathcal{Q}}/E$ | `sec:geo-photon-rings` | Reduced Carter parameter for critical curve; pairs with $b_c(r)$ to trace shadow boundary. Same quantity as $q$ in `sec:geo-constants` but evaluated on spherical photon orbits |
+| $\Delta x$ | `sec:fd-stencils` | Uniform grid spacing (also $\Delta y$, $\Delta z$ for other directions) |
+| $x_i = x_0 + i\,\Delta x$ | `sec:fd-stencils` | Grid point position; $f_i = f(x_i)$ |
+| $f^{(p)}$ | `sec:fd-stencils` | $p$-th derivative of grid function $f$ |
+| $w_k$ / $w_{k_j}$ | `sec:fd-stencils` | Stencil weights for offset $k$ |
+| $p$ | `sec:fd-stencils` | Derivative order (context-dependent; reuses glyph from $p$ = pressure in GR chapters) |
+| $N$ | `sec:fd-stencils` | Number of stencil points |
+| $m$ | `sec:fd-stencils` | Stencil half-width; centred stencil uses $2m+1$ points |
+| $N_x$ | `sec:fd-stencils` | Number of grid points in the $x$ direction |
+| $\partial$ (Leibniz) | `sec:fd-stencils` | Raw $\partial$ for Leibniz partial derivatives (distinct from `\pd{}` index-notation macro and `\d` total derivative macro) |
+| $D_p[f]_i$ | `sec:fd-truncation` | Discrete stencil operator approximating $f^{(p)}_i$ |
+| $\tau_i$ | `sec:fd-truncation` | Local truncation error at grid point $i$; $\tau_i = D_p[f]_i - f^{(p)}_i$ |
+| $q$ | `sec:fd-truncation` | Order of accuracy ($q = 2m$ for centred stencils) |
+| $C_q$ | `sec:fd-truncation` | Leading truncation error coefficient; $\tau_i = C_q\,\Delta x^q\,f^{(p+q)}_i + \ldots$ |
+| $Q_R$ | `sec:fd-truncation` | Richardson extrapolant |
+| $D_+$, $D_-$ | `sec:fd-dissipation` | Forward and backward undivided difference operators; $D_+ f_i = f_{i+1} - f_i$, $D_- f_i = f_i - f_{i-1}$ |
+| $r$ | `sec:fd-dissipation` | Dissipation half-order; $D_+^r D_-^r$ is the $2r$-th order undivided difference |
+| $\sigma$ | `sec:fd-dissipation` | Dimensionless dissipation strength parameter; $\sigma > 0$, typical range $0.01$--$0.1$, default $0.05$ |
+| $\epsilon_{\text{diss}}$ | `sec:fd-dissipation` | Kreiss--Oliger dissipation term added to RHS of evolution equations |
+| $k_{\text{max}} = \pi/\Delta x$ | `sec:fd-dissipation` | Nyquist frequency; maximum resolvable wavenumber on the grid |
+| $\epsilon(N_x)$ | `sec:fd-convergence` | Manufactured-solution absolute error at resolution $N_x$ |
+| $\rho$ | `sec:fd-convergence` | Convergence ratio $\epsilon(N_x)/\epsilon(2N_x)$; context-local, distinct from energy density $\rho$ (`sec:gr-stress-energy`) |
+| $u_4$, $u_2$, $u_1$ | `sec:fd-convergence` | Numerical solutions at relative grid spacings $\Delta x$, $\Delta x/2$, $\Delta x/4$ for self-convergence |
+| $\norm{\cdot}_1$, $\norm{\cdot}_2$, $\norm{\cdot}_\infty$ | `sec:fd-convergence` | Grid-function norms ($L^1$, $L^2$, $L^\infty$); scaled by $1/N$ to approximate continuous norms |
 
 ## Analogy Registry
 
@@ -224,6 +247,7 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Conservation laws as error diagnostics (checksum analogy) | `sec:geo-conservation` | $\mathcal{H}$, $E$, $L$ act as checksums: known values that should remain constant; any drift reveals accumulated integration error. Maps: digital checksum → bit-flip detection; conservation violation → discretisation error detection. Breaks: conservation violations are continuous (not binary pass/fail) and can accumulate gradually. |
 | Photon ring as gravitational wide-angle lens | `sec:geo-photon-rings` | $n=1$ sub-ring samples light from the full circumference of the black hole, acting as a wide-angle lens. Maps: explains disproportionate brightness of lensing ring. Breaks: unlike optical lenses, the "focusing" arises from spacetime curvature, not refraction. |
 | Self-similar Russian nesting dolls (sub-ring structure) | `sec:geo-photon-rings` | Infinite nested sub-rings, each $e^\pi \approx 23$ times thinner; self-similar structure from Lyapunov instability. Maps: geometric sequence / exponential demagnification. Breaks: not exactly self-similar (Kerr $\gamma_{\text{ph}}$ varies around ring); only logarithmically infinite (unresolvable beyond $n \sim 3$). |
+| Discrete analogue of curvature (D2 stencil) | `sec:fd-orders` | Central value's deviation from the average of its two neighbours = discrete curvature. Maps: second derivative measures curvature of $f$. Breaks: only exact for quadratic functions; finite-difference curvature has $\order{\Delta x^2}$ error. |
 
 ## Forward / Backward References
 
@@ -293,6 +317,19 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Critical curve and shadow shape rendered by ray tracer | `sec:geo-photon-rings` | `sec:geo-raytracing` ✓, `sec:geo-termination` ✓ |
 | QNM–photon ring connection (eikonal limit) | `sec:geo-photon-rings` | Not planned (physnote only; gravitational-wave ringdown not in scope) |
 | Space VLBI for $n=2$ ring resolution | `sec:geo-photon-rings` | Not planned (observational context; Johnson et al. 2020 reference) |
+| Kreiss--Oliger dissipation (7-point stencil, half-width 3) | `sec:fd-stencils` | `sec:fd-dissipation` (drafted) |
+| AMR ghost zones and inter-level interpolation | `sec:fd-stencils` | `ch:amr` (TBD) |
+| Convergence-testing framework | ch07 intro | `sec:fd-convergence` (TBD), numerical-relativity chapters (TBD) |
+| CFL condition forces smaller time steps at finer resolution | `sec:fd-orders` | `ch:ode-integration` (TBD) |
+| Lax equivalence theorem — stability analysis and CFL condition | `sec:fd-truncation` | `ch:ode-integration` (TBD) |
+| Self-convergence tests verify empirical convergence rate | `sec:fd-truncation` | `sec:fd-convergence` (drafted) |
+| Kreiss--Oliger dissipation for stability | `sec:fd-truncation` | `sec:fd-dissipation` (drafted) |
+| Convergence tests verify dissipation does not alter convergence rate | `sec:fd-dissipation` | `sec:fd-convergence` (drafted) |
+| Ghost-zone depth set by stencil half-width of 3 | `sec:fd-dissipation` | `sec:fd-stencils` (backward ref) |
+| BSSN RHS stencil count comparison (12 vs 3 for dissipation) | `sec:fd-dissipation` | `sec:fd-orders` (backward ref) |
+| Time-integration order and interaction with spatial accuracy | `sec:fd-convergence` | `ch:ode-integration` (TBD) |
+| AMR boundary interaction with convergence testing | `sec:fd-convergence` | `ch:amr` (TBD) |
+| Verification chain: time integration, AMR, constraint evolution | `sec:fd-convergence` | `ch:ode-integration`, `ch:amr`, `ch:bssn-ccz4` (all TBD) |
 
 ## Key Decisions
 
@@ -408,3 +445,28 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | "Factor of three" for Kerr demagnification variation | Ratio $\sim 50/15 \approx 3.3$ at $a_* = 0.9$; physicist review corrected from "factor of two" | `sec:geo-photon-rings` |
 | "determines" not "equals" for QNM physnote | Lyapunov exponent determines (sets) the QNM imaginary part via eikonal correspondence; strict equality requires careful normalisation | `sec:geo-photon-rings` |
 | No \coderef in sec:geo-photon-rings | \starmark section is analytical/observational; codebase connection made via implnote (ray tracer captures sub-rings implicitly) | `sec:geo-photon-rings` |
+| Centred stencil order claim restricted to $p \leq 2$ | General formula differs for $p \geq 3$; book only uses first and second derivatives | `sec:fd-stencils` |
+| Separable mixed partial: cache benefit, not access-count reduction | Both passes access 25 grid points (same as full 2D stencil); advantage is structured row access patterns and implementation simplicity | `sec:fd-stencils` |
+| Boundary order qualified (Gustafsson) | One-sided stencils \emph{can} reduce global order; hyperbolic problems may preserve interior order with $q-1$ boundary scheme | `sec:fd-stencils` |
+| Ghost zones introduced before AMR chapter | Concept defined here; full AMR treatment deferred to `ch:amr` | `sec:fd-stencils` |
+| Worked example uses $f(x)=\sin(2\pi x)$, $N_x=20$ | Concrete numbers ground the error analysis; same function appears in codebase convergence tests | `sec:fd-orders` |
+| BSSN stencil count 3+3+3×2=12 per field per grid point | 3 first derivatives + 3 second derivatives + 3 mixed pairs × 2 passes each | `sec:fd-orders` |
+| Order-of-magnitude $10^{-6}$ target error comparison ignores prefactors | General argument (not tied to specific test function); prefactors are O(1) | `sec:fd-orders` |
+| ADM variables rendered with macros in closing paragraph | $\conformal$, $\extrinsic$, $\lapse$, $\shift$ | `sec:fd-orders` |
+| $C_q$ presented as $\abs{C_q}$ to match fd-orders convention | Sign of $C_q$ is negative for D1 and D2 fourth-order stencils; fd-orders table uses unsigned coefficients | `sec:fd-truncation` |
+| Richardson extrapolation emphasised as diagnostic, not accuracy booster | Diagnostic role connects to sec:fd-convergence verification framework | `sec:fd-truncation` |
+| $f^{(p+q)}_i \neq 0$ qualifier on convergence ratio | Ratio $2^q$ only meaningful when leading derivative is nonzero | `sec:fd-truncation` |
+| Lax equivalence theorem scoped to linear problems | Nonlinearity of BSSN acknowledged via warnnote; empirical convergence cited | `sec:fd-truncation` |
+| Richardson worked example reuses $\sin(2\pi x)$ from fd-orders | Continuity with previous worked comparison; error $\sim 3 \times 10^{-6}$ | `sec:fd-truncation` |
+| $r = 3$ (fifth-order) dissipation for fourth-order spatial scheme | Minimum $r$ satisfying $2r - 1 \geq q = 4$; preserves convergence order | `sec:fd-dissipation` |
+| Sign convention $(-1)^{r+1}$ in KO operator | Ensures universally negative transfer function for all $r$; sign chain $(-1)^{r+1} \cdot (-1)^r = -1$ made explicit | `sec:fd-dissipation` |
+| Normalisation $2^{2r}$ in KO operator | Maximum dissipation rate at Nyquist equals $\sigma/\Delta x$; stencil coefficients are binomial/$2^{2r}$ | `sec:fd-dissipation` |
+| Codebase stencil $[-1,6,-15,20,-15,6,-1]/64$ noted as $-D_+^3 D_-^3/64$ | Negated relative to standard convention; absorbed into calling convention per implnote | `sec:fd-dissipation` |
+| $\sigma = 0.05$ default | Mid-range of typical $0.01$--$0.1$; effective noise suppression without visible accuracy loss | `sec:fd-dissipation` |
+| Separable 3D dissipation (sum of 1D operators) | No cross-derivative terms; cost = 3 × 7-point stencils per grid point | `sec:fd-dissipation` |
+| Convergence test acceptance window $[12, 20]$ for ratio $16$ | Deliberately wide to catch order-of-magnitude bugs, not precision measurement | `sec:fd-convergence` |
+| $\sin(2\pi x)$ reused as manufactured-solution test function | Continuity with fd-orders and fd-truncation worked examples; $f^{(5)}(0.5) \neq 0$ avoids vanishing-coefficient pitfall | `sec:fd-convergence` |
+| Self-convergence subscript convention: $u_4$, $u_2$, $u_1$ by relative spacing | Subscript = relative grid spacing factor; coarsest grid points are subset of all three | `sec:fd-convergence` |
+| $L^2$ norm as default for convergence monitoring | Resolution-independent, averages over grid; $L^\infty$ reserved for localised-error detection | `sec:fd-convergence` |
+| Grid-function norms scaled by $1/N$ | Approximate continuous $L^p$ norms; remain bounded as $N \to \infty$ | `sec:fd-convergence` |
+| Verification chain metaphor for cross-chapter testing | Each chapter adds a link; pattern: predict rate, measure, treat discrepancy as bug | `sec:fd-convergence` |

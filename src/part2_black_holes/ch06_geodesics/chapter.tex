@@ -2,65 +2,60 @@
 \chapter{Geodesic Motion}
 \label{ch:geodesics}
 
-Geodesics are the trajectories of freely falling particles and photons---the
-central objects computed by the ray tracer. This chapter develops both the
-Lagrangian and Hamiltonian formulations, derives the constants of motion, and
-describes the numerical strategies used in the codebase for integration,
-conservation monitoring, and ray termination.
+The metrics of \cref{ch:schwarzschild,ch:kerr} define the stage; geodesics
+are the actors.  Every pixel in a ray-traced black hole image records the
+fate of a single null geodesic --- captured by the horizon, escaped to the
+celestial sphere, or intercepted by the accretion disc --- so the quality
+of the image is determined entirely by how accurately and efficiently those
+geodesics are integrated.  This chapter develops the mathematical framework,
+numerical machinery, and physical analysis that connect the metric to the
+rendered pixel.
 
-\section{Lagrangian and Hamiltonian Formulations}
-\label{sec:geo-formulations}
+Two formulations of the geodesic equation set the stage.  The Lagrangian
+form, built from Christoffel symbols, is the standard textbook route; the
+Hamiltonian form, which replaces the velocity with the covariant momentum,
+avoids differentiating the inverse metric and gives the codebase its
+eight-component ODE.  Both formulations yield the same trajectories, but
+the Hamiltonian version carries a built-in accuracy diagnostic: the
+super-Hamiltonian $\mathcal{H}$ is conserved along every geodesic, so any
+numerical drift in $\mathcal{H}$ directly measures accumulated error.
+The constants of motion --- energy $E$, angular momentum $L$, and the
+Carter constant $\mathcal{Q}$ for Kerr --- then reduce the system's
+effective dimensionality and provide additional monitoring quantities.
+Specialising to null geodesics fixes the constraint $\mathcal{H} = 0$
+and introduces the affine rescaling freedom that lets the ray tracer set
+$E = 1$ without loss of generality; timelike geodesics supply the disc
+physics --- ISCO location, circular-orbit four-velocities, and the
+Doppler shifts that create the characteristic brightness asymmetry in
+accretion disc images.
 
-We derive the geodesic equations from the Euler-Lagrange equations and
-recast them in Hamiltonian form using the super-Hamiltonian
-$\mathcal{H} = \tfrac{1}{2}\,g^{\mu\nu} p_\mu p_\nu$.
+The numerical core of the chapter is an adaptive Dormand--Prince integrator
+whose step size shrinks by more than an order of magnitude near the photon
+sphere and recovers in the weak-field escape phase --- a behaviour that
+fixed-step symplectic methods cannot match without wasting computation.
+Conservation monitoring tracks $\mathcal{H}$, $E$, and $L$ at every step,
+providing a per-ray error certificate.  Termination conditions classify
+each ray's outcome --- horizon capture, celestial-sphere escape,
+disc intersection, or computational safety net --- and feed directly into
+the rendering pipeline.  The chapter closes with a starred section on the
+photon ring: the infinite sequence of exponentially narrowing sub-rings
+that encodes the Lyapunov instability of the photon sphere and constitutes
+one of general relativity's cleanest predictions about observable
+black hole images.
 
-\section{Constants of Motion}
-\label{sec:geo-constants}
+% ---- Drafted sections ----
+\input{part2_black_holes/ch06_geodesics/geo-formulations}
 
-We identify the conserved energy, angular momentum, and (in Kerr) Carter
-constant from Killing vectors and the Killing tensor, reducing the equations
-of motion.
+\input{part2_black_holes/ch06_geodesics/geo-constants}
 
-\section{Null Geodesics}
-\label{sec:geo-null}
-\coderef{Geodesic}{Hamiltonian}
+\input{part2_black_holes/ch06_geodesics/geo-null}
 
-We specialise to null geodesics ($\mathcal{H} = 0$), the light rays traced
-by the renderer, and discuss the constraint-preserving properties of the
-Hamiltonian formulation.
+\input{part2_black_holes/ch06_geodesics/geo-timelike}
 
-\section{Timelike Geodesics}
-\label{sec:geo-timelike}
+\input{part2_black_holes/ch06_geodesics/geo-raytracing}
 
-We treat massive-particle orbits, including circular orbits and their
-stability, connecting to accretion disc physics.
+\input{part2_black_holes/ch06_geodesics/geo-conservation}
 
-\section{Hamiltonian Ray Tracing}
-\label{sec:geo-raytracing}
+\input{part2_black_holes/ch06_geodesics/geo-termination}
 
-We describe the first-order Hamiltonian system integrated by the codebase,
-including the choice of affine parameter and the role of the metric inverse.
-
-\section{Conservation Monitoring}
-\label{sec:geo-conservation}
-
-We explain how the codebase monitors the Hamiltonian constraint and conserved
-quantities during integration to detect numerical error accumulation.
-
-\section{Termination Conditions}
-\label{sec:geo-termination}
-
-We catalogue the stopping criteria---horizon crossing, escape to infinity,
-disc intersection---and their implementation.
-
-\section{Photon Rings and Bound Orbits\starmark{}}
-\label{sec:geo-photon-rings}
-
-We discuss the structure of bound null orbits around Kerr black holes and
-the resulting photon-ring substructure visible in high-resolution images.
-
-\paragraph{Key References.}
-The Hamiltonian formulation follows \cite{MTW1973}; the Carter constant and
-Kerr geodesics are treated in \cite{Chandrasekhar1983}; photon rings are
-discussed in \cite{Johnson2020}.
+\input{part2_black_holes/ch06_geodesics/geo-photon-rings}

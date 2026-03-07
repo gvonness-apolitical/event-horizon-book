@@ -1,0 +1,182 @@
+% sec:geo-termination — Termination Conditions
+\section{Termination Conditions}
+\label{sec:geo-termination}
+
+Every ray must end somewhere: absorbed by the black hole, escaped to the
+celestial sphere, intercepted by the accretion disc, or abandoned because
+the computation has exceeded its budget.  Without explicit stopping
+criteria, the integrator will advance a geodesic indefinitely.  Each
+outcome produces a different pixel in the final image --- shadow, sky-map
+lookup, disc emission, or artefact --- so the termination criterion is
+not merely an implementation detail but a direct determinant of the
+rendered output.
+\coderef{Geodesic.Termination}{checkTermination}
+
+\paragraph{The termination type.}
+
+The codebase encodes every possible stopping reason in a single algebraic
+data type:
+%
+\begin{lstlisting}[language=Haskell]
+data TerminationReason
+  = HitHorizon !Double
+  | HitCelestialSphere !Double
+  | MaxAffineReached !Double
+  | StepSizeTooSmall !Double
+  | HitAccretionDisk !Double
+  | OutOfGrid !Double
+\end{lstlisting}
+%
+Each constructor carries a diagnostic payload --- typically the
+coordinate radius at which the event occurred.  The rendering pipeline
+(\cref{ch:ray-tracing}) pattern-matches on this type to determine the
+pixel colour.  A \texttt{HitHorizon} result produces a shadow pixel.
+\texttt{HitCelestialSphere} triggers a sky-map lookup at the final
+ray direction.  \texttt{HitAccretionDisk} invokes the disc emission
+model at the crossing radius.  The remaining constructors signal
+computational limits rather than physical events.
+\coderef{Geodesic.Types}{TerminationReason}
+
+\paragraph{Horizon crossing.}
+
+A photon that crosses the event horizon cannot return to a distant
+observer --- the one-way membrane property guarantees this regardless of
+the interior geometry --- so continuing the integration past the horizon
+wastes computation without contributing to the image.  The codebase
+terminates a ray when its coordinate radius falls below a threshold
+%
+\begin{equation}
+  r < r_+ + \delta \,,
+  \label{eq:horizon-buffer}
+\end{equation}
+%
+where $r_+$ is the outer horizon radius and $\delta$ is a small buffer.
+The default is $\delta = 0.01\,M$.  The buffer avoids consuming
+integration steps in the strong-field region just inside the horizon
+where the step size shrinks rapidly (\cref{sec:geo-raytracing}), and
+provides a safety margin against floating-point roundoff in the radius
+computation.
+
+In Kerr--Schild coordinates, the metric is regular at the horizon ---
+there is no coordinate singularity to contend with, unlike
+Boyer--Lindquist coordinates where $\Delta = 0$ makes the metric
+components diverge (\cref{sec:kerr-bl}).  The integrator could in
+principle continue through $r_+$ without difficulty, but no information
+from the interior reaches the image.  Setting $\delta$ too large
+artificially shrinks the black hole shadow; setting it to zero wastes
+steps near the singularity and risks floating-point overflow.  The
+default $0.01\,M$ is small enough that the shadow boundary shifts by
+less than a pixel at typical image resolutions, and large enough that no
+ray lingers inside the horizon.
+\physnote{For numerical spacetimes evolved on a finite grid, the
+\texttt{OutOfGrid} constructor replaces \texttt{HitHorizon}: the ray
+is terminated when it leaves the interpolatable domain rather than
+when it crosses a known horizon.}
+
+\paragraph{Escape to the celestial sphere.}
+
+A ray that reaches large radius without being captured has escaped to
+infinity.  The codebase terminates when $r > r_{\text{sky}}$, where
+$r_{\text{sky}} = 500\,M$ by default.  At this radius, the
+weak-field metric perturbation satisfies $2M/r_{\text{sky}} = 0.004$,
+so the residual deflection beyond $r_{\text{sky}}$ is bounded by
+$\order{M/r_{\text{sky}}} \approx 2 \times 10^{-3}$~radians ---
+negligible compared to a pixel's angular width for any practical image
+resolution.  The ray's final direction at the celestial sphere
+determines which point on the sky map is sampled.
+\implnote{The \texttt{TerminationConfig} record holds all six threshold
+parameters: horizon radius, celestial-sphere radius, maximum affine
+parameter, minimum step size, and inner and outer disc radii.  The
+function \texttt{defaultTermConfig} populates these from the black hole
+mass $M$.}
+
+\paragraph{Accretion disc intersection.}
+
+A geometrically thin accretion disc lies in the equatorial plane of the
+black hole ($\theta = \pi/2$ in Boyer--Lindquist coordinates, $z = 0$
+in Cartesian Kerr--Schild coordinates).  Detecting the intersection
+amounts to finding where the ray crosses $z = 0$ and then checking
+whether the crossing radius lies within the disc annulus
+$r_{\text{in}} \leq r \leq r_{\text{out}}$.
+\coderef{Geodesic.Termination}{checkDiskCrossing}
+
+The codebase detects crossings by monitoring the sign of $z$ at each
+accepted step.  If two consecutive states $(x_0^\mu, p_{\mu,0})$ and
+$(x_1^\mu, p_{\mu,1})$ have $z_0$ and $z_1$ of opposite sign, the ray
+crossed the equatorial plane during that step.  Since $z_0$ and $z_1$
+have opposite signs, $z_0 - z_1 \neq 0$ and the fractional step
+parameter
+%
+\begin{equation}
+  s = \frac{z_0}{z_0 - z_1}
+  \label{eq:disk-crossing-frac}
+\end{equation}
+%
+is well-defined with $s \in (0, 1)$, giving $z(s) = 0$ under linear
+interpolation.  This fraction measures how far through the step the
+plane crossing occurred, so the crossing state is the corresponding
+linear blend of the two endpoint states:
+%
+\begin{equation}
+  x^\mu_{\text{cross}} = (1 - s)\,x^\mu_0 + s\,x^\mu_1 \,, \qquad
+  p_{\mu,\text{cross}} = (1 - s)\,p_{\mu,0} + s\,p_{\mu,1} \,.
+  \label{eq:disk-crossing-interp}
+\end{equation}
+%
+The interpolated radius $r_{\text{cross}}$ is then tested against the
+disc bounds.  If $r_{\text{in}} \leq r_{\text{cross}} \leq r_{\text{out}}$,
+the ray terminates with \texttt{HitAccretionDisk} and the crossing state
+feeds into the disc emission model; otherwise, the step is accepted
+normally and integration continues.
+\warnnote{The interpolated state \cref{eq:disk-crossing-interp} does not
+lie exactly on the geodesic.  The linear interpolation introduces an
+$\order{h^2}$ error in the crossing position, where $h$ is the local
+step size --- formally below the $\order{h^5}$ local accuracy of
+Dormand--Prince, but sufficient because the adaptive controller keeps
+$h$ small in the strong-field regions where disc crossings occur.
+The momentum interpolation is coordinate-dependent and does not respect
+parallel transport; it serves only to provide approximate initial data
+for the emission model.  Dense output (Hermite interpolation using the
+Runge--Kutta stages) would recover $\order{h^5}$ accuracy at the
+crossing point but is not implemented.}
+
+The inner disc radius $r_{\text{in}}$ is typically set to the innermost
+stable circular orbit (\cref{sec:kerr-isco}): $r_{\text{ISCO}} = 6M$ for
+Schwarzschild, decreasing to $r_{\text{ISCO}} = M$ for a maximally
+spinning prograde Kerr disc.  The outer radius $r_{\text{out}}$ is a
+modelling choice; $r_{\text{out}} = 20M$--$50M$ captures the brightest
+region of a standard thin disc.
+
+\paragraph{Safety nets.}
+
+Two additional criteria prevent runaway computation.  The integrator
+terminates when the affine parameter exceeds a maximum
+$\lambda_{\text{max}}$ (default $5000\,M$), catching rays that orbit the
+photon sphere many times without escaping or plunging.  For reference,
+one full orbit on the unstable null circular orbit at $r = 3M$ in
+Schwarzschild corresponds to $\Delta\lambda \approx 33\,M$ (at the
+$E = 1$ normalisation of \cref{sec:geo-null}), so the default allows
+over a hundred near-orbits before termination --- far more than any
+physically relevant ray.  The integrator also terminates when the
+adaptive step size drops below $h_{\min}$ (default $10^{-12}$), which
+signals dynamics the integrator cannot resolve --- typically a
+near-singular region or an implementation error.  Both produce artefact
+pixels that should not appear in a correctly configured render.
+
+\paragraph{The radius function.}
+
+All threshold comparisons use a coordinate radius $r$ computed from
+the Cartesian Kerr--Schild position
+$x^\mu = (t, x, y, z)$.  For the Schwarzschild metric, the radial
+coordinate coincides with the Euclidean distance
+$r = \sqrt{x^2 + y^2 + z^2}$
+(\cref{sec:schw-kerr-schild}).  For the Kerr spacetime, the Kerr--Schild
+radial coordinate $r$ --- which takes the same value as the
+Boyer--Lindquist radial coordinate --- satisfies the quartic relation of
+\cref{sec:kerr-bl-quartic} and must be solved at each termination check.
+The codebase abstracts this through a \texttt{RadiusFn} type: a function
+from position to scalar radius, defaulting to the Euclidean radius for
+Schwarzschild and the quartic solver for Kerr.  This abstraction allows
+the same termination logic to serve any spacetime without modification.
+\xrefnote{The quartic inversion and its numerical implementation are
+developed in \cref{sec:kerr-bl-quartic}.}

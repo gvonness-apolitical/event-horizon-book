@@ -18,9 +18,9 @@ tableau and derive the classical RK4 scheme as a special case.
 \label{sec:rk-dormand-prince}
 \coderef{Geodesic}{Solver}
 
-We present the Dormand-Prince 4(5) embedded pair, which provides a
-fourth-order solution and a fifth-order error estimate from the same set of
-stage evaluations.
+We present the Dormand-Prince 5(4) embedded pair: a fifth-order solution
+propagated at each step, with a fourth-order companion providing the local
+error estimate used for step-size control.
 
 \section{First Same As Last (FSAL)}
 \label{sec:rk-fsal}

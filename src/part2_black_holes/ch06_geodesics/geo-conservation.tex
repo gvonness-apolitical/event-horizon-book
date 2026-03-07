@@ -1,0 +1,180 @@
+% sec:geo-conservation — Conservation Monitoring
+\section{Conservation Monitoring}
+\label{sec:geo-conservation}
+
+An adaptive integrator provides no guarantee that the trajectory it
+returns is physically correct --- only that the local error at each step
+satisfies the prescribed tolerance.  Accumulated discretisation error
+can silently nudge a photon off its true geodesic path: a ray that
+should graze the photon sphere and escape to the celestial sphere might
+instead spiral inward, producing a shadow pixel where the accretion
+disc should appear --- and nothing in the integrator flags the error.
+Conservation laws provide an independent check.  Every quantity preserved by the exact equations
+of motion but violated by the numerical approximation becomes a
+diagnostic: the size of the violation measures the accumulated error
+without requiring a reference solution.
+
+\paragraph{The Hamiltonian diagnostic.}
+
+The super-Hamiltonian $\mathcal{H} =
+\tfrac{1}{2}\,\inversemetric\,p_\mu\,p_\nu$
+(\cref{eq:geo-hamiltonian}) is exactly conserved along any geodesic
+(\cref{eq:H-conservation}).  For null rays, $\mathcal{H} = 0$; for
+massive particles, $\mathcal{H} = -\tfrac{1}{2}$
+(\cref{eq:timelike-constraint}).  Any departure from this value is
+pure discretisation error --- not a physical effect, not a coordinate
+artefact, but a direct measure of how much the numerical trajectory
+has deviated from a true geodesic.
+\coderef{Geodesic.Hamiltonian}{hamiltonian}
+
+The evaluation cost is negligible.  The inverse metric $\inversemetric$
+is already computed at the current position for the position equation
+\cref{eq:geo-xdot}, and the momentum $p_\mu$ is part of the state
+vector.  The function \texttt{hamiltonian} contracts these to produce
+the scalar $\mathcal{H}$:
+%
+\begin{lstlisting}[language=Haskell]
+hamiltonian :: Sym4 'Contravariant -> Vec4 'Covariant -> Double
+hamiltonian ginv mom =
+  let pmUp = raise4 ginv mom
+  in 0.5 * dot4 pmUp mom
+\end{lstlisting}
+%
+One index raise and one inner product --- the same operations that
+appear in the position equation, reused for monitoring.  The codebase
+evaluates $\mathcal{H}$ after every accepted integration step, producing
+a trace of constraint violation along the entire trajectory.
+\implnote{The function \texttt{traceGeodesic} in
+\codemodule{Geodesic.Solver} records triplets $(\lambda,
+\text{state}, \mathcal{H})$ at every accepted step, providing the full
+trajectory with Hamiltonian monitoring data for convergence studies and
+visualisation.}
+
+\paragraph{The error budget.}
+
+The step-size controller (\cref{eq:rk45-stepcontrol}) keeps the local
+truncation error at each step below a tolerance set by $\epsilon_a$
+and $\epsilon_r$.  Over $N$ accepted steps, these local errors
+accumulate in $\mathcal{H}$.  For a non-symplectic integrator, the
+accumulation is not bounded a priori: it is a random walk when
+successive local errors alternate in sign (total error
+$\sim \sqrt{N}\,\epsilon$) and monotonic drift when the leading error
+term maintains a consistent sign ($\sim N\,\epsilon$).  The
+fifth-order accuracy of Dormand--Prince provides additional
+suppression: the local truncation error of the propagated solution
+scales as $\order{h^6}$, and over an integration interval of fixed
+length the number of steps scales as $N \sim 1/h$, so the total
+accumulated error scales as $N \cdot h^6 \sim h^5$.  In practice,
+with the default tolerances
+$\epsilon_a = \epsilon_r = 10^{-10}$, the Hamiltonian violation
+for a typical deflected or plunging ray satisfies
+%
+\begin{equation}
+  \abs{\mathcal{H}(\lambda) - \mathcal{H}_0}
+  \lesssim \epsilon_a
+  \label{eq:H-violation-bound}
+\end{equation}
+%
+throughout the trajectory (\cref{fig:H-violation}) --- the violation
+tracks the tolerance, as expected from the global error scaling.
+Tightening the tolerance by two orders of magnitude reduces the
+violation by the same factor, confirming the fifth-order convergence.
+The tolerance can therefore be relaxed to $10^{-8}$ for preview
+renders while guaranteeing $\abs{\mathcal{H}} \lesssim 10^{-8}$;
+the $10^{-10}$ default ensures publication-quality accuracy.
+\physnote{A symplectic integrator would produce bounded oscillations in
+$\mathcal{H}$ rather than monotonic drift (backward error analysis).
+The non-symplectic integrator trades this guarantee for adaptive step
+control --- a favourable exchange for ray tracing, as argued in
+\cref{sec:geo-raytracing}.}
+
+\paragraph{Killing-vector quantities.}
+
+The energy $E = -p_t$ and angular momentum $L = p_\varphi$ are conserved
+along geodesics in any stationary, axisymmetric spacetime
+(\cref{sec:geo-constants}).  Since $p_t$ and $p_\varphi$ are components
+of the momentum covector --- already stored in the
+\texttt{HamiltonianState} record --- monitoring them requires no extra
+computation beyond reading state components.  For rays with nonzero
+energy and angular momentum, the fractional drifts
+%
+\begin{equation}
+  \frac{\abs{\Delta E}}{E_0}
+  = \frac{\abs{p_t(\lambda) - p_t(0)}}{\abs{p_t(0)}} \,, \qquad
+  \frac{\abs{\Delta L}}{L_0}
+  = \frac{\abs{p_\varphi(\lambda) - p_\varphi(0)}}{\abs{p_\varphi(0)}}
+  \label{eq:EL-drift}
+\end{equation}
+%
+measure fractional energy and angular momentum error.  Typical values
+for well-resolved ray traces satisfy
+$\abs{\Delta E/E_0} \lesssim \epsilon_a$ and
+$\abs{\Delta L/L_0} \lesssim \epsilon_a$, consistent with the
+Hamiltonian bound \cref{eq:H-violation-bound}.
+
+These diagnostics complement $\mathcal{H}$ because they probe
+different aspects of the integration.  A coding error in the inverse
+metric would be immediately visible in $\mathcal{H}$ (which depends
+directly on $\inversemetric$), whereas its effect on $E$ and $L$ would
+emerge only gradually through the integrated dynamics.  Conversely, a
+spurious $\pd{t}\,g_{\alpha\beta}$ term (which should vanish in a
+stationary spacetime) would produce $E$ drift with no corresponding
+source in the exact equations, providing a more specific diagnostic
+than the generic $\mathcal{H}$ violation.  Used together, the three
+diagnostics cross-check both the mathematical implementation and the
+numerical accuracy.
+\implnote{In Kerr--Schild Cartesian coordinates, $E = -p_t$ is
+read directly from the momentum covector since $t_{\text{KS}} =
+t_{\text{BL}}$.  The angular momentum requires
+$L = p_\varphi = x\,p_y - y\,p_x$, a chain-rule transformation
+from Cartesian momenta.}
+
+\paragraph{When monitoring signals trouble.}
+
+Conservation violations grow fastest in two regimes.  Near the photon
+sphere (\cref{sec:geo-raytracing}), the Lyapunov instability amplifies
+local errors: the integrator shrinks the step size to maintain accuracy,
+but each small error in position produces a disproportionate error in
+the subsequent trajectory.  A near-critical ray with $b \approx b_c$
+that winds several times around the photon sphere can accumulate
+$\abs{\mathcal{H}} \sim 10\,\epsilon_a$ --- an order of magnitude above
+the tolerance, and roughly ten times worse than a ray that passes
+through the weak-field region without lingering
+(\cref{fig:H-violation}).
+
+The second regime is long integration intervals.  A ray traced from a
+distant observer ($r_0 = 500M$) through a close approach at
+$r \approx 3M$ and back out to $500M$ accumulates thousands of steps.
+Even at $10^{-14}$ error per step, a thousand steps push the total to
+$10^{-11}$.
+
+\begin{figure}[t]
+  \centering
+  \input{../figures/H-violation.pgf}
+  \caption[Hamiltonian constraint violation for three null geodesics]{%
+    Hamiltonian constraint violation $\abs{\mathcal{H}}$ as a function of
+    affine parameter $\lambda$ for three equatorial null geodesics in
+    Schwarzschild spacetime ($M = 1$), integrated with RK45 at tolerances
+    $\epsilon_a = \epsilon_r = 10^{-10}$.  Gold: the deflected ray
+    ($b = 8M$) showing steady, gradual growth that saturates near the
+    tolerance (dashed line).  Blue: the near-critical ray
+    ($b \approx b_c$) whose violation grows faster during the
+    photon-sphere passage ($\lambda \approx 45$--$55$) as the Lyapunov
+    instability amplifies local errors, reaching roughly $10\,\epsilon_a$.
+    Crimson: the plunge ray ($b = 4M$) whose constraint violation
+    steepens as it approaches the horizon.  Observer at $r_0 = 50M$.}
+  \label{fig:H-violation}
+\end{figure}
+
+The practical consequence is that conservation monitoring is most
+valuable not as a per-ray abort criterion but as a global quality
+metric: the worst-case $\abs{\mathcal{H}}$ across an entire image
+reveals whether the tolerances were adequate for that particular
+geometry and observer configuration.  The codebase sets tolerances
+conservatively enough that all rays satisfy the bound
+\cref{eq:H-violation-bound} by construction; after rendering, the
+maximum $\abs{\mathcal{H}}$ across all rays confirms that no
+trajectory exceeded the error budget.
+\xrefnote{Convergence studies verifying $\abs{\mathcal{H}}$ against
+tolerance using \texttt{traceGeodesic} are developed in
+\cref{ch:ode-integration}.}

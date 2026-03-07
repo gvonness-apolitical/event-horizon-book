@@ -1,0 +1,170 @@
+% sec:geo-constants — Constants of Motion
+\section{Constants of Motion}
+\label{sec:geo-constants}
+
+A generic system of eight first-order ODEs requires eight initial conditions
+and admits no simplification.  Symmetries change this: every continuous
+symmetry of the metric produces a conserved quantity that eliminates one
+degree of freedom from the equations of motion.  The Schwarzschild and
+Kerr spacetimes each have enough symmetry to reduce the geodesic problem
+from eight equations to a manageable core --- and the Kerr spacetime
+possesses an additional hidden symmetry, unrelated to any continuous
+isometry, that provides a fourth constant of motion and makes the system
+fully separable.
+
+\paragraph{Killing vectors and conserved momenta.}
+
+The connection between symmetry and conservation was established in
+\cref{sec:geo-formulations}: if the metric is independent of a coordinate
+$x^\alpha$, the corresponding momentum component $p_\alpha$ is conserved
+along any geodesic (\cref{eq:geo-pdot-cov}).  The geometric object
+underlying this statement is a Killing vector $\xi^\mu$ --- a vector field
+satisfying the Killing equation $\cd{\mu}\xi_\nu + \cd{\nu}\xi_\mu = 0$.
+The quantity
+%
+\begin{equation}
+  Q_\xi = p_\mu\,\xi^\mu
+  \label{eq:killing-conserved}
+\end{equation}
+%
+is then conserved along any geodesic: $\d Q_\xi / \d\lambda = 0$.  To
+verify this, apply the Leibniz rule along the geodesic:
+$\d Q_\xi/\d\lambda =
+  (\dot{x}^\nu\cd{\nu}p_\mu)\,\xi^\mu
+  + p_\mu\,\dot{x}^\nu\cd{\nu}\xi^\mu$.
+The first term vanishes because $p_\mu$ is parallel-transported along the
+geodesic.  For the second, writing $p_\mu = g_{\mu\alpha}\dot{x}^\alpha$
+yields the contraction $\dot{x}^\alpha\dot{x}^\nu\,\cd{\nu}\xi_\alpha$,
+which is zero because $\dot{x}^\alpha\dot{x}^\nu$ is symmetric while
+$\cd{\nu}\xi_\alpha$ is antisymmetric by the Killing equation.
+\physnote{When $\xi^\mu = \partial_\alpha$ is a coordinate basis vector,
+$Q_\xi = p_\alpha$ --- the Killing conservation reduces to the statement
+that $p_\alpha$ is constant when $\pd{\alpha}\,\metric = 0$, exactly
+as in \cref{eq:geo-pdot-cov}.}
+
+\paragraph{Energy and angular momentum.}
+
+Both the Schwarzschild and Kerr metrics are stationary (independent of $t$)
+and axisymmetric (independent of $\varphi$), yielding two Killing vectors:
+$\xi^\mu = (\partial_t)^\mu$ and $\psi^\mu = (\partial_\varphi)^\mu$.  The
+associated conserved quantities are the specific energy
+%
+\begin{equation}
+  E = -p_\mu\,\xi^\mu = -p_t
+  \label{eq:geo-energy}
+\end{equation}
+%
+and the specific angular momentum (about the symmetry axis)
+%
+\begin{equation}
+  L = p_\mu\,\psi^\mu = p_\varphi \,.
+  \label{eq:geo-angmom}
+\end{equation}
+%
+The minus sign in \cref{eq:geo-energy} is a convention that makes $E > 0$
+for future-directed geodesics: since $\xi^\mu$ is timelike outside the
+ergosphere, $p_\mu\,\xi^\mu < 0$ for a future-directed particle, and the
+minus sign compensates.  These are the same quantities derived in
+\cref{sec:schw-orbits} for the Schwarzschild geometry
+(\cref{eq:schw-energy,eq:schw-angmom}) and used in the Kerr ISCO analysis
+(\cref{eq:kerr-circ-E,eq:kerr-circ-L}); the Killing-vector framework makes
+their origin and universality explicit.
+\xrefnote{Inside the ergosphere, $\xi^\mu$ becomes spacelike and $E$ can be
+negative for certain orbits.  This is the mechanism behind the Penrose
+process (\cref{sec:kerr-horizons}).}
+
+For the spherically symmetric Schwarzschild spacetime, every geodesic can be
+rotated into the equatorial plane by a symmetry transformation, so $E$ and
+$L$ together with the norm constraint $\mathcal{H} = \text{const}$ suffice
+to reduce the problem to a single ODE for $r(\lambda)$.  The Kerr spacetime
+is only axisymmetric, so equatorial restriction is no longer guaranteed ---
+geodesics generically move in three spatial dimensions, and two conserved
+quantities are not enough.
+
+\paragraph{The Carter constant.}
+
+In 1968, Carter discovered that the Kerr geodesic equations are fully
+separable despite the spacetime possessing only two Killing vectors
+\cite{Carter1968}.  The additional constant of motion arises from a
+rank-two Killing tensor $K_{\mu\nu}$ --- a symmetric tensor satisfying
+%
+\begin{equation}
+  \cd{(\alpha} K_{\mu\nu)} = 0 \,,
+  \label{eq:killing-tensor}
+\end{equation}
+%
+where the parentheses denote complete symmetrisation over all three indices.
+The Carter constant is
+%
+\begin{equation}
+  \mathcal{Q} = K_{\mu\nu}\,\dot{x}^\mu\,\dot{x}^\nu
+    = p_\theta^2 + \cos^2\!\theta
+      \left(a^2(-\kappa - E^2) + \frac{L^2}{\sin^2\!\theta}\right) ,
+  \label{eq:carter-constant}
+\end{equation}
+%
+where $\kappa = -1$ for timelike and $\kappa = 0$ for null geodesics.  The
+first equality is the geometric definition; the second is its explicit
+evaluation in Boyer--Lindquist coordinates, where the Killing tensor takes
+the form
+$K_{\mu\nu} = \Sigma\,l_{(\mu}n_{\nu)} + r^2\,\metric$ with $l^\mu$ and
+$n^\mu$ the principal null directions of the Kerr geometry
+\cite{Chandrasekhar1983}.
+\histnote{Carter found the fourth constant by separating the
+Hamilton--Jacobi equation in Boyer--Lindquist coordinates, a decade
+before Killing tensors and hidden symmetries were systematically
+classified.}
+
+The Carter constant has no analogue in the Schwarzschild geometry, where
+$K_{\mu\nu}\,\dot{x}^\mu\dot{x}^\nu$ reduces to
+$L_x^2 + L_y^2 + L_z^2$ --- the square of the total angular momentum, which is already determined by the three rotational
+Killing vectors of spherical symmetry.  For Kerr, where only axial symmetry
+survives, $\mathcal{Q}$ provides genuinely independent information: it
+constrains the polar motion in a way that neither $E$ nor $L$ can.
+
+\paragraph{Counting degrees of freedom.}
+
+A geodesic in four-dimensional spacetime has eight phase-space variables
+$(x^\mu, p_\mu)$.  Each conserved quantity reduces the effective
+dimensionality by one:
+%
+\begin{enumerate}
+\item $E = -p_t$ eliminates $p_t$.
+\item $L = p_\varphi$ eliminates $p_\varphi$.
+\item $\mathcal{H} = \text{const}$ provides a constraint relating the
+  remaining momenta to the coordinates.
+\item $\mathcal{Q} = \text{const}$ (Kerr only) constrains the polar
+  momentum $p_\theta$.
+\end{enumerate}
+%
+For Schwarzschild, the three constants ($E$, $L$, $\mathcal{H}$) reduce the
+system to one effective degree of freedom: the radial equation
+$\dot{r}^2 = E^2 - V_{\text{eff}}(r)$ of \cref{sec:schw-orbits}.  For
+Kerr, the four constants reduce the system to two first-order equations ---
+one for $r(\lambda)$ and one for $\theta(\lambda)$ --- each involving only
+its own coordinate and the constants of motion.  This is the separated form
+used in analytic studies \cite{Chandrasekhar1983}.
+\warnnote{The codebase does not use the separated equations.  It integrates
+the full eight-component Hamiltonian system
+\cref{eq:geo-xdot,eq:geo-pdot-cov} directly, using adaptive step control
+to handle the stiffness near the photon sphere.  The conserved quantities
+$E$, $L$, and $\mathcal{H}$ serve instead as accuracy
+diagnostics: their drift during integration measures accumulated numerical
+error (\cref{sec:geo-conservation}).}
+
+\paragraph{The role of conserved quantities in ray tracing.}
+
+For the full Hamiltonian integration used by the codebase, the conserved
+quantities serve two purposes.  First, they provide initial-condition
+constraints: the photon's initial momentum must satisfy $\mathcal{H} = 0$,
+which fixes one component of $p_\mu$ given the other three and the
+initial position.  Second, they provide monitoring quantities: computing $E$,
+$L$, and $\mathcal{H}$ at each step and comparing with their initial
+values reveals discretisation error without any additional ODE solves.  A
+typical well-resolved ray trace maintains $\abs{\Delta E/E} \lesssim \epsilon_a$
+and $\abs{\Delta\mathcal{H}} \lesssim \epsilon_a$ throughout.
+\physnote{For null geodesics, $E$ can be set to unity by the affine
+rescaling freedom (\cref{sec:sr-causal}).  The impact parameters
+$b = L/E$ and $q = \sqrt{\mathcal{Q}}/E$ then parametrise the photon
+trajectory completely --- these are the coordinates on the observer's
+sky that the ray tracer maps to pixel positions.}

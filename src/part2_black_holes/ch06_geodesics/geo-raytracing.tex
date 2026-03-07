@@ -1,0 +1,199 @@
+% sec:geo-raytracing — Hamiltonian Ray Tracing
+\section{Hamiltonian Ray Tracing}
+\label{sec:geo-raytracing}
+
+Building a black-hole image means tracing one ray per pixel from the
+observer backward through the curved geometry to its source --- the
+accretion disc, the celestial sphere, or the shadow.  Each ray solves
+the same eight-component ODE,
+\cref{eq:geo-xdot,eq:geo-pdot-cov}, with only the initial
+direction varying from pixel to pixel.  The cost of the image is
+therefore set by two quantities: the expense of each integration step
+and the number of steps each ray requires.  Both depend on how the
+integrator interacts with the spacetime geometry --- a coupling that
+this section makes explicit.
+\coderef{Geodesic.Solver}{integrateGeodesic}
+
+\paragraph{The per-step evaluation.}
+
+Each evaluation of the right-hand side
+$(\dot{x}^\mu, \dot{p}_\mu)$ at the current state
+$(x^\mu, p_\mu, \lambda)$ proceeds in three stages:
+%
+\begin{enumerate}
+\item \textbf{Inverse metric.}  Evaluate $\inversemetric$ at the
+  current position.  For Kerr--Schild spacetimes, the inverse is
+  $\eta^{\mu\nu} - f\,l^\mu l^\nu$
+  (\cref{eq:kerr-ks-inverse}) --- the same function $f$ and null
+  covector $l_\mu$ as the forward metric, with a single sign change.
+  For a general spacetime without this algebraic structure, a
+  $4 \times 4$ symmetric-matrix inversion is required at each step.
+\item \textbf{Metric derivatives.}  Compute the four derivative
+  matrices $\pd{\mu}\,g_{\alpha\beta}$ by passing the polymorphic
+  metric function an AD dual-number type
+  (\cref{ch:autodiff}).  The AD library's Jacobian
+  evaluation extracts all $4 \times 10 = 40$ independent partial
+  derivatives from the metric code.
+\item \textbf{Hamilton's equations.}  Form the velocity
+  $\dot{x}^\mu = \inversemetric\,p_\nu$ from step~1, then contract
+  to obtain $\dot{p}_\mu = \tfrac{1}{2}\,
+  (\pd{\mu}\,g_{\alpha\beta})\,\dot{x}^\alpha\,\dot{x}^\beta$ using
+  the derivatives from step~2.  The velocity computed here is reused
+  in the momentum contraction --- exactly as in the code, where
+  \texttt{xdot} appears in both the return value and the
+  \texttt{contractDg} helper.
+\end{enumerate}
+%
+The inverse metric is evaluated once per RHS call and never
+differentiated --- a property emphasised in \cref{sec:geo-formulations}
+that keeps the per-step cost independent of the complexity of the
+matrix inversion.
+\implnote{The function \texttt{makeRHS} in
+\codemodule{Geodesic.Solver} wraps \texttt{hamiltonianRHS} by
+evaluating the inverse metric at the current position before each
+call, keeping the per-step logic in a single closure.}
+
+\paragraph{The adaptive integrator.}
+
+The codebase uses Dormand--Prince RK45 \cite{DormandPrince1980}: an
+embedded Runge--Kutta method that produces a fifth-order solution and
+a fourth-order companion for local error estimation.  Each accepted
+step evaluates the right-hand side six times (seven stages, but the
+last stage of one step becomes the first of the next --- the
+``first same as last'' property that saves one evaluation per step).
+
+Step-size adaptation keeps the local error below prescribed
+tolerances.  For each component $y_i$ of the eight-dimensional state
+vector $(x^\mu, p_\mu)$, the scaled error is
+%
+\begin{equation}
+  e_i = \frac{\abs{\delta y_i}}
+    {\epsilon_a + \epsilon_r\,\abs{y_i}} \,,
+  \label{eq:rk45-error}
+\end{equation}
+%
+where $\delta y_i$ is the difference between the fifth- and
+fourth-order solutions, $\epsilon_a$ is the absolute tolerance, and
+$\epsilon_r$ the relative tolerance.  The mixed scaling ensures that
+components near zero are governed by $\epsilon_a$ while large
+components are governed by $\epsilon_r$, preventing any single
+component from dominating the step-size decision.  The step is
+accepted when $\max_i\,e_i \leq 1$.  After acceptance, the next
+step size scales as
+%
+\begin{equation}
+  h_{\text{new}} = h \cdot
+    \min\!\bigl(s_{\max},\,
+      \max\bigl(s_{\min},\,
+        S\,(\max_i\,e_i)^{-1/5}\bigr)\bigr) \,,
+  \label{eq:rk45-stepcontrol}
+\end{equation}
+%
+so that halving the error produces a modest increase in step size,
+while a large error triggers a proportionate reduction.  The safety
+factor $S = 0.9$ guards against optimistic scaling, and the clamps
+$s_{\min} = 0.2$, $s_{\max} = 5$ prevent extreme jumps.  The
+exponent $-1/5$ arises because the embedded error estimate converges
+as $\mathcal{O}(h^5)$; on a rejected step, the exponent switches
+to $-1/4$ for more aggressive shrinkage, since the error estimate is
+less reliable when the step has exceeded the asymptotic regime.
+The default tolerances $\epsilon_a = \epsilon_r = 10^{-10}$ yield
+Hamiltonian constraint violations $\abs{\mathcal{H}} \lesssim \epsilon_a$
+for typical null geodesics through the Kerr geometry
+(\cref{sec:geo-conservation}).
+\xrefnote{The Runge--Kutta family, order conditions, and
+step-size control theory are developed systematically in
+\cref{ch:ode-integration}.  This section presents only the details
+needed to understand the ray-tracing pipeline.}
+
+A natural question is why the codebase does not use a symplectic
+integrator --- St\"ormer--Verlet or leapfrog --- which would preserve
+$\mathcal{H}$ to within bounded oscillations rather than allowing
+monotonic drift.  The answer is step-size adaptivity.  Standard
+symplectic methods are fixed-step: their conservation properties
+depend on exactly preserving the symplectic two-form, which adaptive
+step-size selection destroys.  Near the photon sphere, where the
+effective potential has a saddle point and neighbouring trajectories
+diverge exponentially, a fixed step small enough for the strong-field
+region wastes orders of magnitude of computation in the weak-field
+approach and escape phases.  Adaptive Dormand--Prince concentrates
+work where the dynamics demand it.
+\physnote{Symplectic integrators preserve a \emph{nearby} Hamiltonian
+exactly (backward error analysis), so their energy error oscillates
+rather than drifting.  For geodesic integration, the adaptive
+step-size advantage outweighs this benefit.}
+
+\paragraph{Step-size behaviour near the photon sphere.}
+
+The photon sphere at $r = 3M$ (Schwarzschild) is an unstable
+equilibrium for null circular orbits (\cref{sec:schw-orbits}).  A ray
+with impact parameter $b$ close to the critical value
+$b_c = 3\sqrt{3}\,M$ (\cref{eq:critical-impact}) passes near this
+equilibrium, and small perturbations in the trajectory grow
+exponentially.  The Lyapunov exponent of the unstable circular orbit
+is $\gamma_L = 1/(3\sqrt{3}\,M)$ in coordinate time
+\cite{Cardoso2009}: two initially neighbouring rays diverge as
+$\sim\!\exp(\gamma_L\,t)$, forcing the integrator to shrink $h$ to
+maintain accuracy.  Once the ray exits the strong-field zone, the step
+size recovers --- a factor of ten or more variation over a single ray
+trace is typical.  The adaptive integrator handles this automatically;
+a fixed-step method would need the smallest step size throughout.
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/step-size-profile.pgf}
+  \caption[Adaptive step-size profiles near the photon sphere]{%
+    Adaptive step size $h$ as a function of affine parameter
+    $\lambda$ for three null geodesics in the Schwarzschild
+    geometry ($M = 1$), integrated with RK45 at tolerances
+    $\epsilon_a = \epsilon_r = 10^{-10}$.  Gold: a deflected ray
+    ($b = 8M$) showing a brief step-size reduction near closest
+    approach at $r \approx 6.7M$, followed by smooth recovery.
+    Blue: a near-critical ray ($b \approx b_c$) whose step size
+    drops by more than an order of magnitude and remains
+    suppressed from $\lambda \approx 50$ to $\lambda \approx 75$
+    as the ray winds near the photon sphere at $r \approx 3M$;
+    the oscillations reflect per-orbit step-size variation.
+    Crimson: a plunge ray ($b = 4M < b_c$) whose step size falls
+    as it crosses the horizon, with no recovery.}
+  \label{fig:step-size-profile}
+\end{figure}
+
+\paragraph{The integration pipeline.}
+
+The function \texttt{integrateGeodesic} in
+\codemodule{Geodesic.Solver} encapsulates the full ray-tracing
+pipeline for a single pixel.  Its type signature separates the
+concerns cleanly:
+%
+\begin{lstlisting}[language=Haskell]
+integrateGeodesic
+  :: (forall a. Floating a => [a] -> [a])
+  -> (Vec4 'Contravariant -> Sym4 'Contravariant)
+  -> SolverConfig
+  -> TerminationConfig
+  -> HamiltonianState
+  -> GeodesicResult HamiltonianState
+\end{lstlisting}
+%
+The first two arguments define the spacetime: the polymorphic metric
+function (enabling AD) and the inverse metric lookup.  The solver and
+termination configurations specify tolerances and stopping criteria
+respectively.  The initial state $(x^\mu_0, p_{\mu,0},
+\lambda_0 = 0)$ is set from the camera model and the null constraint
+as described in \cref{sec:geo-null}.
+\implnote{The \texttt{SolverConfig} record holds the seven
+parameters governing step-size adaptation: initial step, absolute and
+relative tolerances, maximum step count, safety factor, and the
+minimum and maximum scaling bounds.}
+
+The return type \texttt{GeodesicResult} pairs the final state with a
+\texttt{TerminationReason} --- horizon crossing, escape to the
+celestial sphere, accretion-disc intersection, or step-count
+exhaustion (\cref{sec:geo-termination}).  This single algebraic data
+type feeds directly into the rendering pipeline, where the
+termination reason determines whether the pixel receives a disc
+colour, a sky-map lookup, or a shadow fill.
+\xrefnote{The rendering pipeline's use of \texttt{TerminationReason}
+to assign pixel colours is developed in the ray-tracing chapter
+(\cref{ch:ray-tracing}).}

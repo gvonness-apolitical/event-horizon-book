@@ -1,0 +1,213 @@
+% sec:geo-photon-rings — Photon Rings and Bound Orbits
+\section{Photon Rings and Bound Orbits\starmark{}}
+\label{sec:geo-photon-rings}
+
+Every image of a black hole --- from a bare Schwarzschild shadow to a
+Kerr disc rendering with full radiative transfer --- contains a
+characteristic bright ring near the shadow boundary.  This feature is
+not a property of the accretion disc or the emission model: it is a
+direct imprint of the unstable circular photon orbits that define the
+photon sphere (\cref{sec:schw-orbits}).  Photons with impact parameter
+$b$ close to the critical value $b_c$ wind multiple times around the
+black hole before escaping, sweeping up light from every direction and
+creating a feature whose structure encodes the spacetime geometry
+independently of the astrophysical environment.  What makes the photon
+ring remarkable is its internal structure: the single bright ring
+visible at moderate resolution actually comprises an infinite sequence
+of increasingly narrow sub-rings, each exponentially thinner than the
+last.  Understanding this structure explains why the ray tracer
+(\cref{sec:geo-raytracing}) must shrink its step size dramatically for
+near-critical rays, and why the resulting images carry information about
+the spacetime that no amount of astrophysical modelling can mimic.
+
+\paragraph{Logarithmic winding.}
+
+A photon approaching the Schwarzschild photon sphere at $r = 3M$ with
+$b$ slightly above $b_c = 3\sqrt{3}\,M$
+(\cref{eq:critical-impact}) winds through a deflection angle that grows
+without bound as $b \to b_c$.  The rate of growth is controlled by the
+Lyapunov exponent of the unstable circular orbit --- the exponential
+rate at which neighbouring trajectories diverge from the bound orbit.
+
+A radial perturbation $\delta r$ about the circular orbit at $r = 3M$
+grows exponentially in affine parameter:
+%
+\begin{equation}
+  \delta r(\lambda) \sim e^{\pm\gamma_\lambda\,\lambda} \,, \qquad
+  \gamma_\lambda = \sqrt{-\tfrac{1}{2}\,V''_{\text{eff}}(3M)}
+    = \frac{L}{9M^2} \,,
+  \label{eq:photon-lyapunov}
+\end{equation}
+%
+where $V''_{\text{eff}}(3M) = -2L^2/(81M^4)$ is the curvature of the
+null effective potential (\cref{eq:veff-null}) at the photon sphere ---
+the negative sign confirms the instability --- and $L$ is the angular
+momentum of the photon.  Evaluating the angular velocity at $r = 3M$ in
+the same affine parametrisation gives
+$\d\varphi/\d\lambda\big|_{r=3M} = L/r^2 = L/(9M^2)$, exactly equal to
+$\gamma_\lambda$.  Since the growth rate and the winding rate coincide,
+perturbations grow by a factor of $e$ for every radian of azimuthal
+winding --- i.e.\ the Lyapunov exponent per radian is unity.
+\physnote{The Lyapunov exponent $\gamma_\lambda$ in affine parameter is
+related to the coordinate-time Lyapunov exponent $\gamma_L$ of
+\cref{sec:geo-raytracing} by a rescaling:
+$\gamma_L = \gamma_\lambda\,(\d\lambda/\d t)$, evaluated on the
+circular orbit.}
+
+The total deflection angle for a ray with impact parameter $b$ close to
+$b_c$ follows from inverting the exponential growth.  A photon that
+approaches to within $\delta r$ of the photon sphere winds through
+$\Delta\varphi \sim \ln(1/\delta r)$ radians; since $\delta r$ is
+proportional to $b - b_c$ at leading order, the deflection diverges
+logarithmically:
+%
+\begin{equation}
+  \Delta\varphi \approx
+    -\ln\!\left(\frac{b}{b_c} - 1\right) + \text{const} \,.
+  \label{eq:deflection-divergence}
+\end{equation}
+%
+The formula holds for $b \to b_c^+$ (rays that approach the photon
+sphere from outside); as $b \to b_c^+$, the photon completes an
+arbitrarily large number of orbits before escaping.
+\physnote{The coincidence $\gamma_\lambda = \d\varphi/\d\lambda$ is
+specific to the Schwarzschild photon sphere.  In the Kerr geometry, the
+Lyapunov exponent and orbital frequency differ, and the growth per
+radian becomes a function of the orbit parameters.}
+
+\paragraph{The photon ring decomposition.}
+
+A systematic classification of the ring structure follows from counting
+how many times a photon crosses the equatorial plane during its close
+approach to the photon sphere \cite{Johnson2020}.  The integer $n$
+labels these crossings: $n = 0$ rays are the ``direct'' image with no
+significant winding; $n = 1$ rays complete a half-orbit, creating the
+``lensing ring''; rays with $n \geq 2$ form the ``photon ring'' proper.
+Each sub-ring occupies a narrow annulus on the observer's sky centred on
+the critical curve (the locus of $b = b_c$).
+
+Since the deflection angle increases by $\pi$ for each additional
+half-orbit, the impact parameters contributing to the $n$-th sub-ring
+satisfy $\Delta\varphi \approx n\pi$, and
+\cref{eq:deflection-divergence} gives
+$b_n/b_c - 1 \sim e^{-n\pi}$.  The angular width $\delta b_n$ of the
+$n$-th sub-ring therefore decreases exponentially with a universal
+ratio:
+%
+\begin{equation}
+  \frac{\delta b_{n+1}}{\delta b_n} = e^{-\gamma_{\text{ph}}} \,, \qquad
+  \gamma_{\text{ph}} = \pi \quad \text{(Schwarzschild)} \,.
+  \label{eq:demagnification}
+\end{equation}
+%
+Each successive sub-ring is thinner by a factor of
+$e^\pi \approx 23.1$.  The $n = 1$ ring --- the most prominent --- has
+an angular width of a few microarcseconds for M87$^*$; the $n = 2$ ring
+is $23$ times thinner, and $n = 3$ is over $500$ times thinner still.
+The exponential narrowing is a direct consequence of the Lyapunov
+instability: each additional half-orbit amplifies the radial deviation
+by $e^\pi$, so rays completing one more half-orbit must have started
+proportionally closer to the critical impact parameter.
+\histnote{Darwin identified the photon sphere and logarithmic winding
+in 1959 \cite{Darwin1959}.  The sub-ring decomposition and its
+observational consequences were developed systematically by Johnson
+et al.\ \cite{Johnson2020}.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/photon-ring-structure}
+  \caption[Photon ring sub-structure in the Schwarzschild geometry]{%
+    Photon ring sub-structure in the Schwarzschild geometry.
+    Left: ray trajectories classified by the number of equatorial
+    crossings $n$ during the close approach to the photon sphere
+    (dashed circle, $r = 3M$).  The $n = 0$ ray (gold) is deflected
+    without significant winding; the $n = 1$ ray (blue) completes a
+    half-orbit; the $n = 2$ ray (crimson) completes a full orbit.
+    All three rays escape to the same distant observer.
+    Right: the corresponding sub-rings on the observer's image plane,
+    shown schematically with widths decreasing by a factor of
+    $e^\pi \approx 23$ between successive rings.  The shadow boundary
+    (grey fill) corresponds to $b = b_c = 3\sqrt{3}\,M$.}
+  \label{fig:photon-ring-structure}
+\end{figure}
+
+\paragraph{The photon shell in Kerr.}
+
+In the Kerr spacetime, the photon sphere generalises to a
+\emph{photon shell} --- a three-dimensional region supporting
+spherical photon orbits (orbits with constant Boyer--Lindquist radius)
+at a range of radii.  The equatorial prograde and retrograde photon
+orbit radii bound this range \cite{Bardeen1972}:
+%
+\begin{equation}
+  r_{\text{ph}}^{\pm}
+  = 2M\!\left(1 + \cos\!\left(
+      \tfrac{2}{3}\,\arccos(\mp a_*)\right)\right) ,
+  \label{eq:kerr-photon-radii}
+\end{equation}
+%
+where $a_* = a/M$ is the dimensionless spin
+(\cref{sec:kerr-isco}) and the upper sign gives prograde orbits.
+At $a_* = 0$, both reduce to $r = 3M$.  At $a_* = 1$, the prograde
+orbit drops to $r = M$ --- coinciding with the degenerate event
+horizon --- while the retrograde orbit moves out to $r = 4M$.
+Non-equatorial spherical photon orbits fill the interval
+$r_{\text{ph}}^+ \leq r \leq r_{\text{ph}}^-$, parametrised
+continuously by the Carter constant $\mathcal{Q}$
+(\cref{eq:carter-constant}).
+
+Each spherical photon orbit defines a pair of critical impact
+parameters $(b_c(r), q_c(r))$, where
+$q_c = \sqrt{\mathcal{Q}}/E$ is the reduced Carter parameter
+(\cref{eq:carter-constant}).  As $r$ varies across the photon
+shell, these trace out the \emph{critical curve} on the observer's
+sky --- the boundary of the black hole shadow
+\cite{Chandrasekhar1983}.  For Schwarzschild, the critical curve is a
+circle of radius $b_c = 3\sqrt{3}\,M$; for Kerr, it is a
+$D$-shaped contour whose flattened side faces the prograde direction,
+reflecting the asymmetry between co-rotating and counter-rotating
+photon orbits.
+\xrefnote{The critical curve and shadow shape are rendered by the ray
+tracer via the integration and termination pipeline of
+\cref{sec:geo-raytracing,sec:geo-termination}.}
+
+The exponential demagnification (\cref{eq:demagnification}) carries
+over to Kerr, but the Lyapunov exponent $\gamma_{\text{ph}}$ becomes a
+function of position around the critical curve.  Prograde photon orbits,
+sitting closer to the horizon in a deeper gravitational potential,
+have larger $\gamma_{\text{ph}}$ (faster demagnification); retrograde
+orbits have smaller $\gamma_{\text{ph}}$.  For a rapidly spinning black
+hole with $a_* = 0.9$, the demagnification ratio varies by roughly a
+factor of three around the ring --- from about $50$ on the prograde side
+to about $15$ on the retrograde side.
+\implnote{The ray tracer's image implicitly contains all sub-ring
+contributions: a photon that winds $n$ times is traced to its source
+and rendered at the correct pixel.  No separate photon-ring mode is
+needed --- the sub-ring structure emerges from the integration and
+termination pipeline.}
+
+\paragraph{Observational significance.}
+
+The Event Horizon Telescope image of M87$^*$ resolves a bright ring of
+diameter $\approx 42\;\mu\text{as}$, consistent with the $n = 0$ and
+$n = 1$ contributions blurred together at the telescope's angular
+resolution of $\sim 20\;\mu\text{as}$.  The $n = 1$ sub-ring carries a
+disproportionate share of the ring brightness because it samples light
+from the entire circumference of the black hole, acting as a
+wide-angle gravitational lens.  Resolving the $n = 2$ ring --- which
+would provide a direct, model-independent measurement of $\gamma_{\text{ph}}$ and
+hence the black hole mass and spin --- requires baselines exceeding
+Earth's diameter, motivating proposed space VLBI missions
+\cite{Johnson2020}.
+\physnote{In the eikonal (geometric optics) limit, the Lyapunov
+exponent $\gamma_\lambda$ of the photon sphere determines the imaginary
+part of the quasinormal mode frequencies \cite{Cardoso2009}.  The
+photon ring structure is thus linked to the gravitational-wave
+ringdown signal of a perturbed black hole.}
+
+The photon ring decomposition reveals that the visually striking ring in
+a black hole image is not one feature but infinitely many, nested with
+each layer $e^\pi \approx 23$ times thinner than the last.  This
+self-similar structure, set entirely by the Lyapunov exponent of the
+photon sphere, is among the cleanest predictions general relativity
+makes about observable black hole images.

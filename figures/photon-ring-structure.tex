@@ -1,0 +1,163 @@
+% photon-ring-structure.tex — Photon ring sub-structure schematic
+% Inputable TikZ fragment for fig:photon-ring-structure
+% Requires: tikz with calc, arrows.meta, decorations.markings (loaded by ehbook.cls)
+%
+% Two-panel figure.
+% Left: ray trajectories for n=0 (gold), n=1 (blue), n=2 (crimson)
+%   around a Schwarzschild black hole (M=1).
+% Right: observer's image plane showing sub-ring annuli.
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Panel (a): Ray trajectories ──────────────────────────────────────
+
+  \begin{scope}[shift={(0,0)}]
+
+    % Scale: 0.55 cm per M.  Black hole r=2M, photon sphere r=3M.
+    \def\scl{0.55}
+
+    % Black hole (filled circle, r_+ = 2M)
+    \fill[black] (0,0) circle ({2*\scl});
+
+    % Photon sphere (dashed circle, r = 3M)
+    \draw[EHMarginGray, dashed, thin] (0,0) circle ({3*\scl});
+    \node[font=\scriptsize, text=EHMarginGray, anchor=south west]
+      at ({3*\scl*cos(55)}, {3*\scl*sin(55)}) {$r\!=\!3M$};
+
+    % Observer indicator (upper right)
+    \draw[->, EHMarginGray, thin]
+      (2.6, 1.8) -- ++(0.35, 0.25)
+      node[right, font=\scriptsize] {observer};
+
+    % ── n = 0 ray (gold): mild deflection ──────────────────────────────
+    \draw[EHAccretionGold, thick, ->]
+      plot[smooth, tension=0.55] coordinates {
+        (-2.8, -1.0)
+        (-1.2, -0.2)
+        (0.2, 0.6)
+        (1.5, 1.2)
+        (2.6, 1.8)
+      };
+    \node[font=\scriptsize, text=EHAccretionGold]
+      at (-2.8, -0.65) {$n = 0$};
+
+    % ── n = 1 ray (blue): half-orbit winding ──────────────────────────
+    \draw[EHJetBlue, thick, ->]
+      plot[smooth, tension=0.5] coordinates {
+        (-2.8, -0.15)
+        (-1.6, 0.2)
+        (-0.6, 0.9)
+        (-0.2, 1.6)
+        (0.3, 1.8)
+        (1.1, 1.6)
+        (1.8, 1.3)
+        (2.6, 1.8)
+      };
+    \node[font=\scriptsize, text=EHJetBlue]
+      at (-2.8, 0.2) {$n = 1$};
+
+    % ── n = 2 ray (crimson): full orbit winding ───────────────────────
+    % Trajectory hugs the photon sphere (r=3M, radius 1.65cm) more tightly
+    \draw[EHHorizonCrimson, thick, ->]
+      plot[smooth, tension=0.45] coordinates {
+        (-2.8, 0.5)
+        (-1.8, 0.8)
+        (-1.1, 1.35)
+        (-0.2, 1.7)
+        (0.6, 1.65)
+        (1.3, 1.15)
+        (1.55, 0.4)
+        (1.3, -0.35)
+        (0.6, -0.95)
+        (-0.2, -1.15)
+        (-0.9, -0.85)
+        (-1.2, -0.2)
+        (-0.9, 0.5)
+        (-0.2, 1.0)
+        (0.7, 1.2)
+        (1.6, 1.5)
+        (2.6, 1.8)
+      };
+    \node[font=\scriptsize, text=EHHorizonCrimson]
+      at (-2.8, 0.85) {$n = 2$};
+
+    % Panel label
+    \node[font=\scriptsize, anchor=north] at (0, -2.4) {(a) Ray trajectories};
+
+  \end{scope}
+
+  % ── Panel (b): Observer's image plane ────────────────────────────────
+
+  \begin{scope}[shift={(7.0, 0)}]
+
+    % Shadow: grey filled circle (radius = b_c on image plane)
+    % Use 1.2 cm as the shadow angular radius on the image plane
+    \def\bshadow{1.2}
+
+    % Shadow fill
+    \fill[EHMarginGray, opacity=0.12] (0,0) circle (\bshadow);
+    \draw[EHMarginGray, thin] (0,0) circle (\bshadow);
+
+    % n = 0 ring: wide annulus just outside shadow
+    % Width ~ 0.55 cm (visually dominant direct image)
+    \fill[EHAccretionGold, opacity=0.12]
+      (0,0) circle ({\bshadow + 0.55}) -- (0,0) circle (\bshadow);
+    \draw[EHAccretionGold, thick] (0,0) circle ({\bshadow + 0.55});
+    % Re-draw inner boundary in gold
+    \draw[EHAccretionGold, thick] (0,0) circle ({\bshadow + 0.01});
+
+    % n = 1 ring: narrow annulus
+    % Width ~ 0.55/23 ≈ 0.024 → exaggerate to 0.10 for visibility
+    \def\rone{{\bshadow + 0.01}}
+    \draw[EHJetBlue, thick] (0,0) circle ({\bshadow - 0.005});
+    \fill[EHJetBlue, opacity=0.20]
+      (0,0) circle (\bshadow) -- (0,0) circle ({\bshadow - 0.10});
+    \draw[EHJetBlue, thick] (0,0) circle ({\bshadow - 0.10});
+
+    % n = 2 ring: very narrow annulus (barely visible)
+    \fill[EHHorizonCrimson, opacity=0.25]
+      (0,0) circle ({\bshadow - 0.10}) -- (0,0) circle ({\bshadow - 0.14});
+    \draw[EHHorizonCrimson, thick] (0,0) circle ({\bshadow - 0.14});
+
+    % Labels for rings
+    \draw[EHAccretionGold, thin, ->]
+      ({(\bshadow + 0.28)*cos(35)}, {(\bshadow + 0.28)*sin(35)})
+      -- ++(0.7, 0.45)
+      node[right, font=\scriptsize, text=EHAccretionGold] {$n = 0$};
+
+    \draw[EHJetBlue, thin, ->]
+      ({(\bshadow - 0.05)*cos(145)}, {(\bshadow - 0.05)*sin(145)})
+      -- ++(-0.6, 0.45)
+      node[left, font=\scriptsize, text=EHJetBlue] {$n = 1$};
+
+    \draw[EHHorizonCrimson, thin, ->]
+      ({(\bshadow - 0.12)*cos(215)}, {(\bshadow - 0.12)*sin(215)})
+      -- ++(-0.5, -0.5)
+      node[left, font=\scriptsize, text=EHHorizonCrimson] {$n = 2$};
+
+    % Shadow label
+    \node[font=\scriptsize, text=EHMarginGray] at (0, -0.15)
+      {shadow};
+    \node[font=\scriptsize, text=EHMarginGray] at (0, -0.45)
+      {$b = b_c$};
+
+    % Demagnification annotation
+    \draw[EHMarginGray, thin, <->]
+      ({\bshadow + 0.55 + 0.08}, -0.9) -- ({\bshadow + 0.08}, -0.9);
+    \node[font=\scriptsize, text=EHMarginGray, anchor=west]
+      at ({\bshadow + 0.60}, -0.9) {$\delta b_0$};
+
+    \draw[EHMarginGray, thin, <->]
+      ({\bshadow + 0.08}, -1.25) -- ({\bshadow - 0.10 - 0.08}, -1.25);
+    \node[font=\scriptsize, text=EHMarginGray, anchor=west]
+      at ({\bshadow + 0.12}, -1.25) {$\delta b_1 \approx \delta b_0/23$};
+
+    % Panel label
+    \node[font=\scriptsize, anchor=north] at (0, -2.4) {(b) Image plane};
+
+  \end{scope}
+
+\end{tikzpicture}

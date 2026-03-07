@@ -1,0 +1,180 @@
+% sec:geo-null — Null Geodesics
+\section{Null Geodesics}
+\label{sec:geo-null}
+
+Light rays follow the same extremal principle as massive particles, but with
+a single additional constraint: the super-Hamiltonian vanishes identically
+along the entire trajectory.  This constraint --- $\mathcal{H} = 0$ ---
+is the defining equation of a null geodesic, and it is the reason the
+Hamiltonian formulation is the natural choice for ray tracing.  The
+Lagrangian system (\cref{eq:geo-lagrangian-first-order}) preserves the null
+condition analytically but offers no cheap diagnostic when the integrator
+violates it; the Hamiltonian system (\cref{eq:geo-xdot,eq:geo-pdot-cov})
+turns any numerical violation of $\mathcal{H} = 0$ into a free accuracy
+diagnostic.
+
+\paragraph{The null constraint.}
+
+A null geodesic is a curve $x^\mu(\lambda)$ whose tangent vector is
+everywhere null: $\metric\,\dot{x}^\mu\dot{x}^\nu = 0$.  In Hamiltonian
+language, this becomes
+%
+\begin{equation}
+  \mathcal{H} = \tfrac{1}{2}\,\inversemetric\,p_\mu\,p_\nu = 0 \,.
+  \label{eq:null-constraint}
+\end{equation}
+%
+This is \cref{eq:geo-hamiltonian} evaluated on the null surface in
+phase space.  Unlike the timelike case, where $\mathcal{H} = -\tfrac{1}{2}$
+fixes the normalisation of the affine parameter to proper time, the null
+constraint imposes no normalisation --- a freedom we exploit below.
+
+\paragraph{Constraint preservation.}
+
+Hamilton's equations preserve $\mathcal{H}$ exactly, without any special
+effort.  To verify this, differentiate $\mathcal{H}$ along the geodesic
+flow:
+%
+\begin{equation}
+  \frac{\d\mathcal{H}}{\d\lambda}
+    = \frac{\partial\mathcal{H}}{\partial x^\mu}\,\dot{x}^\mu
+      + \frac{\partial\mathcal{H}}{\partial p_\mu}\,\dot{p}_\mu \,.
+  \label{eq:H-dot}
+\end{equation}
+%
+Substituting Hamilton's equations ---
+$\dot{x}^\mu = \partial\mathcal{H}/\partial p_\mu$ and
+$\dot{p}_\mu = -\partial\mathcal{H}/\partial x^\mu$ --- gives
+%
+\begin{equation}
+  \frac{\d\mathcal{H}}{\d\lambda}
+    = \frac{\partial\mathcal{H}}{\partial x^\mu}\,
+      \frac{\partial\mathcal{H}}{\partial p_\mu}
+      - \frac{\partial\mathcal{H}}{\partial p_\mu}\,
+        \frac{\partial\mathcal{H}}{\partial x^\mu}
+    = 0 \,.
+  \label{eq:H-conservation}
+\end{equation}
+%
+The two terms cancel identically.  This is not a special property of
+the geodesic Hamiltonian or a consequence of any spacetime symmetry ---
+it holds for any autonomous Hamiltonian system.  If $\mathcal{H} = 0$
+at $\lambda = 0$, then $\mathcal{H} = 0$ for all $\lambda$.
+\physnote{In the language of symplectic geometry, this is the statement
+$\{\mathcal{H}, \mathcal{H}\} = 0$: every function Poisson-commutes
+with itself.  The same argument shows that $\mathcal{H} = -\tfrac{1}{2}$
+is preserved for timelike geodesics.}
+
+The Lagrangian first-order system (\cref{eq:geo-lagrangian-first-order})
+also preserves $\metric\,v^\mu v^\nu = 0$ analytically --- metric
+compatibility guarantees this --- but provides no built-in scalar
+diagnostic analogous to $\mathcal{H}$.  Under numerical discretisation,
+both formulations suffer constraint drift; the Hamiltonian system makes
+the drift immediately visible because $\mathcal{H}$ can be evaluated
+from the state vector $(x^\mu, p_\mu)$ at negligible cost.  In the
+Lagrangian system, the integrator provides no signal that the photon has
+drifted off the null cone.
+\warnnote{Symplectic integrators (St\"ormer--Verlet, leapfrog) preserve
+$\mathcal{H}$ to within bounded oscillations rather than monotonic drift.
+The codebase uses a non-symplectic Dormand--Prince integrator for its
+higher order and adaptive step control, accepting slow $\mathcal{H}$ drift
+in exchange for accuracy per step (\cref{sec:geo-conservation}).}
+
+\paragraph{Affine rescaling freedom.}
+
+Null geodesics have a parametrisation freedom that timelike geodesics lack.
+For a massive particle, proper time $\tau$ provides a canonical choice of
+affine parameter: $\metric\,\dot{x}^\mu\dot{x}^\nu = -1$ fixes the
+normalisation.  For a photon, there is no rest frame and no proper time.
+The reparametrisation $\lambda \to \alpha\lambda + \beta$ (with
+$\alpha > 0$) sends one affine parameter to another without changing the
+trajectory, and the covariant momentum scales as
+%
+\begin{equation}
+  p_\mu \to \frac{1}{\alpha}\,p_\mu \,.
+  \label{eq:affine-rescaling}
+\end{equation}
+%
+Every conserved quantity built from $p_\mu$ scales the same way:
+$E \to E/\alpha$, $L \to L/\alpha$.  But ratios of conserved quantities
+are invariant, so the impact parameter $b = L/E$ and the reduced Carter
+parameter $q = \sqrt{\mathcal{Q}}/E$ (defined for $\mathcal{Q} \geq 0$,
+which holds for all null geodesics reaching a distant observer) are
+independent of the parametrisation.  The trajectory itself --- which
+spacetime points are visited, the deflection angle, whether the ray is
+captured --- depends only on $(b, q)$.  This is why the ray tracer can
+treat every pixel identically: the integration code needs only the
+dimensionless ratios, not the energy scale.
+\xrefnote{The $E = 1$ normalisation was introduced in
+\cref{sec:sr-causal}; impact parameters $b$ and $q$ as observer-sky
+coordinates were discussed in \cref{sec:geo-constants}.}
+
+The standard choice is $E = 1$.  Given a photon direction
+$(\theta, \varphi)$ on the observer's sky, the tetrad projection of
+\cref{eq:null-tetrad} determines the initial null vector $k^\mu$ with
+unit energy; lowering the index at the observer's position gives the
+initial momentum $p_\mu = \metric\,k^\nu$.  Different pixels correspond
+to different values of $(b, q)$, and the integration is identical for
+each --- only the initial conditions differ.
+
+\paragraph{Initial conditions from the null constraint.}
+
+The tetrad construction automatically produces a null momentum, but it
+is instructive to see how the constraint works in coordinates.
+
+The Kerr--Schild inverse metric has a particularly simple structure that
+makes the constraint equation explicit.  With
+$\inversemetric = \eta^{\mu\nu} - f\,l^\mu l^\nu$
+(\cref{eq:kerr-ks-inverse}), the null condition $\mathcal{H} = 0$ becomes
+%
+\begin{equation}
+  \eta^{\mu\nu}\,p_\mu\,p_\nu - f\,(l^\mu p_\mu)^2 = 0 \,.
+  \label{eq:null-constraint-ks}
+\end{equation}
+%
+Given three components of $p_\mu$ (from the pixel direction and the
+$E = 1$ normalisation), this is generically a quadratic in the remaining
+component, yielding two solutions.  Since the ray tracer works backward
+--- tracing from camera to source --- the physical root is the one that
+sends the ray into the past along the observer's worldline.  Once $p_\mu$
+is set, the initial state $(x^\mu_0, p_{\mu,0}, \lambda_0 = 0)$ is
+complete, and the integrator takes over.
+\implnote{The \texttt{HamiltonianState} record holds $(x^\mu, p_\mu,
+\lambda)$ as the full state vector.  The function \texttt{hamiltonian}
+evaluates $\mathcal{H}$ from the inverse metric and current momentum,
+providing the constraint diagnostic at every accepted step.}
+
+\paragraph{The codebase implementation.}
+\coderef{Geodesic}{Hamiltonian}
+
+The function \texttt{hamiltonianRHS} in
+\codemodule{Geodesic.Hamiltonian} computes the full eight-component
+right-hand side $(\dot{x}^\mu, \dot{p}_\mu)$ of the geodesic ODE system.
+Its type signature exposes the design:
+%
+\begin{lstlisting}[language=Haskell]
+hamiltonianRHS
+  :: (forall a. Floating a => [a] -> [a])
+  -> Sym4 'Contravariant
+  -> HamiltonianState
+  -> (Vec4 'Contravariant, Vec4 'Covariant)
+\end{lstlisting}
+%
+The rank-2 polymorphic first argument is the metric function --- passing
+it an AD type instead of \texttt{Double} produces exact metric
+derivatives, a technique developed in \cref{ch:autodiff}.  The inverse
+metric (\texttt{Sym4 'Contravariant}) is precomputed once per step and
+passed in, since the $4 \times 4$ inversion is cheap but wasteful to
+repeat.  The return type is the pair $(\dot{x}^\mu, \dot{p}_\mu)$ ---
+contravariant velocity and covariant force --- ready for the adaptive
+integrator.
+
+A companion function \texttt{hamiltonian} evaluates the
+super-Hamiltonian $\mathcal{H}$ from the inverse metric and current
+momentum.  The codebase calls this after
+every accepted integration step; for a typical ray trace through the Kerr
+geometry with tolerances of $10^{-10}$, the violation remains below
+$\abs{\mathcal{H}} < 10^{-12}$ throughout the trajectory.  The null
+constraint, which both formulations preserve analytically, becomes a
+continuous numerical accuracy certificate --- requiring no extra ODE
+solves, just a single scalar evaluation per step.

@@ -1,0 +1,213 @@
+% sec:geo-timelike — Timelike Geodesics
+\section{Timelike Geodesics}
+\label{sec:geo-timelike}
+
+Massive particles trace out timelike geodesics --- the trajectories
+that determine accretion disc structure, binary star motion, and the
+orbital mechanics of infalling matter.  Where does the inner edge
+of an accretion disc sit, and why?  The answer lies in the stability
+of circular orbits, which reduces to an analysis of the effective
+potential for massive particles.  The Hamiltonian formulation
+developed in \cref{sec:geo-formulations} applies with a single
+change: the constraint level shifts from zero to $-\tfrac{1}{2}$,
+and the arbitrary affine parameter of null geodesics is replaced by
+the particle's proper time.
+
+\paragraph{The timelike constraint.}
+
+A timelike geodesic has a tangent vector with negative norm:
+$\metric\,\dot{x}^\mu\dot{x}^\nu = -1$, where the overdot
+denotes $\d/\d\tau$ and the normalisation follows from the
+$(-,+,+,+)$ signature convention.  In Hamiltonian language, this
+becomes
+%
+\begin{equation}
+  \mathcal{H} = \tfrac{1}{2}\,\inversemetric\,p_\mu\,p_\nu
+  = -\tfrac{1}{2} \,.
+  \label{eq:timelike-constraint}
+\end{equation}
+%
+The constraint preservation proof of \cref{eq:H-conservation}
+applies verbatim: $\d\mathcal{H}/\d\lambda = 0$ for any autonomous
+Hamiltonian, so $\mathcal{H} = -\tfrac{1}{2}$ is maintained
+throughout the trajectory.  As a numerical diagnostic, the departure
+of $\mathcal{H}$ from $-\tfrac{1}{2}$ measures accumulated
+integration error, exactly as the departure from zero does for null
+rays (\cref{sec:geo-null}).
+
+Unlike null geodesics, where the affine parameter has a rescaling
+freedom (\cref{eq:affine-rescaling}), the normalisation
+$\metric\,\dot{x}^\mu\dot{x}^\nu = -1$ fixes the future-directed
+parametrisation uniquely (up to an additive constant): the affine
+parameter is proper time $\tau$, the time measured by a clock
+co-moving with the particle.  Every conserved quantity built from
+$p_\mu$ is therefore a \emph{specific} quantity --- energy per unit
+rest mass, angular momentum per unit rest mass --- as noted in
+\cref{sec:schw-orbits}.
+\physnote{The rest frame of a massive particle is the frame in
+which the particle is momentarily at rest.  No such frame exists
+for a photon, which is why null geodesics have no canonical
+parametrisation.}
+
+\paragraph{The effective potential from the Hamiltonian.}
+
+The conserved quantities from \cref{sec:geo-constants} reduce the
+eight-dimensional phase space to a single radial equation.  To see
+how, expand the constraint \cref{eq:timelike-constraint}
+in the equatorial Schwarzschild spacetime.  With $f = 1 - 2M/r$,
+the inverse metric is diagonal: $g^{tt} = -1/f$,
+$g^{rr} = f$, $g^{\varphi\varphi} = 1/r^2$.  Substituting
+$p_t = -E$ and $p_\varphi = L$ from
+\cref{eq:geo-energy,eq:geo-angmom} gives
+%
+\begin{equation}
+  \tfrac{1}{2}\bigl[-E^2/f + f\,p_r^2 + L^2/r^2\bigr]
+  = -\tfrac{1}{2} \,.
+  \label{eq:timelike-H-expanded}
+\end{equation}
+%
+The position equation \cref{eq:geo-xdot} relates $p_r$ to the
+coordinate velocity: $\dot{r} = g^{rr}\,p_r = f\,p_r$, so
+$p_r = \dot{r}/f$ and hence $f\,p_r^2 = \dot{r}^2/f$.
+Substituting and rearranging yields
+%
+\begin{equation}
+  \dot{r}^2 = E^2
+  - \underbrace{\left(1 - \frac{2M}{r}\right)
+    \!\left(1 + \frac{L^2}{r^2}\right)}_{V_{\text{eff}}(r)} \,,
+  \label{eq:timelike-radial}
+\end{equation}
+%
+recovering the effective potential \cref{eq:veff-timelike} derived
+in \cref{sec:schw-orbits} by expanding the metric norm
+constraint directly.  The Hamiltonian route makes the reduction
+transparent: each conserved quantity eliminates one momentum
+component ($E$ removes $p_t$, $L$ removes $p_\varphi$, equatorial
+symmetry removes $p_\theta$), and the constraint
+$\mathcal{H} = -\tfrac{1}{2}$ eliminates $p_r$ in favour of
+$\dot{r}$, leaving a single first-order ODE for $r(\tau)$.
+\xrefnote{For the Kerr geometry, the Carter constant
+$\mathcal{Q}$ (\cref{eq:carter-constant}) provides a fourth
+conservation law, reducing the system to two separated first-order
+equations --- one for $r(\tau)$ and one for $\theta(\tau)$ ---
+each involving only its own coordinate and the four constants
+$E$, $L$, $\mathcal{Q}$, $\mathcal{H}$.  The specific form of
+the Kerr radial equation is \cref{eq:kerr-radial-R}.}
+
+\paragraph{Circular orbits and stability.}
+
+The shape of $V_{\text{eff}}(r)$ determines the orbit type.
+Circular orbits sit at extrema of the effective potential, where two
+conditions hold simultaneously:
+%
+\begin{equation}
+  V_{\text{eff}}(r_c) = E^2 \,, \qquad
+  V'_{\text{eff}}(r_c) = 0 \,.
+  \label{eq:geo-circular-conditions}
+\end{equation}
+%
+The first condition ensures $\dot{r} = 0$ --- the particle stays at
+constant radius.  The second ensures the equilibrium is maintained:
+differentiating the radial equation \cref{eq:timelike-radial} with
+respect to $r$ gives $2\ddot{r} = -V'_{\text{eff}}$, so
+$V'_{\text{eff}} = 0$ is equivalent to zero radial acceleration.
+Stability depends on the curvature of the potential at $r_c$:
+%
+\begin{itemize}
+\item $V''_{\text{eff}}(r_c) > 0$ (local minimum): the orbit is
+  \emph{stable}.  Small perturbations cause radial oscillations
+  about $r_c$, and the particle traces a precessing ellipse.
+\item $V''_{\text{eff}}(r_c) < 0$ (local maximum): the orbit is
+  \emph{unstable}.  Any perturbation sends the particle spiralling
+  inward or escaping outward.
+\item $V''_{\text{eff}}(r_c) = 0$ (with the circular-orbit
+  conditions still holding): the minimum and maximum have merged
+  --- this is the \emph{innermost stable circular orbit} (ISCO),
+  the boundary between the two regimes.
+\end{itemize}
+%
+The three simultaneous conditions $V_{\text{eff}} = E^2$,
+$V'_{\text{eff}} = 0$, $V''_{\text{eff}} = 0$ are precisely those
+solved in \cref{sec:schw-orbits} to obtain
+$r_{\text{ISCO}} = 6M$ for Schwarzschild and in
+\cref{sec:kerr-isco} to obtain the spin-dependent ISCO formula
+\cref{eq:kerr-isco} for Kerr.
+
+More generally, three classes of timelike orbit emerge from the
+effective potential landscape:
+%
+\begin{enumerate}
+\item \textbf{Bound orbits}: $E^2$ lies below the local
+  maximum of $V_{\text{eff}}$, and the particle oscillates between
+  two turning points $r_{\text{min}}$ and $r_{\text{max}}$.  In
+  the equatorial plane, the trajectory traces a rosette pattern ---
+  an ellipse whose perihelion advances with each orbit.  The
+  relativistic perihelion advance, famously $43''$ per century for
+  Mercury, is a direct consequence of the $-2ML^2/r^3$ correction
+  in $V_{\text{eff}}$ (\cref{eq:veff-timelike}); for orbits near
+  a black hole the precession per orbit is much larger.
+\item \textbf{Marginal orbits}: $E^2$ equals the local
+  maximum of $V_{\text{eff}}$, and the particle asymptotically
+  approaches the unstable circular orbit, winding an infinite
+  number of times without reaching it.
+\item \textbf{Plunge orbits}: $E^2$ exceeds the peak of
+  $V_{\text{eff}}$, or the angular momentum vanishes (radial
+  infall), leaving no centrifugal barrier.  The particle falls
+  through the horizon without a turning point.
+\end{enumerate}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/timelike-orbits.pgf}
+  \caption[Representative timelike orbits in Schwarzschild]{%
+    Representative timelike orbits in the Schwarzschild geometry
+    ($M = 1$), plotted as Cartesian projections of the equatorial
+    plane.  Gold: a bound orbit with $L = 4M$, showing the
+    characteristic relativistic perihelion advance --- the rosette
+    pattern arises from the $-2ML^2/r^3$ correction in
+    $V_{\text{eff}}$.  Blue: a marginally bound orbit
+    ($E^2 = V_{\text{eff}}^{\text{max}}$) that asymptotically
+    spirals toward the unstable circular orbit at $r = 4M$.
+    Crimson: a plunge orbit ($L = 3.7M$, $E = 0.97$) whose energy
+    exceeds the potential barrier, falling through the horizon
+    without a turning point.  Dashed and dotted circles mark the
+    event horizon ($r = 2M$) and ISCO ($r = 6M$).}
+  \label{fig:timelike-orbits}
+\end{figure}
+
+\paragraph{Accretion disc physics.}
+
+Circular timelike geodesics form the backbone of thin accretion disc
+models.  In the Novikov--Thorne picture
+\cite{Novikov1973,Page1974}, gas follows quasi-circular orbits,
+slowly spiralling inward through viscous torques while radiating
+binding energy at each radius.  At the ISCO, the gas reaches the
+boundary of stability and plunges toward the horizon on a nearly
+geodesic trajectory, radiating negligibly during the plunge.  The
+radiative efficiency $\eta = 1 - E_{\text{ISCO}}$
+(\cref{eq:kerr-efficiency}) connects the geodesic theory to
+observable luminosities: $5.7\%$ for Schwarzschild
+(\cref{eq:isco-efficiency}), up to $42.3\%$ for extremal Kerr
+(\cref{eq:kerr-efficiency-max}).
+
+The ray tracer does not integrate timelike geodesics directly ---
+it traces photons, not particles.  But timelike orbit results enter
+indirectly through the disc model.  The ISCO sets the inner edge of
+the accretion disc in the termination configuration
+(\cref{sec:schw-orbits}), and the circular orbit energy and angular
+momentum at each radius determine the local four-velocity of the
+emitting gas.  This four-velocity produces a Doppler shift that,
+combined with the gravitational redshift, creates the characteristic
+asymmetric brightness pattern visible in ray-traced images of
+accretion discs: the approaching side is blue-shifted and
+brightened, the receding side is red-shifted and dimmed.
+\xrefnote{The frequency-shift calculation combining Doppler and
+gravitational effects is developed in the camera and rendering
+chapters.}
+\warnnote{The Novikov--Thorne model assumes zero stress at the ISCO
+--- matter in the plunge region exerts no torque on the disc above.
+Magnetohydrodynamic (MHD) simulations --- which model the coupled
+evolution of plasma and magnetic fields (Part~V) --- show that
+magnetic stresses can produce non-negligible torques across the
+ISCO, modestly increasing the efficiency and altering the emission
+profile near the inner edge \cite{Noble2010}.}

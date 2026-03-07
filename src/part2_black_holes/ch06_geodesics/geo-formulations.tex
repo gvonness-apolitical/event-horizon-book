@@ -1,0 +1,182 @@
+% sec:geo-formulations — Lagrangian and Hamiltonian Formulations
+\section{Lagrangian and Hamiltonian Formulations}
+\label{sec:geo-formulations}
+
+Every image produced by the ray tracer begins with the same computational
+problem: given a photon's initial position $x^\mu_0$ and momentum
+$p_{\mu,0}$, evolve the geodesic equation forward in affine parameter until
+the ray hits something or escapes to infinity.  The formulation of that
+equation matters.  \Cref{sec:dg-geodesic} derived it from two independent
+starting points --- parallel transport and the variational principle --- and
+showed that both the Lagrangian and Hamiltonian forms produce identical
+trajectories.  The Lagrangian form requires all 40 Christoffel symbols per
+evaluation; the Hamiltonian form needs only the metric, its inverse, and
+first derivatives of the metric --- a difference that, for the Kerr
+spacetime in Cartesian coordinates, separates a practical integrator from an
+unmaintainable one.
+
+\paragraph{The Lagrangian form and its cost.}
+
+The geodesic Lagrangian (\cref{eq:geodesic-lagrangian}),
+$L = \tfrac{1}{2}\,\metric\,\dot{x}^\mu\,\dot{x}^\nu$, yields the
+geodesic equation through the Euler--Lagrange equations:
+%
+\begin{equation}
+  \ddot{x}^\mu + \christoffel{\mu}{\alpha}{\beta}\,
+  \dot{x}^\alpha\,\dot{x}^\beta = 0 \,.
+  \label{eq:geo-lagrangian-eom}
+\end{equation}
+%
+This reproduces \cref{eq:geodesic}, now viewed as the equation of motion that
+the integrator must solve.  The system is second-order: four equations for
+the four coordinate functions $x^\mu(\lambda)$.  Standard adaptive
+integrators --- Runge--Kutta, Dormand--Prince, symplectic methods --- operate
+on first-order systems, so the practical step is to introduce the velocity
+$v^\mu = \dot{x}^\mu$ and rewrite as
+%
+\begin{equation}
+  \dot{x}^\mu = v^\mu \,, \qquad
+  \dot{v}^\mu = -\christoffel{\mu}{\alpha}{\beta}\,
+  v^\alpha\,v^\beta \,.
+  \label{eq:geo-lagrangian-first-order}
+\end{equation}
+%
+This is a first-order system of eight equations with state vector
+$(x^\mu, v^\mu)$.  The right-hand side of the velocity equation requires
+all 40 independent Christoffel symbols at the current position.  Each
+symbol (\cref{eq:christoffel-formula}) involves three partial derivatives
+of the covariant metric and a contraction with the inverse metric.
+
+For the Schwarzschild Kerr--Schild metric, where $f = 2M/r$ and
+$l_\mu = (1, x/r, y/r, z/r)$, the required derivatives are manageable
+analytically.  For the Kerr metric, where
+$f = 2Mr^3/(r^4 + a^2 z^2)$ and the null covector $l_\mu$ involves the
+oblate spheroidal relations of \cref{eq:kerr-oblate-spheroidal}, the
+Christoffel expressions run to hundreds of terms in Cartesian
+coordinates --- hand-coding them is an invitation to sign errors and
+maintenance failures.
+\warnnote{The first-order Lagrangian system
+\cref{eq:geo-lagrangian-first-order} has a second drawback: the constraint
+$\metric\,v^\mu v^\nu = \text{const}$ is not built into the equations.
+Numerical error can change the norm of $v^\mu$, gradually turning a null
+ray into a timelike or spacelike curve.}
+
+\paragraph{The Hamiltonian form.}
+
+The Legendre transform replaces the velocity $\dot{x}^\mu$ with the
+conjugate momentum $p_\mu = \metric\,\dot{x}^\nu$
+(\cref{eq:conjugate-momentum}).  The geodesic super-Hamiltonian
+(\cref{eq:geodesic-hamiltonian}) is
+%
+\begin{equation}
+  \mathcal{H} = \tfrac{1}{2}\,\inversemetric\,p_\mu\,p_\nu \,,
+  \label{eq:geo-hamiltonian}
+\end{equation}
+%
+and Hamilton's equations give eight first-order ODEs without auxiliary
+variables:
+%
+\begin{align}
+  \dot{x}^\mu &= \inversemetric\,p_\nu \,,
+  \label{eq:geo-xdot} \\[4pt]
+  \dot{p}_\mu &= -\tfrac{1}{2}\,(\pd{\mu}\,g^{\alpha\beta})\,
+                 p_\alpha\,p_\beta \,.
+  \label{eq:geo-pdot}
+\end{align}
+%
+The position equation is algebraic: contract the inverse metric with the
+momentum covector.  The momentum equation involves partial derivatives of the
+inverse metric --- still a substantial computation, but one that can be
+sidestepped entirely.
+
+\paragraph{Derivatives of the covariant metric.}
+
+An equivalent expression for $\dot{p}_\mu$ follows from the Euler--Lagrange
+identity $\dot{p}_\mu = \partial L / \partial x^\mu$, derived in
+\cref{sec:dg-geodesic}:
+%
+\begin{equation}
+  \dot{p}_\mu = \tfrac{1}{2}\,(\pd{\mu}\,g_{\alpha\beta})\,
+    \dot{x}^\alpha\,\dot{x}^\beta \,.
+  \label{eq:geo-pdot-cov}
+\end{equation}
+%
+This replaces derivatives of the \emph{inverse} metric with derivatives of
+the \emph{covariant} metric.  The connection between the two forms runs
+through the identity
+$\pd{\mu}\,g^{\alpha\beta} =
+-g^{\alpha\gamma}\,g^{\beta\delta}\,\pd{\mu}\,g_{\gamma\delta}$, obtained
+by differentiating $g^{\alpha\gamma}\,g_{\gamma\beta} =
+\delta^\alpha{}_\beta$; substituting into \cref{eq:geo-pdot} and replacing
+$p_\alpha = g_{\alpha\gamma}\dot{x}^\gamma$ yields
+\cref{eq:geo-pdot-cov}.  The velocity $\dot{x}^\alpha$ on the right-hand
+side is not an independent variable --- it is computed from $p_\alpha$ via
+\cref{eq:geo-xdot} at each step.
+\physnote{Equations \cref{eq:geo-pdot,eq:geo-pdot-cov} are mathematically
+equivalent.  The covariant form is computationally preferable because the
+codebase stores the metric as a function of coordinates, making its
+derivatives directly accessible via automatic differentiation.}
+
+The Hamiltonian system in its final computational form ---
+\cref{eq:geo-xdot,eq:geo-pdot-cov} --- requires three ingredients at each
+integration step:
+%
+\begin{enumerate}
+\item the inverse metric $\inversemetric$ (for the position equation),
+\item the four partial-derivative matrices $\pd{\mu}\,g_{\alpha\beta}$
+  (for the momentum equation),
+\item the velocity $\dot{x}^\alpha = \inversemetric\,p_\nu$ (computed from
+  the first ingredient and the current momentum).
+\end{enumerate}
+%
+No Christoffel symbols appear.  The inverse metric is needed but never
+differentiated.  For the Kerr--Schild spacetimes of
+\cref{sec:schw-kerr-schild,sec:kerr-ks}, the inverse
+$\eta^{\mu\nu} - f\,l^\mu l^\nu$ differs from the forward metric
+$\eta_{\mu\nu} + f\,l_\mu l_\nu$ only by a sign on the $f\,l\,l$ term
+(\cref{eq:ks-inverse,eq:kerr-ks-inverse}), so evaluating it costs nothing
+extra.
+\coderef{Spacetime.AutoDiff}{metricDerivativesAD}
+
+The partial derivatives $\pd{\mu}\,g_{\alpha\beta}$ are computed by
+automatic differentiation.  Each spacetime is implemented as a polymorphic
+function with type signature \texttt{Floating a => [a] -> [a]},
+taking four coordinates and returning ten independent metric components.
+Passing an AD type instead of \texttt{Double} produces exact derivatives
+$\pd{\mu}\,g_{\alpha\beta}$ without finite differences or hand-coded
+expressions --- a strategy introduced in \cref{sec:dg-covariant} and
+developed fully in \cref{ch:autodiff}.
+\implnote{The function \texttt{metricDerivativesAD} computes all four
+$\pd{\mu}\,g_{\alpha\beta}$ matrices in a single AD pass by extracting
+columns of the Jacobian of the metric function.}
+
+\paragraph{Three structural advantages.}
+
+Beyond avoiding Christoffel symbols, the Hamiltonian formulation brings three
+properties that the Lagrangian approach lacks:
+%
+\begin{enumerate}
+\item \textbf{Natively first-order.}  The eight equations
+  \cref{eq:geo-xdot,eq:geo-pdot-cov} are already in the form
+  $\dot{y} = F(y)$ required by adaptive integrators, without
+  introducing auxiliary velocity variables.
+
+\item \textbf{Built-in error diagnostic.}  The super-Hamiltonian
+  $\mathcal{H}$ is exactly conserved along any solution
+  (\cref{eq:hamiltonian-constraint}): $\mathcal{H} = 0$ for null
+  geodesics, $-\tfrac{1}{2}$ for timelike (with $\lambda$ equal to proper
+  time and signature $({-}{+}{+}{+})$).  Any drift in
+  $\mathcal{H}$ during numerical integration is pure discretisation
+  error, providing a free accuracy check at every step
+  (\cref{sec:geo-conservation}).
+
+\item \textbf{Killing conservation.}  If the metric is independent of a
+  coordinate $x^\alpha$, then $\pd{\alpha}\,g_{\mu\nu} = 0$ and
+  \cref{eq:geo-pdot-cov} immediately gives $\dot{p}_\alpha = 0$: the
+  corresponding momentum component is conserved.  This connects the
+  Hamiltonian system directly to the Killing-vector analysis of the next
+  section.
+\end{enumerate}
+%
+The rest of this chapter works exclusively with
+\cref{eq:geo-xdot,eq:geo-pdot-cov}.

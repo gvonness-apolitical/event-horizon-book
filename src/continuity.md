@@ -143,6 +143,53 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | eq:mt-null-radial | `sec:kerr-wormhole` | $\dot{\ell}^2 = E^2 - L^2/(b_0^2+\ell^2)$; null geodesic radial equation |
 | $V(\ell) = L^2/(b_0^2+\ell^2)$ | `sec:kerr-wormhole` | Effective potential for null geodesics; maximum at $\ell=0$ (throat = photon sphere) |
 | $b_c = b_0$ | `sec:kerr-wormhole` | Critical impact parameter for Morris--Thorne; $b < b_0$ → throat passage, $b > b_0$ → deflection |
+| $v^\mu$ (auxiliary) | `sec:geo-formulations` | Auxiliary velocity variable in Lagrangian first-order system; local to one paragraph, superseded by Hamiltonian formulation. Note: glyph collides with generic timelike vector $v^\mu$ (`sec:gr-stress-energy`); context distinguishes |
+| eq:geo-lagrangian-eom | `sec:geo-formulations` | Geodesic equation reproduced from eq:geodesic for ch06 context |
+| eq:geo-lagrangian-first-order | `sec:geo-formulations` | First-order Lagrangian system; $\dot{x}^\mu = v^\mu$, $\dot{v}^\mu = -\christoffel{\mu}{\alpha}{\beta}v^\alpha v^\beta$ |
+| eq:geo-hamiltonian | `sec:geo-formulations` | Super-Hamiltonian reproduced from eq:geodesic-hamiltonian for ch06 context |
+| eq:geo-xdot | `sec:geo-formulations` | $\dot{x}^\mu = \inversemetric\,p_\nu$; position equation used throughout ch06 |
+| eq:geo-pdot | `sec:geo-formulations` | $\dot{p}_\mu = -\tfrac{1}{2}(\pd{\mu}g^{\alpha\beta})p_\alpha p_\beta$; inverse-metric form |
+| eq:geo-pdot-cov | `sec:geo-formulations` | $\dot{p}_\mu = \tfrac{1}{2}(\pd{\mu}g_{\alpha\beta})\dot{x}^\alpha\dot{x}^\beta$; covariant-metric form used throughout ch06 |
+| $Q_\xi = p_\mu\,\xi^\mu$ | `sec:geo-constants` | Killing conserved quantity; conserved along geodesics when $\xi^\mu$ is a Killing vector |
+| eq:killing-conserved | `sec:geo-constants` | $Q_\xi = p_\mu\,\xi^\mu$; generic Killing conserved quantity |
+| eq:geo-energy | `sec:geo-constants` | $E = -p_t$; specific energy from time-translation Killing vector; re-derives eq:schw-energy in Killing framework |
+| eq:geo-angmom | `sec:geo-constants` | $L = p_\varphi$; specific angular momentum from axial Killing vector; re-derives eq:schw-angmom |
+| $K_{\mu\nu}$ | `sec:geo-constants` | Killing tensor; symmetric $(0,2)$ tensor satisfying $\cd{(\alpha}K_{\mu\nu)} = 0$; generates Carter constant for Kerr |
+| eq:killing-tensor | `sec:geo-constants` | $\cd{(\alpha}K_{\mu\nu)} = 0$; Killing tensor equation |
+| $\mathcal{Q}$ | `sec:geo-constants` | Carter constant; $\mathcal{Q} = K_{\mu\nu}\dot{x}^\mu\dot{x}^\nu$; fourth constant of motion for Kerr geodesics |
+| eq:carter-constant | `sec:geo-constants` | Carter constant explicit form; $\mathcal{Q} = p_\theta^2 + \cos^2\theta(a^2(-\kappa-E^2) + L^2/\sin^2\theta)$ |
+| $q = \sqrt{\mathcal{Q}}/E$ | `sec:geo-constants` | Reduced Carter parameter; with $b = L/E$, parametrises photon trajectory on observer's sky |
+| $l^\mu$, $n^\mu$ (Kerr principal null) | `sec:geo-constants` | Principal null directions of Kerr geometry; appear in Killing tensor decomposition; local to one equation |
+| eq:null-constraint | `sec:geo-null` | $\mathcal{H} = 0$; null geodesic constraint in Hamiltonian language |
+| eq:H-dot | `sec:geo-null` | $\d\mathcal{H}/\d\lambda$ chain rule expansion; step in constraint preservation proof |
+| eq:H-conservation | `sec:geo-null` | $\d\mathcal{H}/\d\lambda = 0$; constraint preservation for autonomous Hamiltonian systems |
+| eq:affine-rescaling | `sec:geo-null` | $p_\mu \to p_\mu/\alpha$; momentum transformation under affine reparametrisation $\lambda \to \alpha\lambda + \beta$ |
+| eq:null-constraint-ks | `sec:geo-null` | $\eta^{\mu\nu}p_\mu p_\nu - f(l^\mu p_\mu)^2 = 0$; null constraint in Kerr--Schild coordinates |
+| $\alpha$, $\beta$ (affine rescaling) | `sec:geo-null` | Affine reparametrisation constants; $\lambda \to \alpha\lambda + \beta$, $\alpha > 0$; local to one paragraph |
+| eq:timelike-constraint | `sec:geo-timelike` | $\mathcal{H} = -\tfrac{1}{2}$; timelike geodesic constraint in Hamiltonian language |
+| eq:timelike-H-expanded | `sec:geo-timelike` | Expanded Hamiltonian constraint in equatorial Schwarzschild with $E$, $L$, $p_r$ |
+| eq:timelike-radial | `sec:geo-timelike` | $\dot{r}^2 = E^2 - V_{\text{eff}}(r)$; re-derives eq:veff-timelike via Hamiltonian route |
+| eq:geo-circular-conditions | `sec:geo-timelike` | Circular orbit conditions: $V_{\text{eff}}(r_c) = E^2$, $V'_{\text{eff}}(r_c) = 0$ |
+| $r_c$ | `sec:geo-timelike` | Circular orbit radius; local variable in stability analysis |
+| eq:rk45-error | `sec:geo-raytracing` | $e_i = \abs{\delta y_i}/(\epsilon_a + \epsilon_r\abs{y_i})$; mixed absolute-relative error scaling for RK45 |
+| eq:rk45-stepcontrol | `sec:geo-raytracing` | Step-size control formula with safety factor, growth clamps, and $(\max_i e_i)^{-1/5}$ exponent |
+| $e_i$ | `sec:geo-raytracing` | Scaled error per component; local to step-size discussion |
+| $\epsilon_a$, $\epsilon_r$ | `sec:geo-raytracing` | Absolute and relative tolerances; default $10^{-10}$ in codebase |
+| $S$, $s_{\min}$, $s_{\max}$ | `sec:geo-raytracing` | Step-size control parameters: safety factor $0.9$, growth bounds $0.2$/$5$ |
+| $\gamma_L$ | `sec:geo-raytracing` | Lyapunov exponent of unstable circular photon orbit; $1/(3\sqrt{3}M)$ in coordinate time (Schwarzschild) |
+| $\delta y_i$ | `sec:geo-raytracing` | Difference between fifth- and fourth-order RK solutions; local to error estimate |
+| eq:H-violation-bound | `sec:geo-conservation` | $\abs{\mathcal{H}(\lambda) - \mathcal{H}_0} \lesssim \epsilon_a$; Hamiltonian constraint violation tracks the tolerance for typical rays |
+| eq:EL-drift | `sec:geo-conservation` | Fractional energy and angular momentum drift definitions |
+| $\mathcal{H}_0$ | `sec:geo-conservation` | Initial Hamiltonian value; $0$ for null, $-1/2$ for timelike; local to conservation monitoring |
+| $\gamma_\lambda$ | `sec:geo-photon-rings` | Lyapunov exponent of photon sphere in affine parameter; $\gamma_\lambda = L/(9M^2)$; coincides with $\d\varphi/\d\lambda$ at $r=3M$. Related to coordinate-time $\gamma_L$ (`sec:geo-raytracing`) by rescaling |
+| eq:photon-lyapunov | `sec:geo-photon-rings` | $\delta r(\lambda) \sim e^{\pm\gamma_\lambda\lambda}$; exponential growth/decay of radial perturbations at photon sphere |
+| eq:deflection-divergence | `sec:geo-photon-rings` | $\Delta\varphi \approx -\ln(b/b_c - 1) + \text{const}$; logarithmic divergence of deflection angle near critical impact parameter |
+| $n$ (sub-ring index) | `sec:geo-photon-rings` | Number of equatorial-plane crossings during close approach; $n=0$ direct, $n=1$ lensing ring, $n \geq 2$ photon ring |
+| $\gamma_{\text{ph}}$ | `sec:geo-photon-rings` | Demagnification Lyapunov exponent per half-orbit; $\gamma_{\text{ph}} = \pi$ for Schwarzschild; distinct from SR Lorentz factor $\gamma$ (`sec:sr-lorentz`) and affine exponent $\gamma_\lambda$ |
+| eq:demagnification | `sec:geo-photon-rings` | $\delta b_{n+1}/\delta b_n = e^{-\gamma_{\text{ph}}}$; exponential narrowing of photon ring sub-rings |
+| $r_{\text{ph}}^{\pm}$ | `sec:geo-photon-rings` | Equatorial prograde/retrograde photon orbit radii in Kerr; eq:kerr-photon-radii |
+| eq:kerr-photon-radii | `sec:geo-photon-rings` | $r_{\text{ph}}^{\pm} = 2M(1+\cos(\tfrac{2}{3}\arccos(\mp a_*)))$; Bardeen 1972 |
+| $q_c = \sqrt{\mathcal{Q}}/E$ | `sec:geo-photon-rings` | Reduced Carter parameter for critical curve; pairs with $b_c(r)$ to trace shadow boundary. Same quantity as $q$ in `sec:geo-constants` but evaluated on spherical photon orbits |
 
 ## Analogy Registry
 
@@ -170,6 +217,13 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Neumann series truncation (null property) | `sec:schw-kerr-schild`, reused `sec:kerr-ks` | Generic metric inverse requires infinite Neumann series; null rank-one perturbation truncates after one term. Maps: explains why KS inverse is a simple sign flip. Breaks: only applies to rank-one perturbations with null vector; Kerr case works because the same structure holds. |
 | Potential barrier at throat (wormhole) | `sec:kerr-wormhole` | Effective potential $V(\ell) = L^2/(b_0^2+\ell^2)$ has maximum at throat ($\ell=0$); photons with $b < b_0$ cross the barrier (pass through), $b > b_0$ are reflected (deflect back). Maps: same turning-point analysis as Schwarzschild $V_{\text{eff}}$. Breaks: no capture regime — below-barrier photons pass through rather than being absorbed. |
 | Wormhole photon ring = black hole photon ring mechanism | `sec:kerr-wormhole` | Unstable circular orbits at the throat produce a lensing ring by the same mechanism as black hole photon rings. Maps: connects to photon sphere concept from `sec:schw-orbits`. Breaks: wormhole throat replaces photon sphere at finite $r$; no shadow because no capture. |
+| Null cone drift / photon acquires mass | `sec:geo-null` | Numerical discretisation error drifts $v^\mu$ off the null cone in Lagrangian system, effectively giving the photon nonzero rest mass. Maps: constraint violation → unphysical mass. Breaks: error is small and reversible; the photon does not literally gain mass. |
+| Null constraint as accuracy certificate | `sec:geo-null` | $\mathcal{H}$ acts as a continuous accuracy certificate: zero means healthy, nonzero reveals accumulated error. Maps: checksum / gauge analogy. Breaks: $\mathcal{H}$ drift is monotonic for non-symplectic integrators, not bounded. |
+| Rosette pattern (precessing ellipse) | `sec:geo-timelike` | Bound timelike orbits oscillate between turning points like Newtonian ellipses, but the $-2ML^2/r^3$ correction causes perihelion advance, producing a rosette. Maps: connects to Newtonian effective potential analogy from `sec:schw-orbits`. Breaks: only approximately elliptical for weak fields; strong-field orbits can look nothing like an ellipse. |
+| Symplectic as bounded-oscillation vs adaptive as monotonic-drift | `sec:geo-raytracing` | Symplectic integrators preserve a nearby Hamiltonian (bounded error oscillations); adaptive RK allows monotonic drift but concentrates work where needed. Maps: tradeoff between global conservation and local accuracy. Breaks: symplectic advantage assumes fixed step; adaptive symplectic methods exist but sacrifice simplicity. |
+| Conservation laws as error diagnostics (checksum analogy) | `sec:geo-conservation` | $\mathcal{H}$, $E$, $L$ act as checksums: known values that should remain constant; any drift reveals accumulated integration error. Maps: digital checksum → bit-flip detection; conservation violation → discretisation error detection. Breaks: conservation violations are continuous (not binary pass/fail) and can accumulate gradually. |
+| Photon ring as gravitational wide-angle lens | `sec:geo-photon-rings` | $n=1$ sub-ring samples light from the full circumference of the black hole, acting as a wide-angle lens. Maps: explains disproportionate brightness of lensing ring. Breaks: unlike optical lenses, the "focusing" arises from spacetime curvature, not refraction. |
+| Self-similar Russian nesting dolls (sub-ring structure) | `sec:geo-photon-rings` | Infinite nested sub-rings, each $e^\pi \approx 23$ times thinner; self-similar structure from Lyapunov instability. Maps: geometric sequence / exponential demagnification. Breaks: not exactly self-similar (Kerr $\gamma_{\text{ph}}$ varies around ring); only logarithmically infinite (unresolvable beyond $n \sim 3$). |
 
 ## Forward / Backward References
 
@@ -186,7 +240,7 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Metric tensor generalises $\eta_{\mu\nu}$ to curved manifolds | `sec:dg-manifolds` | `sec:dg-metric` ✓ |
 | Schwarzschild metric preview | `sec:dg-metric` | `ch:schwarzschild` (TBD) |
 | Covariant derivative built from metric via Christoffel symbols | `sec:dg-metric` | `sec:dg-covariant` ✓ |
-| Inverse metric in geodesic Hamiltonian ($p_\mu \to \dot{x}^\mu$) | `sec:dg-metric` | `ch:geodesics` (TBD) |
+| Inverse metric in geodesic Hamiltonian ($p_\mu \to \dot{x}^\mu$) | `sec:dg-metric` | `sec:geo-formulations` ✓ |
 | Christoffel symbols and geodesics connection | `sec:dg-covariant` | `sec:dg-geodesic` ✓ |
 | Metric compatibility enables Lagrangian/Hamiltonian interchange | `sec:dg-covariant` | `sec:dg-geodesic` ✓ |
 | AD strategy for Christoffel computation | `sec:dg-covariant` | `ch:autodiff` (TBD) |
@@ -223,6 +277,22 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Horizon-penetrating coordinates for Kerr | `sec:kerr-bl` | `sec:kerr-ks` ✓ |
 | AD for Kerr Christoffel symbols | `sec:kerr-ks` | `ch:autodiff` (TBD) |
 | Morris--Thorne detailed treatment | `sec:gr-exact-solutions` | `sec:kerr-wormhole` ✓ |
+| Conserved quantities as accuracy diagnostics | `sec:geo-constants` | `sec:geo-conservation` ✓ |
+| Full numerical integration strategy (adaptive step, Killing vectors, termination) | `sec:dg-geodesic` | `sec:geo-constants` (partial ✓), `sec:geo-conservation` ✓ |
+| AD type for exact metric derivatives | `sec:geo-null` | `ch:autodiff` (TBD) |
+| $\mathcal{H}$ drift monitoring | `sec:geo-null` | `sec:geo-conservation` ✓ |
+| Frequency-shift calculation (Doppler + gravitational) | `sec:geo-timelike` | Camera/rendering chapters (TBD) |
+| MHD disc physics | `sec:geo-timelike` | Part~V (TBD) |
+| RK theory and order conditions | `sec:geo-raytracing` | `ch:ode-integration` (TBD) |
+| AD type for exact metric derivatives | `sec:geo-raytracing` | `ch:autodiff` (TBD) |
+| TerminationReason → pixel colour mapping | `sec:geo-raytracing` | `ch:ray-tracing` (TBD) |
+| TerminationReason pattern-match → pixel colour | `sec:geo-termination` | `ch:ray-tracing` (TBD) |
+| Dense output (Hermite interpolation) for disc crossing | `sec:geo-termination` | `ch:ode-integration` (TBD) |
+| Quartic inversion for Kerr radius | `sec:geo-termination` | `sec:kerr-bl-quartic` ✓ |
+| Convergence studies via traceGeodesic | `sec:geo-conservation` | `ch:ode-integration` (TBD) |
+| Critical curve and shadow shape rendered by ray tracer | `sec:geo-photon-rings` | `sec:geo-raytracing` ✓, `sec:geo-termination` ✓ |
+| QNM–photon ring connection (eikonal limit) | `sec:geo-photon-rings` | Not planned (physnote only; gravitational-wave ringdown not in scope) |
+| Space VLBI for $n=2$ ring resolution | `sec:geo-photon-rings` | Not planned (observational context; Johnson et al. 2020 reference) |
 
 ## Key Decisions
 
@@ -292,3 +362,49 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Throat IS photon sphere | Effective potential $V(\ell)$ has maximum at $\ell=0$; unstable circular orbits exist at the throat; lensing ring from same mechanism as black hole photon ring | `sec:kerr-wormhole` |
 | Eigenvalue decomposition for MT inverse metric | Radial--transverse split makes inversion algebraic; not "standard matrix inversion" | `sec:kerr-wormhole` |
 | Throat geometry analysed in $(\ell,\theta,\varphi)$ chart | Cartesian chart has coordinate singularity at $\rho=0$; metric smooth in proper-distance chart | `sec:kerr-wormhole` |
+| Covariant-metric form for Hamiltonian momentum equation | eq:geo-pdot-cov used instead of eq:geo-pdot; derivatives of covariant metric directly accessible via AD | `sec:geo-formulations` |
+| Paragraph heading "Derivatives of the covariant metric" | Avoids "covariant-derivative form" which could imply $\nabla_\mu$; names the key computational feature (derivatives of $g_{\alpha\beta}$, not $g^{\alpha\beta}$) | `sec:geo-formulations` |
+| No figure in sec:geo-formulations | Purely algebraic/formalism section; no geometric or numerical content requiring a figure | `sec:geo-formulations` |
+| \coderef on Spacetime.AutoDiff, not Geodesic.Hamiltonian | sec:geo-null has \coderef{Geodesic}{Hamiltonian}; sec:geo-formulations introduces the AD metric derivative strategy, so \coderef{Spacetime.AutoDiff}{metricDerivativesAD} is placed here | `sec:geo-formulations` |
+| Carter constant sign convention $a^2(-\kappa - E^2)$ | Standard Chandrasekhar convention with $\kappa = g_{\mu\nu}\dot{x}^\mu\dot{x}^\nu$; $-\kappa$ maps to rest-mass parameter $\mu^2$ | `sec:geo-constants` |
+| Proof via covariant derivative Leibniz rule | Avoids ambiguous $\dot{p}_\mu$ notation; explicit symmetric/antisymmetric contraction argument | `sec:geo-constants` |
+| No \coderef in sec:geo-constants | Section is analytical; codebase connection deferred to sec:geo-conservation (monitoring) and sec:geo-null (integration) | `sec:geo-constants` |
+| No figure in sec:geo-constants | Purely algebraic section; degree-of-freedom counting and conservation derivations do not require diagrams | `sec:geo-constants` |
+| Q removed from codebase monitoring claims | Codebase monitors $E$, $L$, $\mathcal{H}$ but not $\mathcal{Q}$; Carter constant discussed theoretically but not as implemented diagnostic | `sec:geo-constants` |
+| Lagrangian constraint preservation stated correctly | Both Lagrangian and Hamiltonian systems preserve the null constraint analytically; the Hamiltonian advantage is diagnostic visibility, not analytical enforcement | `sec:geo-null` |
+| $\alpha$, $\beta$ for affine rescaling (not $a$, $b$) | Avoids glyph collision with Kerr spin $a$ and impact parameter $b = L/E$ | `sec:geo-null` |
+| Dormand--Prince over symplectic integrators | Adaptive step control and higher order outweigh bounded $\mathcal{H}$ oscillations of symplectic methods; $\mathcal{H}$ drift monitored instead | `sec:geo-null` |
+| No figure in sec:geo-null | Algebraic section; numerical monitoring deferred to sec:geo-conservation | `sec:geo-null` |
+| $q = \sqrt{\mathcal{Q}}/E$ qualified with $\mathcal{Q} \geq 0$ | Holds for all null geodesics reaching a distant observer; vortical orbits with $\mathcal{Q} < 0$ do not arise for exterior ray tracing | `sec:geo-null` |
+| Interpolation parameter $s$ not $t$ for disc crossing | Avoids glyph collision with time coordinate $t$; standard fraction notation | `sec:geo-termination` |
+| Linear interpolation for disc crossing ($\order{h^2}$) | Formally below RK45 local accuracy $\order{h^5}$; dense output not implemented | `sec:geo-termination` |
+| $\delta = 0.01\,M$ horizon buffer | Small enough for sub-pixel shadow shift; large enough to avoid floating-point overflow near singularity | `sec:geo-termination` |
+| $r_{\text{sky}} = 500\,M$ default | Residual deflection $\order{M/r_{\text{sky}}} \approx 2 \times 10^{-3}$ rad; negligible at practical resolutions | `sec:geo-termination` |
+| $\lambda_{\text{max}} = 5000\,M$ default | Over 100 near-orbits at photon sphere ($\Delta\lambda \approx 33\,M$ per orbit); far more than physical | `sec:geo-termination` |
+| RadiusFn abstraction for spacetime-agnostic termination | Same termination logic for Schwarzschild (Euclidean) and Kerr (quartic solver) | `sec:geo-termination` |
+| Hamiltonian route to effective potential | Re-derives $V_{\text{eff}}$ from $\mathcal{H} = -\tfrac{1}{2}$ rather than repeating the metric-norm derivation of `sec:schw-orbits`; value-add is showing the systematic reduction procedure | `sec:geo-timelike` |
+| $E^2$ (not $E$) in orbit classification | Radial equation is $\dot{r}^2 = E^2 - V_{\text{eff}}$; orbit types classified by comparing $E^2$ to $V_{\text{eff}}$ peak, not $E$ | `sec:geo-timelike` |
+| No \coderef in sec:geo-timelike | Codebase integrates null geodesics only; timelike orbit results enter indirectly via disc model parameters (ISCO, four-velocity) | `sec:geo-timelike` |
+| Novikov--Thorne zero-stress limitation noted | warnnote flags MHD torques across ISCO as a known limitation of the thin-disc model | `sec:geo-timelike` |
+| Lyapunov exponent quoted in coordinate time | $\gamma_L = 1/(3\sqrt{3}M)$ is the standard Cardoso et al. (2009) result in coordinate time $t$; affine-parameter exponent depends on $E$/$L$ normalisation, less canonical | `sec:geo-raytracing` |
+| Step-control equations kept in sec:geo-raytracing | Needed for photon-sphere narrative; full RK theory deferred to ch:ode-integration via xrefnote | `sec:geo-raytracing` |
+| Exponent inlined as $-1/5$ not $-1/p$ | Avoids glyph collision with momentum $p_\mu$; more concrete for the reader | `sec:geo-raytracing` |
+| "Standard symplectic methods" qualifier | Acknowledges existence of adaptive symplectic methods (time-transformation techniques) without digression | `sec:geo-raytracing` |
+| LTE order $\order{h^6}$ for propagated 5th-order solution | Dormand--Prince propagates the 5th-order solution (local extrapolation); LTE $= \order{h^6}$, global error $\sim h^5$; error *estimate* $\delta y \sim h^5$ | `sec:geo-conservation` |
+| No abort on constraint violation | Tolerances set conservatively; monitoring is post-hoc validation, not per-ray abort | `sec:geo-conservation` |
+| Three-diagnostic cross-check ($\mathcal{H}$, $E$, $L$) | $\mathcal{Q}$ not monitored in codebase; $E$ and $L$ complement $\mathcal{H}$ by probing different failure modes | `sec:geo-conservation` |
+| $L = x\,p_y - y\,p_x$ in KS Cartesian | Chain-rule transformation from Cartesian momenta to Boyer--Lindquist $p_\varphi$ | `sec:geo-conservation` |
+| `TerminationReason` ADT | `sec:geo-termination` | Algebraic data type encoding all stopping reasons; 6 constructors (HitHorizon, HitCelestialSphere, MaxAffineReached, StepSizeTooSmall, HitAccretionDisk, OutOfGrid) |
+| $\delta$ (horizon buffer) | `sec:geo-termination` | Small buffer added to horizon radius for termination; default $0.01\,M$; eq:horizon-buffer |
+| $r_{\text{sky}}$ | `sec:geo-termination` | Celestial sphere radius for escape termination; default $500\,M$ |
+| $r_{\text{in}}$, $r_{\text{out}}$ | `sec:geo-termination` | Inner and outer radii of accretion disc annulus; $r_{\text{in}}$ typically set to $r_{\text{ISCO}}$ |
+| $s$ (disc crossing fraction) | `sec:geo-termination` | Interpolation parameter $s = z_0/(z_0 - z_1)$ for equatorial-plane crossing; eq:disk-crossing-frac. Note: $s$ chosen to avoid glyph collision with time $t$ |
+| eq:disk-crossing-interp | `sec:geo-termination` | Linear interpolation of position and momentum at disc crossing |
+| $\lambda_{\text{max}}$ | `sec:geo-termination` | Maximum affine parameter for safety-net termination; default $5000\,M$ |
+| $h_{\min}$ | `sec:geo-termination` | Minimum step size for safety-net termination; default $10^{-12}$ |
+| `RadiusFn` | `sec:geo-termination` | Abstraction: function from position to scalar radius; Euclidean for Schwarzschild, quartic solver for Kerr |
+| $\gamma_{\text{ph}}$ for demagnification exponent (not bare $\gamma$) | Avoids collision with SR Lorentz factor $\gamma$ (`sec:sr-lorentz`) and affine Lyapunov exponent $\gamma_\lambda$ | `sec:geo-photon-rings` |
+| $\gamma_\lambda$ bridge to $\gamma_L$ via physnote | Connects affine Lyapunov exponent (this section) to coordinate-time exponent (`sec:geo-raytracing`) without breaking section flow | `sec:geo-photon-rings` |
+| "Factor of three" for Kerr demagnification variation | Ratio $\sim 50/15 \approx 3.3$ at $a_* = 0.9$; physicist review corrected from "factor of two" | `sec:geo-photon-rings` |
+| "determines" not "equals" for QNM physnote | Lyapunov exponent determines (sets) the QNM imaginary part via eikonal correspondence; strict equality requires careful normalisation | `sec:geo-photon-rings` |
+| No \coderef in sec:geo-photon-rings | \starmark section is analytical/observational; codebase connection made via implnote (ray tracer captures sub-rings implicitly) | `sec:geo-photon-rings` |

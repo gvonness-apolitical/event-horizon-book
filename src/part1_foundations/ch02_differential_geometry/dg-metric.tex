@@ -10,7 +10,6 @@ from \cref{sec:dg-manifolds} cannot answer any of these --- the spaces
 $T_p\mathcal{M}$ and $T^*_p\mathcal{M}$ carry no notion of length, angle,
 or distance.  What is missing is an inner product on each tangent space: the
 metric tensor.
-\coderef{Math.Tensor.Symmetric}{Sym4}
 
 \paragraph{The metric tensor.}
 
@@ -39,6 +38,7 @@ signature $(-,+,+,+)$ to each tangent space $T_p\mathcal{M}$.  The pair
 $(\mathcal{M}, g)$ is a \emph{Lorentzian manifold} --- the mathematical arena
 for general relativity.
 \end{definition}
+\coderef{Math.Tensor.Symmetric}{Sym4}
 
 \implnote{The codebase represents the metric as \texttt{Sym4 'Covariant},
 storing exactly 10 independent components.  The constructor
@@ -124,6 +124,9 @@ isomorphism: every vector has a unique associated covector, and vice versa.
 $T_p\mathcal{M}$, while $V_\mu$ lives in $T^*_p\mathcal{M}$.  Even for the
 Minkowski metric, the components differ: if $V^\mu = (E, p^x, p^y, p^z)$
 then $V_\mu = (-E, p^x, p^y, p^z)$.}
+\histnote{The index-manipulation calculus was developed by Gregorio
+Ricci-Curbastro and Tullio Levi-Civita in 1900; Einstein adopted it for
+general relativity and popularised the summation convention.}
 
 \paragraph{The inverse metric.}
 
@@ -149,9 +152,6 @@ product on the tangent space.  We will use $\inversemetric$ repeatedly in later
 chapters: in the geodesic Hamiltonian, it converts the covariant momentum
 $p_\mu$ into the contravariant velocity $\dot{x}^\mu$.
 \coderef{Math.Tensor.Operations}{inverseSym4}
-\histnote{The index-manipulation calculus was developed by Gregorio
-Ricci-Curbastro and Tullio Levi-Civita in 1900; Einstein adopted it for
-general relativity and popularised the summation convention.}
 
 \implnote{The function \texttt{inverseSym4} computes the inverse by cofactor
 expansion, returning a \texttt{Sym4 'Contravariant}.  The variance flip from

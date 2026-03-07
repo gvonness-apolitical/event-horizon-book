@@ -82,6 +82,12 @@ $1 + b_0^2/\rho^2 = r^2/\rho^2$, encoding the ratio of the
 circumferential radius $r = \sqrt{b_0^2 + \rho^2}$ to the coordinate
 radius.  Near the throat this ratio diverges: a circle at small
 $\rho$ has circumference $2\pi r \gg 2\pi\rho$.
+\warnnote{The Cartesian chart covers a single sheet of the wormhole
+($\ell \geq 0$, say) and maps the throat to the origin $\rho = 0$.
+The metric coefficients diverge as $\rho \to 0$ --- a coordinate
+singularity, not a physical one.  The codebase handles throat
+crossings in the Rust integrator, which clamps $\rho$ near the
+throat and matches the geodesic onto the second sheet.}
 \implnote{The function \texttt{morrisThorneMetricFn} implements
 \cref{eq:mt-cartesian-spatial} directly: it takes the throat radius
 $b_0$ and a coordinate list $[t, x, y, z]$, returning the ten
@@ -106,12 +112,6 @@ perturbation (\cref{sec:kerr-ks}), the Morris--Thorne inverse relies
 on the radial--transverse decomposition of $g_{ij}$, making the
 inversion algebraic rather than requiring a general $3\times 3$
 matrix calculation.
-\warnnote{The Cartesian chart covers a single sheet of the wormhole
-($\ell \geq 0$, say) and maps the throat to the origin $\rho = 0$.
-The metric coefficients diverge as $\rho \to 0$ --- a coordinate
-singularity, not a physical one.  The codebase handles throat
-crossings in the Rust integrator, which clamps $\rho$ near the
-throat and matches the geodesic onto the second sheet.}
 
 \paragraph{Throat geometry.}
 

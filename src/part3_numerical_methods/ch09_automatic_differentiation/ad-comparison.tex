@@ -1,0 +1,239 @@
+% sec:ad-comparison — Comparison: AD, Finite Differences, and Analytic Derivatives
+\section{Comparison: AD, Finite Differences, and Analytic Derivatives}
+\label{sec:ad-comparison}
+
+The geodesic integrator consumes 40 metric derivatives at
+every step.  AD produces them exactly --- but a two-line
+finite-difference routine can approximate them with no
+modification to the metric function at all.  Is the
+dual-number machinery of the previous two sections worth the
+trouble?  The answer turns on a fundamental accuracy ceiling
+that finite differences cannot breach, no matter how
+carefully the step size is chosen.
+
+\paragraph{The step-size dilemma.}
+
+Central differences approximate a partial derivative by
+evaluating the metric at two perturbed points:
+%
+\begin{equation}
+  \frac{g_{\alpha\beta}(x + h\,e_\mu)
+      - g_{\alpha\beta}(x - h\,e_\mu)}{2h}
+    \;=\; \pd{\mu} g_{\alpha\beta}
+    \;+\; \frac{h^2}{6}\,
+      \frac{\partial^3 g_{\alpha\beta}}{\partial(x^\mu)^3}
+    \;+\; \order{h^4} \,.
+  \label{eq:fd-central-metric}
+\end{equation}
+%
+The truncation error is $\order{h^2}$, just as for the
+centred stencils of \cref{sec:fd-truncation}: smaller $h$
+means smaller error.  But this argument ignores
+floating-point arithmetic.  When $h$ is small enough that
+the two metric values agree to many significant digits,
+their difference loses those digits to cancellation.  The
+result is a fundamental tension: large $h$ introduces
+truncation error; small $h$ amplifies round-off.
+
+\paragraph{The accuracy ceiling.}
+
+Quantifying both error sources makes the tradeoff precise.
+The truncation term scales as $h^2$ from
+\cref{eq:fd-central-metric}.  The round-off term arises
+because each computed value $\hat{f}(x \pm h)$ differs from
+the true value by at most a relative error of order
+$\epsilon_{\text{m}}$, the unit round-off of IEEE 754
+double-precision arithmetic
+($\epsilon_{\text{m}} = 2^{-52} \approx 2.2 \times 10^{-16}$).
+The subtraction in the numerator compounds the error from
+both evaluations, and dividing by $2h$ amplifies the result,
+so the total error is bounded by
+%
+\begin{equation}
+  E(h) \;\lesssim\;
+    \underbrace{\frac{h^2}{6}\,\abs{f'''}}_{\text{truncation}}
+    \;+\;
+    \underbrace{\frac{\epsilon_{\text{m}}\,\abs{f}}{h}}_{\text{round-off}} \,,
+  \label{eq:fd-total-error}
+\end{equation}
+%
+where $f$ stands for any metric component along the
+perturbation direction and primes denote ordinary
+derivatives with respect to that coordinate.  The two terms
+pull in opposite directions: shrinking $h$ reduces the
+truncation error but inflates the round-off term.  The best
+one can do is balance them.
+
+Minimising \cref{eq:fd-total-error} over $h$ gives the
+optimal step size and the best achievable error:
+%
+\begin{equation}
+  h^*
+    = \Bigl(
+        \frac{3\,\epsilon_{\text{m}}\,\abs{f}}{\abs{f'''}}
+      \Bigr)^{\!1/3} ,
+  \qquad
+  E^* \;\sim\; \epsilon_{\text{m}}^{2/3}\,
+    \abs{f}^{2/3}\,\abs{f'''}^{1/3} \,.
+  \label{eq:fd-optimal}
+\end{equation}
+%
+The decisive quantity is the exponent: $2/3$, not $1$.  For
+double precision,
+$\epsilon_{\text{m}}^{2/3} \approx 3.6 \times 10^{-11}$ ---
+five orders of magnitude above machine precision.  No choice
+of step size can breach this ceiling; it is a fundamental
+consequence of approximating derivatives by finite
+ratios of function values.
+\warnnote{Higher-order stencils (four-point, six-point) raise
+the truncation exponent but do not escape the fundamental
+limit.  A $p$-th order scheme has truncation error
+$\order{h^p}$ and round-off $\order{\epsilon_{\text{m}}/h}$;
+balancing gives
+$\epsilon_{\text{m}}^{p/(p+1)}$ at best.  Even an
+eighth-order stencil reaches only $\sim\!10^{-14}$.}
+
+AD faces no such ceiling.  Every operation in a dual-number
+evaluation is individually rounded, but the derivative
+propagation is exact at each step, so the accumulated error
+is comparable to the rounding of the metric function
+itself --- typically a few multiples of
+$\epsilon_{\text{m}}$.  The gap between
+$\epsilon_{\text{m}}$ and $\epsilon_{\text{m}}^{2/3}$ ---
+roughly $10^{-16}$ versus $10^{-11}$ --- is the fundamental
+accuracy advantage of AD over finite differences.
+
+The codebase's finite-difference fallback uses a step size
+of $h = \max(10^{-6},\; 10^{-6}\,\abs{x^\mu})$, which is
+close to the optimal $h^* \sim \epsilon_{\text{m}}^{1/3}
+\approx 6 \times 10^{-6}$ --- a well-chosen default, but
+one that still leaves the five-order-of-magnitude gap
+intact.
+
+\begin{figure}[t]
+\centering
+\input{../figures/ad-vs-fd-error.pgf}
+\caption[Accuracy of finite differences vs.\ automatic differentiation]{%
+  Relative error in $\pd{x} g_{tt}$ for the Schwarzschild
+  Kerr--Schild metric at $r = 5M$, computed by central finite
+  differences (gold) and forward-mode AD (blue dashed).  The
+  finite-difference error follows the characteristic V-shape of
+  \cref{eq:fd-total-error}: truncation error dominates for large
+  step sizes ($E \propto h^2$, grey guide line), while round-off
+  error dominates for small step sizes ($E \propto h^{-1}$).  The
+  minimum near $h \approx 6 \times 10^{-6}$ reaches
+  $\sim 10^{-11}$, consistent with the
+  $\epsilon_{\text{m}}^{2/3}$ ceiling of \cref{eq:fd-optimal}.
+  AD achieves $\sim 10^{-16}$ regardless of any step-size choice.}
+\label{fig:ad-vs-fd-error}
+\end{figure}
+
+\paragraph{Computational cost.}
+
+The accuracy advantage comes at comparable computational
+cost.  An optimally implemented central-difference scheme
+evaluates the metric at $x + h\,e_\mu$ and
+$x - h\,e_\mu$ for each of the four coordinate directions,
+giving $2 \times 4 = 8$ metric evaluations for all 40
+derivatives.  AD requires four seeded evaluations, each
+costing roughly twice a standard evaluation (every
+floating-point operation is paired with a derivative
+operation), giving $4 \times 2 = 8$ metric-equivalent
+evaluations (\cref{sec:ad-forward}).  The two approaches
+are roughly tied in cost, so accuracy is the
+tiebreaker --- and AD wins by five orders of magnitude.
+\implnote{The codebase's \texttt{christoffelsFiniteDiff}
+recomputes the perturbed metric for each Christoffel
+component rather than caching the eight perturbed
+evaluations.  This is acceptable for a fallback path
+that is rarely invoked.}
+
+Analytic derivatives incur zero extra metric evaluations:
+the derivative expressions are hardcoded functions of the
+coordinates, evaluated directly.  For a production ray
+tracer where every microsecond matters, this speed
+advantage can be significant.  But the event-horizon
+codebase is a reference implementation where correctness
+takes priority over raw throughput, and the $8\times$
+overhead of AD is a modest price for guaranteed accuracy.
+
+\paragraph{Implementation effort.}
+
+The three approaches reverse their ranking on the axis of
+developer effort.  Analytic derivatives require
+hand-deriving 40 expressions per spacetime --- products of
+rational functions, chain-rule expansions through the
+Kerr--Schild null vector, trigonometric terms for rotating
+spacetimes.  A single sign error in one of the 40
+components produces trajectories that silently violate the
+Hamiltonian constraint.  The bug is difficult to isolate:
+the incorrect derivative feeds into a contraction over
+$\nu$ in the Christoffel formula, distributing the error
+across multiple components of the equations of motion.
+
+AD eliminates this class of errors.  The developer writes
+the metric function once, polymorphically, and the library
+produces all 40 derivatives mechanically.  The only
+requirement is that the metric function uses the standard
+\texttt{Floating} operations --- no hardcoded
+\texttt{Double} constants, no calls to non-liftable
+functions.  Every metric in the codebase satisfies this
+constraint naturally.
+
+Finite differences require no modification to the metric
+function at all.  The fallback function
+\texttt{christoffelsFiniteDiff} works with any
+\texttt{Spacetime} instance by evaluating the existing
+\texttt{metric4} method at perturbed points, making FD
+the path of least resistance for spacetimes defined by
+numerical data rather than closed-form expressions.
+
+\paragraph{The practical verdict.}
+
+AD occupies the sweet spot: it matches the accuracy of
+correct analytic expressions at the cost of finite
+differences, with implementation effort that scales with the
+complexity of the metric itself rather than the complexity
+of its derivatives.  \Cref{tab:ad-comparison} collects the
+comparison.
+%
+\begin{table}[t]
+\centering
+\caption[Derivative computation strategies compared]{%
+  Comparison of the three derivative computation strategies
+  on accuracy, cost (metric evaluations for all 40
+  derivatives), and implementation effort per spacetime.
+  Both AD and analytic derivatives achieve accuracy limited
+  only by floating-point round-off; the distinction is that
+  analytic expressions are mathematically exact before
+  evaluation, while AD accumulates round-off through the
+  evaluation itself.}
+\label{tab:ad-comparison}
+\small
+\begin{tabular}{@{}lccc@{}}
+  \toprule
+  & \textbf{AD} & \textbf{Finite diff.} & \textbf{Analytic} \\
+  \midrule
+  Accuracy
+    & $\sim\!\epsilon_{\text{m}}$
+    & $\sim\!\epsilon_{\text{m}}^{2/3}$
+    & $\sim\!\epsilon_{\text{m}}$ \\[3pt]
+  Metric evaluations
+    & $\sim\!8$
+    & $\sim\!8$
+    & $0$ \\[3pt]
+  Effort per spacetime
+    & polymorphic $f$
+    & none
+    & 40 expressions \\
+  \bottomrule
+\end{tabular}
+\end{table}
+%
+The codebase uses AD for every spacetime that has a
+polymorphic metric function --- which is all of them ---
+and reserves finite differences as a fallback for
+hypothetical spacetimes defined by numerical data.
+Analytic Christoffel symbols are not implemented for any
+spacetime; the accuracy and maintainability gains from AD
+make hand-coding unnecessary.

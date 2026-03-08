@@ -2,43 +2,45 @@
 \chapter{Automatic Differentiation}
 \label{ch:autodiff}
 
-Computing Christoffel symbols requires derivatives of the metric components.
-Rather than hand-deriving and hard-coding these derivatives for each spacetime,
-the codebase uses forward-mode automatic differentiation (AD) with dual
-numbers. This chapter explains the technique, compares it with finite
-differences and analytic expressions, and briefly surveys reverse-mode AD.
+The integrator built in the previous chapter advances geodesics through
+spacetime --- but at every step it needs to know how the metric changes from
+point to point.  Specifically, the Hamiltonian right-hand side requires the
+40 independent derivatives $\pd{\mu} g_{\alpha\beta}$: ten symmetric metric
+components differentiated with respect to each of four coordinates.  For a
+Schwarzschild black hole in Kerr--Schild coordinates, each derivative
+involves products of rational functions and square roots in Cartesian
+coordinates.  For Kerr, add trigonometric terms and a spin parameter that
+threads through every expression.  Hand-deriving and maintaining these 40
+expressions per spacetime is a reliable source of sign errors, transcription
+bugs, and debugging sessions that end with a misplaced minus sign in the
+$\christoffel{r}{\theta}{\phi}$ component.
 
-\section{Forward-Mode AD and Dual Numbers}
-\label{sec:ad-forward}
-\coderef{Spacetime}{AutoDiff}
+Automatic differentiation (AD) eliminates this class of errors by
+redefining arithmetic itself.  The developer writes the metric function
+once --- ten numbers from four coordinates --- and the library produces
+exact derivatives mechanically, with no finite-difference approximation
+and no hand-coded expressions.  The key insight is algebraic: extending
+the real numbers by a nilpotent element $\varepsilon$ with
+$\varepsilon^2 = 0$ creates \emph{dual numbers}, and evaluating any smooth
+function in this extended arithmetic yields the function's derivative in the
+$\varepsilon$-coefficient, carried alongside the value at no conceptual cost.
+The technique is exact to machine precision, polymorphic over spacetimes,
+and cheaper than the alternatives.
 
-We define the dual-number algebra $a + b\,\varepsilon$ with
-$\varepsilon^2 = 0$, show how arithmetic operations propagate derivatives
-exactly, and demonstrate the implementation in the codebase's \texttt{AutoDiff}
-module.
+The chapter develops forward-mode AD from the dual-number
+construction (\cref{sec:ad-forward}), shows how the codebase
+connects metric derivatives to the equations of motion via the
+covariant momentum formulation (\cref{sec:ad-christoffels}),
+and quantifies the accuracy advantage over finite differences
+(\cref{sec:ad-comparison}).  A final optional section surveys
+reverse-mode AD and its potential applications to gradient-based
+parameter estimation (\cref{sec:ad-reverse}).
 
-\section{AD for Christoffel Symbols}
-\label{sec:ad-christoffels}
+% ---- Drafted sections ----
+\input{part3_numerical_methods/ch09_automatic_differentiation/ad-forward}
 
-We show how seeding the metric function with dual numbers automatically
-produces the metric derivatives needed to compute Christoffel symbols,
-eliminating the need for analytic derivative expressions.
+\input{part3_numerical_methods/ch09_automatic_differentiation/ad-christoffels}
 
-\section{Comparison: AD, Finite Differences, and Analytic Derivatives}
-\label{sec:ad-comparison}
+\input{part3_numerical_methods/ch09_automatic_differentiation/ad-comparison}
 
-We compare the three approaches in terms of accuracy, computational cost, and
-implementation effort, demonstrating that AD achieves machine-precision
-derivatives at a modest overhead.
-
-\section{Reverse-Mode AD\starmark{}}
-\label{sec:ad-reverse}
-
-We outline reverse-mode (adjoint) AD for completeness, noting its advantages
-for functions with many inputs and few outputs, and discuss potential
-applications in gradient-based optimisation of spacetime parameters.
-
-\paragraph{Key References.}
-The dual-number approach follows \cite{Griewank2008}; the application to
-GR is discussed in \cite{Liska2018}; reverse-mode AD is surveyed in
-\cite{Baydin2018}.
+\input{part3_numerical_methods/ch09_automatic_differentiation/ad-reverse}

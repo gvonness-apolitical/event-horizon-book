@@ -1,0 +1,171 @@
+% sec:ad-christoffels — AD for Christoffel Symbols
+\section{AD for Christoffel Symbols}
+\label{sec:ad-christoffels}
+
+At every integration step, the geodesic right-hand side needs the
+40 metric derivatives $\pd{\mu} g_{\alpha\beta}$ --- and the
+dual-number machinery of the previous section produces them
+automatically.  Two routes connect this output to equations of
+motion: one that assembles Christoffel symbols explicitly, and
+one that --- by exploiting the covariant Hamiltonian formulation
+of \cref{sec:geo-formulations} --- bypasses them entirely.  Both
+start from the same four seeded evaluations of the metric
+function, costing roughly eight metric evaluations in total
+(\cref{sec:ad-forward}); they differ in how the resulting
+derivatives are consumed.  The second route is what the codebase
+uses, and it reveals that the right choice of formulation can
+eliminate an entire layer of intermediate computation.
+
+\paragraph{Assembling Christoffel symbols.}
+
+The Christoffel symbols defined in \cref{sec:dg-covariant}
+(\cref{eq:christoffel-formula}) are
+%
+\begin{equation}
+  \christoffel{\mu}{\alpha}{\beta}
+    = \tfrac{1}{2}\,g^{\mu\nu}\bigl(
+        \pd{\alpha} g_{\nu\beta}
+      + \pd{\beta} g_{\nu\alpha}
+      - \pd{\nu} g_{\alpha\beta}
+    \bigr) \,.
+  \label{eq:christoffel-recall}
+\end{equation}
+%
+Each component is a contraction of metric derivatives against the
+inverse metric, summed over $\nu = 0, \ldots, 3$.  The required
+inputs are the four symmetric derivative tensors
+$\pd{0} g_{\alpha\beta}, \ldots, \pd{3} g_{\alpha\beta}$ --- 40
+independent values from four seeded evaluations
+(\cref{eq:dual-seed}) --- plus the inverse metric $\inversemetric$,
+computed separately since matrix inversion is not part of the AD
+pipeline.
+
+The function \texttt{christoffelsAD} in
+\codemodule{Spacetime.AutoDiff} implements
+\cref{eq:christoffel-recall} directly:
+\coderef{Spacetime.AutoDiff}{christoffelsAD}
+%
+\begin{lstlisting}[language=Haskell]
+christoffelsAD
+  :: (forall a. Floating a => [a] -> [a])
+  -> Sym4 'Contravariant -> [Double]
+  -> Christoffel4
+christoffelsAD metricFn ginv coords =
+  let (dg0, dg1, dg2, dg3) =
+        metricDerivativesAD metricFn coords
+      dgs = [dg0, dg1, dg2, dg3]
+      gamma mu a b =
+        0.5 * sum [ sym4Get ginv mu rho
+          * ( sym4Get (dgs !! a) rho b
+            + sym4Get (dgs !! b) rho a
+            - sym4Get (dgs !! rho) a b )
+          | rho <- [0..3] ]
+  in Christoffel4 (buildSym4 0)
+       (buildSym4 1) (buildSym4 2)
+       (buildSym4 3)
+\end{lstlisting}
+%
+The list comprehension in \texttt{gamma} is a direct transcription
+of \cref{eq:christoffel-recall}: the three \texttt{sym4Get} terms
+inside the parentheses correspond to $\pd{\alpha} g_{\nu\beta}$,
+$\pd{\beta} g_{\nu\alpha}$, and $-\pd{\nu} g_{\alpha\beta}$
+respectively, contracted against $g^{\mu\nu}$ via the outer sum
+over $\nu$ (here called \texttt{rho}).  The result is a
+\texttt{Christoffel4} value: four \texttt{Sym4} tensors, one per
+upper index~$\mu$, storing 40 independent components.
+\implnote{The symmetry
+$\christoffel{\mu}{\alpha}{\beta}
+= \christoffel{\mu}{\beta}{\alpha}$, inherited from the symmetry
+of $g_{\alpha\beta}$, lets \texttt{Christoffel4} store
+40 rather than 64 components --- one symmetric $4 \times 4$
+matrix per upper index.}
+
+\paragraph{The covariant shortcut.}
+
+Christoffel symbols are the natural intermediary when the equations
+of motion take the second-order form
+$\ddot{x}^\mu
+= -\christoffel{\mu}{\alpha}{\beta}\,
+  \dot{x}^\alpha\,\dot{x}^\beta$,
+but the covariant momentum equation derived in
+\cref{sec:geo-formulations} provides a shorter path:
+%
+\begin{equation}
+  \dot{p}_\mu
+    = \tfrac{1}{2}\,
+      (\pd{\mu} g_{\alpha\beta})\,
+      \dot{x}^\alpha\,\dot{x}^\beta \,.
+  \label{eq:pdot-ad}
+\end{equation}
+%
+This equation uses only the raw metric derivatives
+$\pd{\mu} g_{\alpha\beta}$ --- exactly what
+\texttt{metricDerivativesAD} returns --- without the additional
+contraction against $\inversemetric$ that Christoffel assembly
+requires.  The covariant momentum $p_\mu$ already carries a
+lowered index, so the equation of motion never needs to raise
+indices with $g^{\mu\nu}$ --- precisely the contraction that
+Christoffel symbols encode.  The velocity
+$\dot{x}^\mu = g^{\mu\nu}\,p_\nu$ still needs the inverse
+metric, but that is a single matrix-vector product, far simpler
+than assembling and then contracting 40 Christoffel components.
+\physnote{\Cref{eq:pdot-ad} restates the covariant momentum
+equation (\cref{eq:geo-pdot-cov}).  It follows directly from
+Hamilton's equations without introducing Christoffel symbols:
+the lowered momentum absorbs the connection terms that would
+otherwise appear in the second-order form.}
+
+The codebase exploits this structure.  The geodesic
+integrator never calls \texttt{christoffelsAD}.  Instead,
+the right-hand-side function in
+\codemodule{Geodesic.Hamiltonian} calls
+\texttt{metricDerivativesAD} directly, computes
+$\dot{x}^\mu = g^{\mu\nu}\,p_\nu$, and evaluates
+\cref{eq:pdot-ad} by contracting each derivative tensor
+against the velocity.
+\coderef{Geodesic.Hamiltonian}{hamiltonianRHS}
+No Christoffel symbols are assembled at any stage --- the raw
+metric derivatives flow straight into the momentum update.
+
+\paragraph{Partial application of physical parameters.}
+
+Each spacetime's \texttt{Spacetime} instance uses the
+partial-application pattern from the previous section.
+For Schwarzschild in Kerr--Schild coordinates:
+%
+\begin{lstlisting}[language=Haskell]
+christoffel4 sks pos =
+  let metricFn :: forall a. Floating a
+               => [a] -> [a]
+      metricFn = schwarzschildMetricFn
+                   (realToFrac m)
+  in christoffelsAD metricFn ginv coords
+\end{lstlisting}
+%
+The call \texttt{realToFrac} lifts the mass $M$ into the AD
+library's numeric type; partial application then produces a
+closure that treats $M$ as a constant during differentiation.
+The same pattern applies to every spacetime in the codebase:
+Kerr partially applies $M$ and $a$; Morris--Thorne partially
+applies $b_0$.
+
+\paragraph{The metric-function pipeline.}
+
+The combination of AD and the covariant momentum equation produces
+a clean separation of concerns: a new spacetime enters the ray
+tracer as a single function --- ten numbers from four
+coordinates --- and the entire integration pipeline follows
+mechanically.  The AD machinery extracts derivatives; the
+covariant formulation turns them into forces; the adaptive
+Dormand--Prince integrator of \cref{sec:rk-dormand-prince}
+advances the state.  Nothing in this chain depends on which
+spacetime is being traced.  The effort of supporting a new spacetime scales
+with the complexity of the metric itself, not with the complexity
+of its 40 derivative expressions.  A finite-difference fallback
+(\texttt{christoffelsFiniteDiff}) exists for spacetimes that lack
+a polymorphic metric function, at the cost of truncation error
+discussed in \cref{sec:ad-comparison}.  The
+\texttt{christoffelsAD} function remains available for tasks that
+require assembled Christoffel symbols (computing curvature
+invariants, verifying geodesic deviation), but the integrator's
+hot path never uses it.

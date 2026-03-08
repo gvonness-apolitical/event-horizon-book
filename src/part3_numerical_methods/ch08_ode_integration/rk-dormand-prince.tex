@@ -1,0 +1,175 @@
+% sec:rk-dormand-prince — The Dormand--Prince RK45 Pair
+\section{The Dormand--Prince RK45 Pair}
+\label{sec:rk-dormand-prince}
+
+The classical RK4 method of the previous section advances the solution
+with fourth-order accuracy, but provides no indication of how accurate
+any given step actually was.  A step through a gentle region of the
+right-hand side wastes function evaluations on accuracy that isn't
+needed, while a step near the photon sphere --- where the geodesic
+right-hand side varies rapidly --- may introduce errors far larger
+than the tolerance demands.  Without an error estimate, the integrator
+has two bad options: use a conservatively small step size everywhere
+(slow), or use a fixed step size that risks corrupting the trajectory
+near the photon sphere where geodesic deviation is exponential.  An
+adaptive integrator needs a local error estimate at every step, and the
+elegant solution is to embed a second method of lower order within the
+same set of stages.
+
+\paragraph{Embedded pairs.}
+
+The idea is to equip the Butcher tableau with a second row of weights.
+Given the $s$ stage values $k_1, \ldots, k_s$ already computed for the
+primary method of order $p$, a companion method of order $\hat{p} < p$
+constructs a second solution using different weights
+$\hat{\mathbf{b}}$:
+%
+\begin{equation}
+  \hat{y}_{n+1} = y_n + h \sum_{i=1}^{s} \hat{b}_i\,k_i \,.
+  \label{eq:embedded-companion}
+\end{equation}
+%
+Both solutions use the \emph{same} stages --- no additional evaluations
+of $f$ are required.  The Butcher tableau notation extends naturally by
+adding the companion weights as a second row below the line:
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{array}{c|c}
+    \mathbf{c} & A \\[2pt]
+    \hline
+    & \mathbf{b}^{\!\top} \\
+    & \hat{\mathbf{b}}^{\!\top}
+  \end{array}
+  \label{eq:embedded-tableau}
+\end{equation}
+%
+The pair is denoted $p(\hat{p})$ --- for Dormand--Prince, $5(4)$ ---
+meaning a fifth-order primary method with a fourth-order companion.
+\histnote{Dormand and Prince published this pair in 1980
+\cite{DormandPrince1980}; it has since become the default ODE
+solver in most scientific computing libraries.}
+
+The difference between the two solutions provides a local error
+estimate.  Subtracting \cref{eq:embedded-companion} from the primary
+update \cref{eq:rk-update} gives
+%
+\begin{equation}
+  \delta y_{n+1} \;=\; y_{n+1} - \hat{y}_{n+1}
+  \;=\; h \sum_{i=1}^{s} e_i\,k_i \,,
+  \qquad e_i = b_i - \hat{b}_i \,.
+  \label{eq:embedded-error}
+\end{equation}
+%
+Because the primary solution has order $p = 5$ and the companion has
+order $\hat{p} = 4$, this difference is $\delta y_{n+1} = \order{h^5}$:
+it approximates the leading-order local truncation error of the
+lower-order companion, up to $\order{h^6}$ corrections from the primary
+method's own truncation error.  The integrator uses this estimate to
+decide whether to accept the step and how to adjust the step size ---
+machinery developed in \cref{sec:rk-adaptive}.
+
+\paragraph{The Dormand--Prince 5(4) coefficients.}
+
+Seven stages ($s = 7$) achieve fifth-order accuracy.  The Butcher barrier of \cref{eq:butcher-barrier}
+demands at least six stages for order five; the purpose of the seventh
+stage becomes clear in \cref{sec:rk-fsal}.  Dormand and Prince solved
+the seventeen order conditions required for fifth-order accuracy and
+used the remaining free parameters to minimise the leading
+truncation-error coefficient of the fifth-order solution
+\cite{DormandPrince1980}.  The resulting tableau is
+\coderef{Geodesic}{Solver}
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.4}
+  \footnotesize
+  \begin{array}{c|ccccccc}
+    0      & & & & & & & \\
+    \tfrac{1}{5}  & \tfrac{1}{5} & & & & & & \\
+    \tfrac{3}{10} & \tfrac{3}{40} & \tfrac{9}{40} & & & & & \\
+    \tfrac{4}{5}  & \tfrac{44}{45} & -\tfrac{56}{15} & \tfrac{32}{9} & & & & \\
+    \tfrac{8}{9}  & \tfrac{19372}{6561} & -\tfrac{25360}{2187} & \tfrac{64448}{6561} & -\tfrac{212}{729} & & & \\
+    1      & \tfrac{9017}{3168} & -\tfrac{355}{33} & \tfrac{46732}{5247} & \tfrac{49}{176} & -\tfrac{5103}{18656} & & \\
+    1      & \tfrac{35}{384} & 0 & \tfrac{500}{1113} & \tfrac{125}{192} & -\tfrac{2187}{6784} & \tfrac{11}{84} & \\[4pt]
+    \hline
+    \\[-4pt]
+           & \tfrac{35}{384} & 0 & \tfrac{500}{1113} & \tfrac{125}{192} & -\tfrac{2187}{6784} & \tfrac{11}{84} & 0 \\
+           & \tfrac{5179}{57600} & 0 & \tfrac{7571}{16695} & \tfrac{393}{640} & -\tfrac{92097}{339200} & \tfrac{187}{2100} & \tfrac{1}{40}
+  \end{array}
+  \label{eq:dp-tableau}
+\end{equation}
+%
+Several features of this tableau deserve attention.  The nodes
+$c_6 = c_7 = 1$ mean that stages six and seven both evaluate $f$ at
+the far end of the step interval --- but at different $y$ values,
+since they are constructed from different linear combinations of the
+preceding stages.  The primary weights $\mathbf{b}$ (first row below
+the line) are identical to the seventh row of $A$: the fifth-order
+solution $y_{n+1}$ is precisely the point at which $k_7$ is evaluated.
+This structural coincidence is the FSAL (First Same As Last) property
+developed in \cref{sec:rk-fsal}.  The weight $b_2 = \hat{b}_2 = 0$
+means that stage $k_2$ does not contribute directly to either solution,
+though it influences the later stages through the coupling matrix.
+\warnnote{Several coupling coefficients $a_{ij}$ are negative
+--- for instance $a_{42} = -56/15$ and $a_{52} = -25360/2187$.  Negative
+weights are typical of high-order methods: they allow cancellation of
+higher-order error terms that positive coefficients alone cannot
+achieve.}
+
+\paragraph{The error coefficients.}
+
+Computing $e_i = b_i - \hat{b}_i$ from \cref{eq:embedded-error}
+gives the seven error coefficients used by the integrator:
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.5}
+  \begin{array}{l|ccccccc}
+    i & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+    \hline
+    e_i & \tfrac{71}{57600} & 0 & -\tfrac{71}{16695} & \tfrac{71}{1920}
+        & -\tfrac{17253}{339200} & \tfrac{22}{525} & -\tfrac{1}{40}
+  \end{array}
+  \label{eq:dp-error-coeffs}
+\end{equation}
+%
+The codebase stores these pre-computed differences rather than the
+companion weights $\hat{\mathbf{b}}$ themselves, since the error
+estimate is the only place $\hat{\mathbf{b}}$ appears.  The most
+consequential entry is $e_7 = -1/40$: because $b_7 = 0$ but
+$\hat{b}_7 = 1/40$, the companion solution needs the seventh stage
+evaluation even though the primary solution does not --- it is this
+nonzero error coefficient, not just the FSAL reuse, that makes the
+seventh stage indispensable.  The entry $e_2 = 0$ reflects the fact
+that both methods assign zero weight to stage two; $k_2$
+contributes to accuracy only indirectly, through the coupling matrix.
+\implnote{The \texttt{dormandPrinceStep} function in
+\codemodule{Geodesic.Solver} stores the error coefficients
+\texttt{e1}\,\ldots\,\texttt{e7} directly and computes the error
+vector as $h\sum e_i k_i$ in a single pass.}
+
+\paragraph{Local extrapolation.}
+
+The notation $5(4)$ indicates that the \emph{fifth-order} solution is
+propagated --- used as the starting point for the next step --- while
+the fourth-order companion serves only to estimate the error.  This
+choice is called \emph{local extrapolation}, and at first glance it
+seems backwards: shouldn't the integrator propagate the solution whose
+error it can actually estimate?
+
+The argument for local extrapolation is pragmatic.  The fifth-order
+solution has local truncation error $\order{h^6}$, one order better
+than the $\order{h^5}$ error of the companion, so propagating it
+produces a more accurate trajectory.  The error estimate
+$\delta y_{n+1} = \order{h^5}$ is conservative when applied to a
+solution that is actually accurate to $\order{h^6}$: the step-size
+controller typically accepts steps that are better than it believes,
+and in practice rarely allows errors exceeding the tolerance.
+\xrefnote{The alternative --- propagating the lower-order solution ---
+is sometimes called \emph{local interpolation} and is used by some
+methods optimised for dense output \cite{HairerNorsettWanner1993}.}
+
+The error estimate $\delta y_{n+1}$ tells us how wrong a step was ---
+but not yet what to do about it.  Two pieces of practical machinery
+remain: reclaiming the cost of the seventh stage
+(\cref{sec:rk-fsal}) and using $\delta y_{n+1}$ to choose the next
+step size (\cref{sec:rk-adaptive}).

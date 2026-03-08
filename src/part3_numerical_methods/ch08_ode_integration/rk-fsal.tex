@@ -1,0 +1,78 @@
+% sec:rk-fsal — First Same As Last (FSAL)
+\section{First Same As Last (FSAL)}
+\label{sec:rk-fsal}
+
+Every accepted step of the adaptive integrator calls the right-hand
+side $f$ seven times --- once per stage.  For the geodesic integrator,
+each call computes the Hamiltonian right-hand side
+$(\dot{x}^\mu, \dot{p}_\mu)$ from the current phase-space state, which
+involves evaluating the metric, its inverse, and its derivatives at
+the stage point.  Over a typical geodesic trace of $10^4$ steps, that
+is $7 \times 10^4$ evaluations.  If the tableau structure let us reuse
+one evaluation from the previous step, we would cut the per-step cost
+by a seventh for free.  The FSAL property does exactly this.
+
+\paragraph{The structural coincidence.}
+
+Recall from \cref{eq:dp-tableau} that the primary weights
+$\mathbf{b}$ --- which combine the stage derivatives into the
+fifth-order solution --- are identical to the last row of the coupling
+matrix $A$:
+%
+\begin{equation}
+  b_i = a_{7,i} \,, \qquad i = 1, \ldots, 6 \,.
+  \label{eq:fsal-condition}
+\end{equation}
+%
+This means that the fifth-order solution
+$y_{n+1} = y_n + h\sum_{i=1}^{6} b_i\,k_i$ (recall $b_7 = 0$) is
+precisely the state at which the seventh stage is evaluated:
+$k_7 = f(t_{n+1},\, y_{n+1})$.  But the first stage of the
+\emph{next} step also evaluates $f$ at the accepted state:
+$k_1^{(n+1)} = f(t_{n+1},\, y_{n+1})$, where the superscript labels
+the step.  These are the same function call --- the last stage of
+step $n$ is the first stage of step $n+1$:
+%
+\begin{equation}
+  k_7^{(n)} = k_1^{(n+1)} \,.
+  \label{eq:fsal-reuse}
+\end{equation}
+%
+The name captures the identity: the \emph{first} stage of the new step
+is the \emph{same as} the \emph{last} stage of the preceding one.
+
+\paragraph{Cost savings.}
+
+The first step of an integration has no predecessor, so all seven stages
+must be computed from scratch.  Every subsequent accepted step reuses
+$k_7$ from the previous step as $k_1$, computing only stages
+$k_2$ through $k_7$ --- six new evaluations rather than seven.  Over
+a long integration the FSAL property eliminates one right-hand-side
+evaluation per accepted step, reducing the effective per-step cost from
+seven to six function calls.
+\implnote{The \texttt{dormandPrinceStep} function in
+\codemodule{Geodesic.Solver} accepts $k_1$ as an argument and returns
+the new state, the error estimate, and $k_7$ as a triple.  The
+adaptive loop passes $k_7$ from each accepted step as $k_1$ of the
+next; the initial $k_1$ is computed once at the start of integration.}
+
+When a step is rejected (because the error estimate exceeds the
+tolerance), the integrator retries from the same state with a smaller
+step size.  The existing $k_1$ remains valid --- it was computed at the
+current state, which has not changed --- so no additional evaluation is
+wasted.
+
+\paragraph{Design constraint.}
+
+The FSAL property is not automatic.  It requires the tableau to be
+designed so that \cref{eq:fsal-condition} holds, which consumes some
+of the free parameters that would otherwise be available for
+minimising truncation-error coefficients.  Dormand and Prince
+incorporated this constraint into their optimisation
+\cite{DormandPrince1980}, accepting a slightly larger truncation-error
+coefficient in exchange for the guaranteed one-evaluation saving per
+step --- a worthwhile trade for any method that will be used with
+adaptive step-size control, where the total number of steps is large.
+For the geodesic integrator, the net effect is simple: the first step
+pays full price, and every subsequent accepted step gets one evaluation
+free --- a saving that compounds across millions of rays.

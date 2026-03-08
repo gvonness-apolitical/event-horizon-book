@@ -2,47 +2,51 @@
 \chapter{ODE Integration: Runge-Kutta Methods}
 \label{ch:ode-integration}
 
-The ray tracer advances geodesics by integrating a system of ordinary
-differential equations. This chapter covers the Runge-Kutta family of
-explicit integrators, from fixed-step RK4 through the adaptive
-Dormand-Prince method used in the codebase, with attention to the practical
-details of step-size control and error estimation.
+Every dynamical equation in this book --- the geodesic equation for ray
+tracing, the BSSN evolution system for numerical relativity, the gauge
+conditions that tie coordinates to the geometry --- has the form of an
+initial value problem: a state, a rule for computing its rate of change,
+and the need to advance forward reliably.  The previous chapter supplied
+the spatial-derivative operators that feed into these right-hand sides;
+this chapter builds the time-stepping machinery that turns a right-hand
+side into a trajectory.
 
-\section{Explicit Runge-Kutta Methods and Butcher Tableaux}
-\label{sec:rk-butcher}
+For the ray tracer, the challenge is sharpened by the physics.  A single
+image requires tracing millions of photons through a Kerr spacetime, and
+each photon's journey spans wildly different dynamical regimes: nearly
+straight propagation far from the black hole, where the curvature is
+negligible and large steps suffice, and tight spirals near the photon
+sphere, where trajectories are exponentially sensitive to perturbations
+and the integrator must take short, careful steps to stay on track.  No
+single fixed step size spans this range efficiently.  The Dormand--Prince
+embedded Runge--Kutta pair resolves the tension by computing two solutions
+of different order from the same intermediate stages, producing an error
+estimate at negligible extra cost.  An adaptive step-size controller uses
+this estimate to grow $h$ when the trajectory is smooth and shrink it
+when accuracy demands --- concentrating computational effort exactly
+where the dynamics require it.
 
-We define the general $s$-stage explicit Runge-Kutta method via its Butcher
-tableau and derive the classical RK4 scheme as a special case.
+The chapter builds the integrator in layers: the general Runge--Kutta
+framework and Butcher-tableau notation (\cref{sec:rk-butcher}), the
+specific Dormand--Prince 5(4) pair (\cref{sec:rk-dormand-prince}), the
+FSAL optimisation that saves one function evaluation per accepted step
+(\cref{sec:rk-fsal}), the adaptive controller that adjusts $h$ on the
+fly (\cref{sec:rk-adaptive}), and the mapping of every abstract
+component onto the Hamiltonian geodesic system
+(\cref{sec:rk-geodesic-application}).
 
-\section{The Dormand-Prince RK45 Pair}
-\label{sec:rk-dormand-prince}
-\coderef{Geodesic}{Solver}
+% ---- Drafted sections ----
+\input{part3_numerical_methods/ch08_ode_integration/rk-butcher}
 
-We present the Dormand-Prince 5(4) embedded pair: a fifth-order solution
-propagated at each step, with a fourth-order companion providing the local
-error estimate used for step-size control.
+\input{part3_numerical_methods/ch08_ode_integration/rk-dormand-prince}
 
-\section{First Same As Last (FSAL)}
-\label{sec:rk-fsal}
+\input{part3_numerical_methods/ch08_ode_integration/rk-fsal}
 
-We explain the FSAL optimisation that reuses the last stage of one step as
-the first stage of the next, saving one function evaluation per step.
+\input{part3_numerical_methods/ch08_ode_integration/rk-adaptive}
 
-\section{Adaptive Step-Size Control}
-\label{sec:rk-adaptive}
-\coderef{rk4}{rs}
-
-We describe the PI controller for step-size adaptation, including tolerance
-specification, step rejection, and safety factors.
-
-\section{Application: Geodesic Integration}
-\label{sec:rk-geodesic-application}
-
-We show how the abstract ODE integrator is applied to the Hamiltonian
-geodesic system, connecting the solver parameters to physical accuracy
-requirements.
+\input{part3_numerical_methods/ch08_ode_integration/rk-geodesic-application}
 
 \paragraph{Key References.}
 The Butcher-tableau formalism follows \cite{HairerNorsettWanner1993};
-Dormand-Prince is from \cite{DormandPrince1980}; adaptive control follows
+Dormand--Prince is from \cite{DormandPrince1980}; adaptive control follows
 \cite{HairerWanner1996}.

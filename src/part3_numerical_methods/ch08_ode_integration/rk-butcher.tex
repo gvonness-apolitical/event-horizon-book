@@ -1,0 +1,236 @@
+% sec:rk-butcher — Explicit Runge-Kutta Methods and Butcher Tableaux
+\section{Explicit Runge-Kutta Methods and Butcher Tableaux}
+\label{sec:rk-butcher}
+
+The finite difference stencils of \cref{ch:finite-differences} convert
+spatial derivatives into algebraic operations on grid data.  But a
+derivative approximation is not yet a time step: the evolution equations
+of numerical relativity and the geodesic equations of the ray tracer both
+have the form
+%
+\begin{equation}
+  \frac{\d y}{\d t} = f(t, y) \,, \qquad y(t_0) = y_0 \,,
+  \label{eq:ivp}
+\end{equation}
+%
+where $y$ may be a scalar, a vector, or the full state of twenty-four
+BSSN fields across a three-dimensional grid.  The task is to advance
+$y$ from time $t_n$ to $t_{n+1} = t_n + h$ using only evaluations
+of the right-hand side $f$.
+\physnote{For geodesic integration, $t$ is the affine parameter
+$\lambda$ and $y = (x^\mu, p_\mu)$ is the eight-component
+phase-space state.  For the BSSN system, $t$ is coordinate time and $y$
+comprises all evolved fields at every grid point.}
+
+\paragraph{From Euler to multi-stage methods.}
+
+The simplest approach evaluates $f$ once at the current state and
+extrapolates linearly:
+%
+\begin{equation}
+  y_{n+1} = y_n + h\,f(t_n,\, y_n) \,.
+  \label{eq:euler}
+\end{equation}
+%
+This is Euler's method.  A Taylor expansion shows that the local
+truncation error --- the error introduced in a single step, assuming
+exact input --- is $\order{h^2}$, giving a global error that is first
+order in $h$.  For the geodesic integrator, first-order accuracy is
+disastrous: tracing a photon orbit around a black hole for thousands of
+steps accumulates error so rapidly that the trajectory bears no
+resemblance to the true geodesic after a few orbital periods.
+\histnote{Euler published this method in 1768; Runge and Kutta
+independently developed multi-stage extensions in 1895 and 1901.}
+
+A right-hand side that curves within the interval cannot be captured by a
+single slope sample at its start --- but evaluating the slope partway
+through the step and correcting the estimate can cancel leading error
+terms, much as the midpoint rule for quadrature outperforms the
+left-endpoint rule.  The remedy is to sample $f$ at several points within
+the interval $[t_n,\, t_{n+1}]$ and combine the samples into a more
+accurate estimate of the step.  Each sample is called a \emph{stage}.
+With $s$ stages, the method evaluates $f$ exactly $s$ times per step,
+and the coefficients that specify where to sample and how to weight
+the results constitute the \emph{Runge--Kutta method}.
+
+\paragraph{The general $s$-stage explicit method.}
+
+An explicit Runge--Kutta method with $s$ stages computes intermediate
+slopes $k_1, \ldots, k_s$ and assembles the step as follows.  The
+first stage evaluates $f$ at the current point:
+%
+\begin{equation}
+  k_1 = f(t_n,\, y_n) \,.
+  \label{eq:rk-k1}
+\end{equation}
+%
+This is the slope at the start of the interval --- exactly what Euler's
+method uses as its sole estimate.  Each subsequent stage evaluates $f$
+at a point constructed from the previous stages:
+%
+\begin{equation}
+  k_i = f\!\biggl(t_n + c_i\,h,\;\;
+    y_n + h \sum_{j=1}^{i-1} a_{ij}\,k_j\biggr) \,,
+  \qquad i = 2, \ldots, s \,.
+  \label{eq:rk-stages}
+\end{equation}
+%
+The key word is \emph{explicit}: stage $k_i$ depends only on the
+stages $k_1, \ldots, k_{i-1}$ already computed, never on $k_i$
+itself or any later stage.  This makes the evaluation a straightforward
+forward sweep --- no systems of equations need to be solved.
+
+The final update combines all stages with a set of weights:
+%
+\begin{equation}
+  y_{n+1} = y_n + h \sum_{i=1}^{s} b_i\,k_i \,.
+  \label{eq:rk-update}
+\end{equation}
+%
+The method is fully specified by three sets of coefficients: the
+\emph{nodes} $c_i$ (where in the interval to evaluate), the
+\emph{coupling matrix} $A = (a_{ij})$ (how to combine previous stages),
+and the \emph{weights} $b_i$ (how to combine all stages into the final
+step).
+
+\paragraph{The Butcher tableau.}
+
+John Butcher introduced a compact notation that displays these
+coefficients in a single table \cite{HairerNorsettWanner1993}:
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{array}{c|c}
+    \mathbf{c} & A \\[2pt]
+    \hline
+    & \mathbf{b}^{\!\top}
+  \end{array}
+  \;\;=\;\;
+  \begin{array}{c|cccc}
+    c_1    & 0      &        &        & \\
+    c_2    & a_{21} & 0      &        & \\
+    \vdots & \vdots & \ddots & \ddots & \\
+    c_s    & a_{s1} & \cdots & a_{s,s-1} & 0 \\[2pt]
+    \hline
+           & b_1    & b_2    & \cdots & b_s
+  \end{array}
+  \label{eq:butcher-tableau}
+\end{equation}
+%
+The upper-triangular zeros in $A$ encode the explicit structure: no
+stage depends on itself or any later stage.  Reading the tableau
+row by row reconstructs the method: row $i$ of $A$ gives the
+coefficients for building the argument of $k_i$, and the bottom
+row gives the weights for the final combination.
+\warnnote{The nodes should satisfy the \emph{row-sum condition}
+$c_i = \sum_{j=1}^{i-1} a_{ij}$ (with $c_1 = 0$).  This condition
+is necessary for the method to be consistent, i.e., to reproduce the
+exact solution for constant right-hand sides.  Without it, some or
+all of the order conditions beyond first order fail, degrading the
+method's accuracy.}
+
+\paragraph{The classical fourth-order method.}
+
+The most widely known Runge--Kutta method uses four stages to achieve
+fourth-order accuracy.  Its Butcher tableau is
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{array}{c|cccc}
+    0   &     &     &     & \\
+    1/2 & 1/2 &     &     & \\
+    1/2 & 0   & 1/2 &     & \\
+    1   & 0   & 0   & 1   & \\[2pt]
+    \hline
+        & 1/6 & 1/3 & 1/3 & 1/6
+  \end{array}
+  \label{eq:rk4-tableau}
+\end{equation}
+%
+The structure is transparent: sample the slope at $t_n$
+(beginning), twice at $t_n + h/2$ (midpoint, using different
+estimates to get there), and once at $t_n + h$ (end), then
+take a weighted average with the Simpson's-rule-like
+weights $\frac{1}{6}$, $\frac{1}{3}$, $\frac{1}{3}$,
+$\frac{1}{6}$.  Writing out the stages explicitly gives the
+familiar formulae:
+%
+\begin{align}
+  k_1 &= f(t_n,\; y_n) \,, \notag \\
+  k_2 &= f(t_n + \tfrac{h}{2},\; y_n + \tfrac{h}{2}\,k_1) \,, \notag \\
+  k_3 &= f(t_n + \tfrac{h}{2},\; y_n + \tfrac{h}{2}\,k_2) \,,
+  \label{eq:rk4-stages} \\
+  k_4 &= f(t_n + h,\; y_n + h\,k_3) \,, \notag \\[6pt]
+  y_{n+1} &= y_n + \frac{h}{6}\bigl(k_1 + 2\,k_2 + 2\,k_3 + k_4\bigr) \,.
+  \notag
+\end{align}
+%
+Each stage is a single right-hand-side evaluation, and the final
+combination requires only addition and scalar multiplication.
+For the geodesic integrator, each evaluation of $f$ computes the
+Hamiltonian right-hand side $(\dot{x}^\mu, \dot{p}_\mu)$ from the
+current phase-space state --- the dominant cost per step.
+
+\paragraph{Order and the cost of accuracy.}
+
+A method has \emph{order} $p$ if the local truncation error satisfies
+$\norm{y(t_{n+1}) - y_{n+1}} = \order{h^{p+1}}$ for exact input
+$y_n = y(t_n)$, where $y(t)$ is the exact solution of
+\cref{eq:ivp}.  The global error accumulated over a fixed time
+interval is then $\order{h^p}$, provided $f$ is Lipschitz continuous
+in $y$: doubling the resolution halves the step size and reduces the
+error by a factor of $2^p$.
+For the classical RK4, $p = 4$, so doubling the resolution reduces
+the global error by a factor of $16$ --- the same convergence
+diagnostic used for the spatial stencils in
+\cref{sec:fd-convergence}.
+\xrefnote{The self-convergence test of \cref{sec:fd-convergence}
+applies unchanged to ODE integrators: run at three resolutions with
+step-size ratio $4:2:1$ and verify $\rho = 2^p$.}
+
+Achieving order $p$ with $s$ stages requires that the Taylor
+expansion of $y_{n+1}$ match the Taylor expansion of the exact
+solution through $\order{h^p}$.  These \emph{order conditions}
+constrain the Butcher tableau coefficients.  Matching the Taylor
+expansion to order $p$ generates a set of nonlinear algebraic
+conditions on the entries of $A$ and $\mathbf{b}$, and the number
+of these conditions grows combinatorially with $p$ --- at fifth order
+there are seventeen conditions but only the fifteen free parameters
+of a five-stage method.  The sharp lower bounds on the stage count,
+established through work by Butcher and others
+\cite{HairerNorsettWanner1993}, are:
+%
+\begin{equation}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{array}{l|cccccc}
+    \text{order}\; p & 1 & 2 & 3 & 4 & 5 & 6 \\
+    \hline
+    \text{min.\ stages} & 1 & 2 & 3 & 4 & 6 & 7
+  \end{array}
+  \label{eq:butcher-barrier}
+\end{equation}
+%
+For orders one through four, the minimum stage count equals $p$: the
+classical RK4 is optimal in this sense.  But fifth-order accuracy
+demands at least six stages --- one more than the naive expectation.
+This \emph{Butcher barrier} is the reason that the Dormand--Prince
+method of the next section uses seven stages rather than five: the
+extra stages buy fifth-order accuracy and, crucially, a built-in error
+estimate that enables adaptive step-size control.
+\implnote{The codebase's \texttt{dormandPrinceStep} function in
+\codemodule{Geodesic.Solver} evaluates seven stages per step,
+directly mirroring the Butcher tableau structure of
+\cref{eq:rk-stages,eq:rk-update}.}
+
+\paragraph{From tableau to code.}
+
+The tableau cleanly separates the \emph{method} --- encoded in
+the coefficients $(A, \mathbf{b}, \mathbf{c})$ --- from the
+\emph{algorithm} that evaluates stages and accumulates the result.  This separation is exactly what appears in the codebase:
+changing from one Runge--Kutta method to another means changing
+the tableau coefficients, not rewriting the integration loop.
+\Cref{sec:rk-dormand-prince} exploits this structure to introduce
+the Dormand--Prince embedded pair, where two sets of weights ---
+$\mathbf{b}$ for a fifth-order solution and $\hat{\mathbf{b}}$ for a
+fourth-order companion --- share the same stages, providing a local
+error estimate at no extra cost.

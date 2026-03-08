@@ -1,0 +1,186 @@
+% sec:rk-geodesic-application — Application: Geodesic Integration
+\section{Application: Geodesic Integration}
+\label{sec:rk-geodesic-application}
+
+The preceding sections developed the Runge--Kutta integrator as an
+abstract machine: feed it a right-hand side $f$, a state vector $y$,
+and a step size $h$, and it advances the solution while controlling the
+local error.  For the ray tracer, the abstraction collapses to a
+specific system --- Hamilton's equations for a photon in curved
+spacetime --- and the solver parameters acquire direct physical
+meaning.  Each piece of the abstract machinery --- state vector,
+right-hand side, error norm, step-size controller --- acquires a
+concrete counterpart in the geodesic codebase.
+
+\paragraph{The state vector.}
+
+The abstract state vector $y$ of \cref{eq:ivp} becomes the
+eight-component phase-space state of the Hamiltonian formulation
+(\cref{sec:geo-formulations}):
+\coderef{Geodesic.Types}{HamiltonianState}
+%
+\begin{equation}
+  y = (x^\mu,\, p_\mu) \,, \qquad \mu = 0, 1, 2, 3 \,,
+  \label{eq:geodesic-state}
+\end{equation}
+%
+comprising four position coordinates and four covariant momenta.  The
+independent variable $t$ in the abstract ODE is the affine parameter
+$\lambda$ along the geodesic.  For null rays, the affine rescaling
+freedom (\cref{sec:geo-null}) lets the ray tracer set $E = -p_t = 1$
+at the initial point without loss of generality, so the affine
+parameter carries no independent physical scale --- it is simply a
+label for how far along the ray the integrator has advanced.  The eight
+numbers in $y$ encode everything the integrator needs: the photon's
+location in spacetime and the direction it is travelling.
+
+\paragraph{The right-hand side.}
+
+The abstract function $f(t, y)$ in \cref{eq:ivp} becomes the
+Hamiltonian right-hand side derived in \cref{sec:geo-formulations}.
+\coderef{Geodesic.Hamiltonian}{hamiltonianRHS}
+Writing $f = (\dot{x}^\mu, \dot{p}_\mu)$, the two components are
+%
+\begin{equation}
+  \begin{aligned}
+  \dot{x}^\mu &= g^{\mu\nu}\,p_\nu \,, \\
+  \dot{p}_\mu &= \tfrac{1}{2}\,(\pd{\mu}\,g_{\alpha\beta})\,
+    \dot{x}^\alpha\,\dot{x}^\beta \,.
+  \end{aligned}
+  \label{eq:geodesic-rhs}
+\end{equation}
+%
+The velocity equation lifts covariant momenta to contravariant
+velocities via the inverse metric; the momentum equation updates
+$p_\mu$ using the metric's spatial variation along the trajectory.
+The velocity $\dot{x}^\alpha = g^{\alpha\beta}\,p_\beta$ from the
+first equation feeds into the second, so the codebase evaluates the
+inverse metric before the momentum update.
+\implnote{The function \texttt{makeRHS} in
+\codemodule{Geodesic.Solver} wraps \texttt{hamiltonianRHS} by
+evaluating the inverse metric at the current position before each
+call, forming a closure of type
+\texttt{HamiltonianState -> StateVec}.}
+
+Each evaluation of $f$ requires the inverse metric $g^{\mu\nu}$ at
+the current position and the 40 independent metric derivatives
+$\pd{\mu}\,g_{\alpha\beta}$.  The codebase obtains these derivatives
+by passing a polymorphic metric function through forward-mode automatic
+differentiation (\cref{ch:autodiff}), so adding a new spacetime
+requires only the metric --- no hand-coded Christoffel symbols.  The
+inverse metric is evaluated once per RHS call and reused in both the
+velocity computation and the momentum contraction.
+
+\paragraph{From abstract stages to physical evaluations.}
+
+Each Dormand--Prince step (\cref{sec:rk-dormand-prince}) computes
+seven stage slopes $k_1, \ldots, k_7$, where each $k_i$ is an
+eight-component vector of the same dimension as $y$.  In the geodesic
+context, each stage slope is a pair
+$k_i = (\Delta x^\mu_i,\, \Delta p_{\mu,i})$, and each stage
+evaluation requires a full metric evaluation: the inverse metric at
+the stage point, followed by the 40 metric derivatives via AD.  The
+FSAL property (\cref{sec:rk-fsal}) saves one of these evaluations per
+accepted step, reducing the per-step cost from seven to six metric
+evaluations.
+
+Over a typical ray trace of $10^4$ accepted steps, the integrator
+performs roughly $6 \times 10^4$ RHS evaluations --- each involving an
+inverse metric lookup, an AD metric-derivative evaluation, and the Hamilton's
+equations contraction.  For a Kerr--Schild metric, the inverse metric
+is algebraically simple ($\eta^{\mu\nu} - f\,l^\mu l^\nu$), so the AD
+evaluation dominates.  The adaptive controller concentrates these
+evaluations where the dynamics demand them: a typical ray might
+complete the weak-field approach phase in a few dozen large steps
+but require several hundred small steps during a close pass around
+the photon sphere.
+
+\paragraph{The error norm and phase-space scaling.}
+
+The adaptive controller (\cref{sec:rk-adaptive}) applies the scaled
+error norm $\mathrm{err}$ of \cref{eq:rk-error-norm} to all eight
+components of the phase-space state simultaneously.  For the geodesic
+system this means that position errors and momentum errors compete
+for the same tolerance budget.  Whether this is sensible depends on
+the coordinate system.
+
+In Kerr--Schild Cartesian coordinates with $M = 1$, typical
+coordinates satisfy $\abs{x^\mu} \sim 1$--$10^2$ (the observer sits
+at $r_0 \sim 50M$--$500M$) and typical covariant momenta satisfy
+$\abs{p_\mu} \sim 1$ (with the $E = 1$ normalisation).  With the
+default $\epsilon_a = \epsilon_r = 10^{-10}$, a position component at
+$r \sim 100M$ has tolerance scale
+$\epsilon_a + \epsilon_r \cdot 100 \approx 10^{-8}$ (the $\epsilon_a$
+term is negligible), while a momentum component of order one has
+tolerance scale $\epsilon_a + \epsilon_r \cdot 1 = 2 \times 10^{-10}$.
+The absolute tolerance $\epsilon_a$ also protects components passing
+through zero --- for instance, $p_z$ passes through zero for a photon
+crossing the equatorial plane.  A
+uniform tolerance pair $(\epsilon_a, \epsilon_r)$ therefore provides
+sensible scaling without requiring separate position and momentum
+tolerances, provided the coordinate system keeps both sets of
+components within a few orders of magnitude of each other.
+\warnnote{In coordinate systems where position and momentum
+components differ by many orders of magnitude --- for example,
+spherical coordinates with $r \sim 10^6 M$ and
+$p_\varphi \sim 10^{-3}$ --- separate tolerances or a rescaled
+state vector would be more appropriate.  The codebase avoids this
+issue by working exclusively in Cartesian Kerr--Schild coordinates.}
+
+\paragraph{The integration pipeline.}
+
+The function \texttt{integrateGeodesic} assembles the RHS closure,
+adaptive controller, and termination logic into a single ray-tracing
+call:
+%
+\begin{enumerate}
+\item Construct the RHS closure from the polymorphic metric function
+  and inverse metric lookup.
+\item Compute the initial stage $k_1^{(0)} = f(\lambda_0, y_0)$ from
+  the initial state.
+\item Enter the adaptive loop: at each step, call
+  \texttt{dormandPrinceStep} with the current state and $k_1$
+  (from FSAL), compute the error norm, accept or reject, adjust the
+  step size, and check termination conditions
+  (\cref{sec:geo-termination}).
+\item Return the final state paired with the termination reason ---
+  horizon capture, celestial-sphere escape, disc intersection, or
+  step-count exhaustion.
+\end{enumerate}
+%
+The termination check occurs \emph{before} each Dormand--Prince step,
+not after: if the ray has already crossed the horizon or escaped,
+there is no point computing six metric evaluations only to discard
+the result.  The disc-crossing check, which requires interpolation
+between the current and proposed states, occurs after an accepted
+step.
+\implnote{The diagnostic variant \texttt{traceGeodesic} in
+\codemodule{Geodesic.Solver} records the full trajectory ---
+$(\lambda, \text{state}, \mathcal{H})$ at every accepted step ---
+enabling the conservation studies of \cref{sec:geo-conservation}.}
+
+\paragraph{Connecting tolerances to image quality.}
+
+The solver tolerances $\epsilon_a$ and $\epsilon_r$ ultimately
+determine the visual quality of the rendered black hole image.  A ray
+whose accumulated error exceeds the angular resolution of a single
+pixel produces a displaced pixel --- invisible in isolation, but
+visible as noise or banding in regions of high image gradient, such as
+the edge of the shadow or the inner rim of the accretion disc.
+
+The codebase's default tolerances $\epsilon_a = \epsilon_r = 10^{-10}$
+(\cref{eq:rk-defaults}) are conservative: the Hamiltonian constraint
+violation $\abs{\mathcal{H}}$ tracks $\epsilon_a$
+(\cref{eq:H-violation-bound}), and the conservation monitoring of
+\cref{sec:geo-conservation} confirms that position errors remain
+negligible compared with the pixel angular resolution --- of order
+$10^{-4}$~rad per pixel for a typical $1024 \times 1024$ image.  For preview renders, relaxing to
+$\epsilon_a = \epsilon_r = 10^{-6}$ reduces the step count (and
+therefore the render time) while keeping visible artefacts below the
+perceptible threshold at typical display resolutions.  The tolerances
+thus function as a quality--performance dial: tighter for
+publication-quality images, looser for interactive exploration.
+\xrefnote{The camera model that maps the final ray direction to a
+pixel coordinate is developed in \cref{ch:ray-tracing}; the tolerance
+choice interacts with the angular resolution set by the image
+dimensions.}

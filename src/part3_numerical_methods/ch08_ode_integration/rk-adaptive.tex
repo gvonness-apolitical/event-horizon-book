@@ -1,0 +1,184 @@
+% sec:rk-adaptive — Adaptive Step-Size Control
+\section{Adaptive Step-Size Control}
+\label{sec:rk-adaptive}
+
+A photon cruising through nearly flat spacetime far from the black hole
+needs nothing like the step resolution required during a close pass
+around the photon sphere.  A fixed step size forces an impossible
+choice: either waste orders of magnitude in compute on the gentle
+segments, or risk corrupting the trajectory on the hard ones.  The
+error estimate $\delta y_{n+1}$ from \cref{sec:rk-dormand-prince}
+lets the integrator resolve this tension by adjusting its step size on
+the fly --- but three decisions determine how: how to measure the size
+of the error, when to accept or reject a step, and how to choose the
+next step size.
+\xrefnote{This error norm was previewed in \cref{sec:geo-raytracing};
+here we derive the step-size controller it feeds into.}
+
+\paragraph{The scaled error norm.}
+
+The raw error vector $\delta y_{n+1}$ has the same dimension as the
+state $y$ --- for the geodesic integrator, eight components comprising
+four position coordinates and four momentum components.  Comparing
+these components requires scaling: a position error of $10^{-8}$ in
+geometric units and a momentum error of $10^{-8}$ may have very
+different physical significance depending on the magnitudes of the
+state variables.  The standard approach scales each component by a
+tolerance that blends absolute and relative thresholds:
+%
+\begin{equation}
+  \mathrm{err} = \max_{i} \frac{\abs{\delta y_i}}
+    {\epsilon_a + \epsilon_r\,\abs{y_{n+1,i}}} \,.
+  \label{eq:rk-error-norm}
+\end{equation}
+%
+The absolute tolerance $\epsilon_a$ prevents division-by-zero issues
+when $y_i$ is near zero, and the relative tolerance $\epsilon_r$ tracks
+the scale of each component as it evolves.  The denominator uses the
+proposed state $y_{n+1}$ rather than the current state $y_n$, so that
+the scaling reflects the regime the integrator is entering.  The
+maximum over all components ensures that no single component violates
+the tolerance: when $\mathrm{err} = 1$, the worst-offending component
+sits exactly at the tolerance boundary; values below one mean every
+component is within tolerance, and values above one signal that at
+least one component has exceeded it.
+\physnote{For the geodesic integrator, $y = (x^\mu, p_\mu)$.  The
+tolerances $\epsilon_a$ and $\epsilon_r$ apply uniformly to all eight
+components; the relative tolerance handles scale differences between
+large-magnitude components, while $\epsilon_a$ protects components
+passing through zero.}
+
+\paragraph{Accept, reject, resize.}
+
+The scaled error norm is constructed so that $\mathrm{err} \leq 1$
+means every component of the error is within tolerance.  The
+controller's logic is then straightforward:
+%
+\begin{equation}
+  \text{step accepted} \;\;\Longleftrightarrow\;\; \mathrm{err} \leq 1 \,.
+  \label{eq:rk-accept}
+\end{equation}
+%
+If accepted, the integrator advances the state to $y_{n+1}$ and
+(via FSAL) passes $k_7$ as the first stage of the next step.  If
+rejected, the state remains at $y_n$, the existing $k_1$ is retained,
+and the integrator retries with a smaller step size.
+
+The key question is how to choose the next step size $h_{\text{new}}$.
+The error estimate scales as $\mathrm{err} \propto h^5$ (since
+$\delta y_{n+1} = \order{h^5}$ from \cref{eq:embedded-error}, and the
+tolerance scale in the denominator of \cref{eq:rk-error-norm} is
+independent of $h$, so the max-norm inherits the fifth-order scaling).
+Assuming the local error coefficient is roughly constant between
+successive steps gives
+$\mathrm{err}_{\text{new}} / \mathrm{err}
+  \approx (h_{\text{new}} / h)^5$.
+Setting $\mathrm{err}_{\text{new}} = 1$ and solving for
+$h_{\text{new}}$ yields
+$h_{\text{new}} = h \cdot \mathrm{err}^{-1/5}$.
+Multiplying by a safety factor $S < 1$ gives the working formula:
+%
+\begin{equation}
+  h_{\text{new}} = h \cdot S \cdot \mathrm{err}^{-1/5} \,,
+  \label{eq:rk-step-control}
+\end{equation}
+%
+where the exponent $-1/5$ follows directly from the fifth-order scaling
+of the error estimate.  The safety factor (typically $S = 0.9$)
+prevents the controller from stepping right up to the acceptance
+threshold, which would cause frequent rejections due to higher-order
+terms neglected in the asymptotic error estimate.
+\coderef{Geodesic}{Solver}
+
+\paragraph{Growth clamps.}
+
+The raw scaling factor $S \cdot \mathrm{err}^{-1/5}$ can be
+arbitrarily large when $\mathrm{err}$ is very small (the step was much
+more accurate than needed) or dangerously aggressive when
+$\mathrm{err}$ is only slightly above $1$.  The controller clamps the
+factor to a bounded range:
+%
+\begin{equation}
+  h_{\text{new}} = h \cdot
+  \operatorname{clamp}\!\bigl(S \cdot \mathrm{err}^{-1/5},\;
+    s_{\min},\; s_{\max}\bigr) \,,
+  \label{eq:rk-clamp}
+\end{equation}
+%
+where $\operatorname{clamp}(x, a, b) = \min(b, \max(a, x))$.  The
+codebase uses $s_{\min} = 0.2$ and $s_{\max} = 5.0$: the step size is
+never shrunk by more than a factor of five or grown by more than a
+factor of five in a single step.  Without the upper clamp, a photon in
+nearly flat spacetime could jump to an enormous step that overshoots
+its approach to the black hole; without the lower clamp, a single
+noisy step near the photon sphere could collapse $h$ to a value from
+which the integrator never recovers.
+\implnote{The \texttt{SolverConfig} record in
+\codemodule{Geodesic.Solver} exposes \texttt{scSafety},
+\texttt{scMinScale}, and \texttt{scMaxScale} as configurable
+parameters, with defaults $S = 0.9$, $s_{\min} = 0.2$,
+$s_{\max} = 5.0$.}
+
+\paragraph{Rejected-step shrinkage.}
+
+When a step is rejected ($\mathrm{err} > 1$), the controller must
+shrink $h$ and retry.  Using the same exponent $-1/5$ would produce a
+moderate shrinkage, but the error estimate may be less reliable when
+it is large: the $\order{h^5}$ asymptotic regime requires $h$ small
+enough that higher-order terms are negligible, and a step that failed
+the tolerance test may not be in that regime.  A common heuristic is
+to use a more conservative exponent for rejected steps:
+%
+\begin{equation}
+  h_{\text{new}} = h \cdot
+  \max\bigl(s_{\min},\;
+    S \cdot \mathrm{err}^{-1/4}\bigr) \,,
+  \qquad (\text{rejected step}) \,,
+  \label{eq:rk-reject}
+\end{equation}
+%
+with exponent $-1/4$ rather than $-1/5$.  Using a larger-magnitude
+exponent is equivalent to assuming the error grows faster than $h^5$
+in this regime, producing a more conservative step size as a margin of
+safety and reducing the chance of a second consecutive rejection.  The
+$s_{\min}$ floor still applies, ensuring the step size cannot collapse
+below $0.2\,h$.  The upper clamp $s_{\max}$ is omitted because
+$\mathrm{err} > 1$ and $S < 1$ guarantee the scaling factor is less
+than one.
+
+\warnnote{A rejected step does not advance the state or the step
+counter.  The integrator retries from the same $(t_n, y_n)$ with the
+shrunken step size and the same $k_1$ (valid by the FSAL argument of
+\cref{sec:rk-fsal}).}
+
+\paragraph{Default parameters.}
+
+The codebase's default solver configuration uses tight tolerances
+appropriate for a reference implementation:
+%
+\begin{equation}
+  \begin{gathered}
+  \epsilon_a = 10^{-10} \,, \quad
+  \epsilon_r = 10^{-10} \,, \quad
+  S = 0.9 \,, \quad
+  h_0 = 0.5 \,, \\[4pt]
+  s_{\min} = 0.2 \,, \quad
+  s_{\max} = 5.0 \,.
+  \end{gathered}
+  \label{eq:rk-defaults}
+\end{equation}
+%
+The initial step size $h_0 = 0.5$ (in affine-parameter units) is
+deliberately generous: the controller will shrink it rapidly during the
+first few steps as it discovers the appropriate scale for the
+trajectory.  The tight tolerances $\epsilon_a = \epsilon_r = 10^{-10}$
+ensure that the Hamiltonian constraint $\mathcal{H} = 0$ is preserved
+to near machine precision over long integrations, as verified by the
+conservation diagnostics of \cref{sec:geo-conservation}.
+
+In practice, the adaptive controller reduces the cost of a ray trace
+by one to two orders of magnitude compared with a fixed-step integrator
+at the same accuracy.  A typical photon might cruise at $h \sim 10$
+through the asymptotically flat region but shrink to $h \sim 10^{-3}$
+during a close encounter with the photon sphere --- a dynamic range
+that no single fixed step size can efficiently span.

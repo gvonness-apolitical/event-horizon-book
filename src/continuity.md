@@ -213,6 +213,27 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $\rho$ | `sec:fd-convergence` | Convergence ratio $\epsilon(N_x)/\epsilon(2N_x)$; context-local, distinct from energy density $\rho$ (`sec:gr-stress-energy`) |
 | $u_4$, $u_2$, $u_1$ | `sec:fd-convergence` | Numerical solutions at relative grid spacings $\Delta x$, $\Delta x/2$, $\Delta x/4$ for self-convergence |
 | $\norm{\cdot}_1$, $\norm{\cdot}_2$, $\norm{\cdot}_\infty$ | `sec:fd-convergence` | Grid-function norms ($L^1$, $L^2$, $L^\infty$); scaled by $1/N$ to approximate continuous norms |
+| $y$, $y_n$ | `sec:rk-butcher` | ODE state vector (scalar, vector, or full BSSN state); $y_n \approx y(t_n)$ |
+| $f(t, y)$ | `sec:rk-butcher` | ODE right-hand side function |
+| $h$ | `sec:rk-butcher` | Step size; $h = t_{n+1} - t_n$ |
+| $k_i$ | `sec:rk-butcher` | RK stage slopes; $k_i = f(t_n + c_i h, \ldots)$, $i = 1, \ldots, s$ |
+| $s$ | `sec:rk-butcher` | Number of RK stages |
+| $(A, \mathbf{b}, \mathbf{c})$ | `sec:rk-butcher` | Butcher tableau coefficients: coupling matrix $A = (a_{ij})$, weights $\mathbf{b} = (b_i)$, nodes $\mathbf{c} = (c_i)$ |
+| $p$ (method order) | `sec:rk-butcher` | Order of RK method; LTE $= \order{h^{p+1}}$, global error $= \order{h^p}$. Reuses $p$ glyph from derivative order (`sec:fd-stencils`) and pressure (`sec:gr-stress-energy`) |
+| $\hat{\mathbf{b}}$ | `sec:rk-butcher` | Companion weights for embedded RK pair (introduced in closing paragraph; detailed in `sec:rk-dormand-prince`) |
+| $\hat{y}_{n+1}$ | `sec:rk-dormand-prince` | Companion (lower-order) solution at $t_{n+1}$; $\hat{y}_{n+1} = y_n + h\sum \hat{b}_i k_i$ |
+| $\hat{p}$ | `sec:rk-dormand-prince` | Order of companion method in embedded pair; $\hat{p} < p$ |
+| $\delta y_{n+1}$ | `sec:rk-dormand-prince` | Local error estimate; $\delta y_{n+1} = y_{n+1} - \hat{y}_{n+1} = h\sum e_i k_i$; $= \order{h^5}$ for DP5(4) |
+| $e_i = b_i - \hat{b}_i$ | `sec:rk-dormand-prince` | Error coefficients for embedded pair; distinct from scaled per-component error $e_i$ in `sec:geo-raytracing` |
+| $k_i^{(n)}$ | `sec:rk-fsal` | Stage slope at step $n$; superscript distinguishes steps for FSAL reuse: $k_7^{(n)} = k_1^{(n+1)}$ |
+| $\mathrm{err}$ | `sec:rk-adaptive` | Scaled error norm; $\mathrm{err} = \max_i \abs{\delta y_i}/(\epsilon_a + \epsilon_r\abs{y_{n+1,i}})$; step accepted iff $\mathrm{err} \leq 1$. Uses proposed state $y_{n+1}$ in denominator. |
+| $\epsilon_a$, $\epsilon_r$ | `sec:rk-adaptive` | Absolute and relative tolerances for error scaling; defaults $10^{-10}$. Also used in `sec:geo-raytracing` preview. |
+| $S$ | `sec:rk-adaptive` | Safety factor for step-size controller; default $0.9$. Distinct from action $S$ in `sec:gr-efe` (one-time use). |
+| $s_{\min}$, $s_{\max}$ | `sec:rk-adaptive` | Growth clamp bounds for step-size scaling factor; defaults $0.2$, $5.0$. $s_{\min}$ also used in `sec:geo-raytracing`. |
+| $h_0$ | `sec:rk-adaptive` | Initial step size; default $0.5$ in affine-parameter units |
+| $h_{\text{new}}$ | `sec:rk-adaptive` | Proposed next step size after accept/reject; uses `\text` (not `\mathrm`) for consistency with `sec:geo-raytracing` |
+| $y = (x^\mu, p_\mu)$ | `sec:rk-geodesic-application` | Geodesic state vector (8 components); restates `eq:geodesic-state` from `sec:geo-formulations` in integrator context |
+| `eq:geodesic-rhs` | `sec:rk-geodesic-application` | Hamilton's equations as ODE RHS; velocity equation first, then momentum update with velocity substitution explicitly noted |
 
 ## Analogy Registry
 
@@ -248,6 +269,10 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Photon ring as gravitational wide-angle lens | `sec:geo-photon-rings` | $n=1$ sub-ring samples light from the full circumference of the black hole, acting as a wide-angle lens. Maps: explains disproportionate brightness of lensing ring. Breaks: unlike optical lenses, the "focusing" arises from spacetime curvature, not refraction. |
 | Self-similar Russian nesting dolls (sub-ring structure) | `sec:geo-photon-rings` | Infinite nested sub-rings, each $e^\pi \approx 23$ times thinner; self-similar structure from Lyapunov instability. Maps: geometric sequence / exponential demagnification. Breaks: not exactly self-similar (Kerr $\gamma_{\text{ph}}$ varies around ring); only logarithmically infinite (unresolvable beyond $n \sim 3$). |
 | Discrete analogue of curvature (D2 stencil) | `sec:fd-orders` | Central value's deviation from the average of its two neighbours = discrete curvature. Maps: second derivative measures curvature of $f$. Breaks: only exact for quadratic functions; finite-difference curvature has $\order{\Delta x^2}$ error. |
+| Simpson's-rule-like weights (RK4) | `sec:rk-butcher` | RK4 weights $\frac{1}{6}, \frac{1}{3}, \frac{1}{3}, \frac{1}{6}$ mirror Simpson's rule quadrature weights. Maps: weighted average of slope samples at beginning, midpoint (×2), end. Breaks: RK4 evaluates $f$ at different $y$ values, not just different $t$ values; the analogy is structural, not exact. |
+| Butcher barrier (stages > order for $p \geq 5$) | `sec:rk-butcher` | Minimum stages grow faster than order due to combinatorial growth of order conditions. Maps: cost-accuracy tradeoff; motivates 7-stage Dormand--Prince. Breaks: barrier is about algebraic constraints on tableau coefficients, not computational limits. |
+| Midpoint rule vs left-endpoint rule (multi-sampling motivation) | `sec:rk-butcher` | Evaluating slope partway through a step cancels leading error terms, like midpoint quadrature beats left-endpoint. Maps: sampling at interior points improves accuracy. Breaks: RK stages are more complex than quadrature nodes; they sample $f$ at different $y$ values, not just $t$. |
+| Local extrapolation (propagate higher-order solution) | `sec:rk-dormand-prince` | Propagate the 5th-order solution; use 4th-order companion only for error estimation. Maps: conservative error estimate applied to a more accurate solution; controller rarely allows errors exceeding the tolerance. Breaks: the $\order{h^5}$ error estimate bounds the companion's LTE, not the propagated solution's; safety is empirical, not guaranteed. |
 
 ## Forward / Backward References
 
@@ -307,7 +332,7 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $\mathcal{H}$ drift monitoring | `sec:geo-null` | `sec:geo-conservation` ✓ |
 | Frequency-shift calculation (Doppler + gravitational) | `sec:geo-timelike` | Camera/rendering chapters (TBD) |
 | MHD disc physics | `sec:geo-timelike` | Part~V (TBD) |
-| RK theory and order conditions | `sec:geo-raytracing` | `ch:ode-integration` (TBD) |
+| RK theory and order conditions | `sec:geo-raytracing` | `sec:rk-butcher` (partial ✓; order conditions stated, full derivation not shown) |
 | AD type for exact metric derivatives | `sec:geo-raytracing` | `ch:autodiff` (TBD) |
 | TerminationReason → pixel colour mapping | `sec:geo-raytracing` | `ch:ray-tracing` (TBD) |
 | TerminationReason pattern-match → pixel colour | `sec:geo-termination` | `ch:ray-tracing` (TBD) |
@@ -327,6 +352,9 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Convergence tests verify dissipation does not alter convergence rate | `sec:fd-dissipation` | `sec:fd-convergence` (drafted) |
 | Ghost-zone depth set by stencil half-width of 3 | `sec:fd-dissipation` | `sec:fd-stencils` (backward ref) |
 | BSSN RHS stencil count comparison (12 vs 3 for dissipation) | `sec:fd-dissipation` | `sec:fd-orders` (backward ref) |
+| Conservation diagnostics verify tight tolerances | `sec:rk-adaptive` | `sec:geo-conservation` (drafted) |
+| Camera model and pixel angular resolution | `sec:rk-geodesic-application` | `ch:ray-tracing` (TBD) |
+| Tolerance as quality--performance dial | `sec:rk-geodesic-application` | `ch:ray-tracing` (TBD) |
 | Time-integration order and interaction with spatial accuracy | `sec:fd-convergence` | `ch:ode-integration` (TBD) |
 | AMR boundary interaction with convergence testing | `sec:fd-convergence` | `ch:amr` (TBD) |
 | Verification chain: time integration, AMR, constraint evolution | `sec:fd-convergence` | `ch:ode-integration`, `ch:amr`, `ch:bssn-ccz4` (all TBD) |
@@ -375,11 +403,21 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $L$ reused for angular momentum | Standard GR convention; geodesic Lagrangian $L$ from `sec:dg-geodesic` does not appear in orbits chapter; disambiguation sentence at first use | `sec:schw-orbits` |
 | $\dot{r}^2 = E^2 - V_{\text{eff}}$ convention | Follows Carroll/Wald; differs from Newtonian $\frac{1}{2}\dot{r}^2 = E - V$ by factors of 2; noted in warnnote | `sec:schw-orbits` |
 | $n_i$ vs $n^i$ in KS components | Covariant metric uses $n_i$, contravariant uses $n^i$; parenthetical notes $n_i = n^i$ in Cartesian coordinates | `sec:schw-kerr-schild` |
+| Butcher barrier table uses display labels, not $s_{\min}$ symbol | $s_{\min}$ already registered as step-size growth bound in `sec:geo-raytracing`; barrier table uses row header "min. stages" to avoid glyph collision | `sec:rk-butcher` |
+| Dormand--Prince (en-dash, not hyphen) | Compound proper name convention; consistent with ch06 usage | `sec:rk-butcher` |
+| Local extrapolation: propagate 5th-order solution | Standard DP convention; matches codebase; error estimate is conservative ($\order{h^5}$ applied to $\order{h^6}$ solution) | `sec:rk-dormand-prince` |
+| $e_i$ glyph reuse (error coefficients vs scaled error) | $e_i = b_i - \hat{b}_i$ (raw coefficients) in `sec:rk-dormand-prince` vs $e_i = \abs{\delta y_i}/(\epsilon_a + \epsilon_r\abs{y_i})$ (scaled error) in `sec:geo-raytracing`; context distinguishes | `sec:rk-dormand-prince` |
+| `\text` not `\mathrm` for subscript labels | $h_{\text{new}}$ convention established in `sec:geo-raytracing`; maintained in `sec:rk-adaptive` for consistency | `sec:rk-adaptive` |
+| $-1/4$ exponent for rejected steps is a heuristic | Not derived from order conditions; standard practice (HNW §II.4); draft labels it as heuristic | `sec:rk-adaptive` |
+| Error norm uses proposed state $y_{n+1}$ in denominator | Matches codebase (`errorNorm` called with `newState`); avoids stale scaling | `sec:rk-adaptive` |
 | $f = 2M/r$ specialisation of KS scalar | Schwarzschild case of the general Kerr--Schild scalar $f$ introduced in `sec:gr-exact-solutions` | `sec:schw-kerr-schild` |
 | $A$ as azimuthal auxiliary function | $(r^2 + a^2)^2 - a^2\Delta\sin^2\theta$; defined before line element, not after (per review) | `sec:kerr-bl` |
 | $r_- = 0$ at $a = 0$ noted as singularity, not Cauchy horizon | In Schwarzschild limit, inner "horizon" coincides with $r = 0$ curvature singularity | `sec:kerr-bl` |
 | BL coordinates pedagogical, KS computational | BL used for analytic structure (horizons, limiting cases); KS used by codebase for integration | `sec:kerr-bl` |
 | Ingoing KS form (not outgoing) | Ingoing principal null rays are coordinate lines; codebase uses ingoing form; outgoing variant acknowledged but not developed | `sec:kerr-ks` |
+| "AD metric-derivative" not "AD Jacobian" | Consistent with ch:autodiff terminology; section uses "AD metric-derivative evaluation" | `sec:rk-geodesic-application` |
+| $p_z$ (not $p_\theta$) for zero-crossing example | Cartesian KS coordinates have no $p_\theta$; $p_z$ crosses zero for photons crossing equatorial plane | `sec:rk-geodesic-application` |
+| Velocity substitution explicit in RHS equation | eq:geodesic-rhs notes $\dot{x}^\alpha = g^{\alpha\beta}p_\beta$ feeds from velocity into momentum equation; matches codebase evaluation order | `sec:rk-geodesic-application` |
 | Differential-only KS transformation for Kerr | Unlike Schwarzschild where $\bar{t}$ has a closed-form integral, Kerr KS time is defined only differentially; sufficient for computing the metric | `sec:kerr-ks` |
 | physnote on oblate spheroidal: coordinate property, not physical | Euclidean radius $\sqrt{r^2+a^2}$ is a coordinate feature; proper circumference involves full metric factors $\Sigma$, $A$ | `sec:kerr-ks` |
 | $p$ disambiguation note at first use | $p^2$ for Euclidean distance collides with pressure ($p$) and momentum ($p_\mu$); parenthetical disambiguation with cross-refs at point of introduction | `sec:kerr-bl-quartic` |

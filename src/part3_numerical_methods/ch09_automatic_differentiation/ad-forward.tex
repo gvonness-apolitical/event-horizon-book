@@ -1,0 +1,253 @@
+% sec:ad-forward — Forward-Mode AD and Dual Numbers
+\section{Forward-Mode AD and Dual Numbers}
+\label{sec:ad-forward}
+
+Every evaluation of the geodesic right-hand side
+(\cref{eq:geodesic-rhs}) requires the 40 independent
+derivatives $\pd{\mu} g_{\alpha\beta}$ of the metric
+tensor --- ten independent components differentiated with
+respect to each of four coordinates.
+Hand-coding these derivatives for each spacetime is tedious
+and error-prone: the Kerr--Schild metric involves products of
+transcendental functions and rational expressions in
+Cartesian coordinates, and a single sign error in one of the
+40 expressions produces trajectories that violate the
+Hamiltonian constraint in ways that can be difficult to
+diagnose.  Forward-mode automatic differentiation eliminates
+the problem entirely:
+\coderef{Spacetime}{AutoDiff}
+by redefining arithmetic so that every
+operation simultaneously computes its own derivative, the
+integrator obtains exact derivatives as a byproduct of
+evaluating the metric function, at a cost comparable to a
+handful of ordinary evaluations.
+
+\paragraph{Dual numbers.}
+
+The idea is to extend the real numbers by an abstract
+infinitesimal.  A \emph{dual number} is a pair
+$a + b\,\varepsilon$, where $a$ and $b$ are real and the
+symbol $\varepsilon$ satisfies
+%
+\begin{equation}
+  \varepsilon^2 = 0 \,.
+  \label{eq:dual-epsilon}
+\end{equation}
+%
+This single algebraic rule --- the square of $\varepsilon$
+vanishes, but $\varepsilon$ itself does not --- is the
+engine of automatic differentiation.  The real part $a$
+carries the function value; the dual part $b$ carries the
+derivative.  The resulting algebraic structure
+$\mathbb{D} = \{a + b\,\varepsilon \mid a, b \in \mathbb{R}\}$
+forms a commutative ring under the arithmetic operations
+defined below.
+\histnote{Clifford introduced dual numbers in 1873, well
+before their rediscovery for automatic differentiation in
+the 1960s \cite{Griewank2008}.}
+
+\paragraph{Arithmetic.}
+
+The four arithmetic operations on dual numbers follow
+directly from $\varepsilon^2 = 0$.  Addition is
+component-wise:
+%
+\begin{equation}
+  (a + b\,\varepsilon) + (c + d\,\varepsilon)
+    = (a + c) + (b + d)\,\varepsilon \,.
+  \label{eq:dual-add}
+\end{equation}
+%
+The dual part $b + d$ is the sum of the two derivatives ---
+the sum rule $(f + g)' = f' + g'$.
+Multiplication expands as usual, with the $\varepsilon^2$
+term vanishing:
+%
+\begin{equation}
+  (a + b\,\varepsilon)\,(c + d\,\varepsilon)
+    = ac + (ad + bc)\,\varepsilon \,.
+  \label{eq:dual-mul}
+\end{equation}
+%
+The dual part $ad + bc$ is precisely the product rule:
+if $a = f(x)$, $b = f'(x)$, $c = g(x)$, $d = g'(x)$, then
+$ad + bc = f(x)\,g'(x) + f'(x)\,g(x) = (fg)'(x)$.
+Division follows from rationalising the denominator
+(multiplying by $c - d\,\varepsilon$), provided $c \neq 0$:
+%
+\begin{equation}
+  \frac{a + b\,\varepsilon}{c + d\,\varepsilon}
+    = \frac{a}{c} + \frac{bc - ad}{c^2}\,\varepsilon \,,
+  \label{eq:dual-div}
+\end{equation}
+%
+and the dual part $(bc - ad)/c^2$ reproduces the quotient
+rule.  Every arithmetic operation on dual numbers
+automatically propagates the correct differentiation rule
+through its dual part.
+\physnote{Dual numbers resemble complex numbers ($i^2 = -1$),
+but the nilpotent condition $\varepsilon^2 = 0$ makes them
+fundamentally different: $\mathbb{D}$ contains zero divisors
+(e.g.\ $\varepsilon \cdot \varepsilon = 0$) and is not a
+field.  The nilpotency is exactly what truncates the Taylor
+series to first order.}
+
+\paragraph{Lifting elementary functions.}
+
+Arithmetic covers polynomials, but the metric function
+involves square roots, divisions, and --- for rotating
+spacetimes --- trigonometric functions.  Each elementary
+function is lifted to dual numbers by defining its action on
+a dual argument as
+%
+\begin{equation}
+  f(a + b\,\varepsilon)
+    = f(a) + b\,f'(a)\,\varepsilon \,.
+  \label{eq:dual-lift}
+\end{equation}
+%
+This is the first-order Taylor expansion, but here it is
+\emph{exact} rather than approximate: the nilpotency of
+$\varepsilon$ kills every higher-order term, so there is no
+remainder.  For example,
+$\sin(a + b\,\varepsilon) = \sin a + b\cos a\;\varepsilon$,
+and
+$\sqrt{a + b\,\varepsilon}
+  = \sqrt{a} + \frac{b}{2\sqrt{a}}\,\varepsilon$.
+Each elementary function needs its own lifting rule, but the
+rule is mechanical: pair the standard value with the standard
+derivative.  An AD library provides these liftings for every
+function in the language's numeric type class.
+\warnnote{The lifting \cref{eq:dual-lift} requires $f$ to
+be differentiable at $a$.  Functions with branch points or
+discontinuities --- such as $\abs{x}$ at $x = 0$ --- produce
+undefined or incorrect dual parts at those points.  The
+metric functions used by the ray tracer are smooth everywhere
+except at the physical singularity, which the integrator
+never reaches.}
+
+\paragraph{The chain rule for free.}
+
+The power of dual-number arithmetic is that the chain rule
+emerges from composition without any explicit
+differentiation.  Seeding with unit dual part ($b = 1$)
+and applying $g$ after $f$ gives
+%
+\begin{equation}
+  g\bigl(f(a + \varepsilon)\bigr)
+    = g\bigl(f(a) + f'(a)\,\varepsilon\bigr)
+    = g(f(a)) + f'(a)\,g'(f(a))\,\varepsilon \,.
+  \label{eq:dual-chain}
+\end{equation}
+%
+The dual part of the result is
+$f'(a)\,g'(f(a)) = (g \circ f)'(a)$ --- exactly the chain
+rule.  No matter how deeply nested the composition, each
+intermediate result carries its derivative forward, and the
+chain rule accumulates automatically through the sequence of
+dual-number operations.  A metric function that calls
+\texttt{sqrt}, multiplies by a coordinate, divides by a sum,
+and adds a constant produces the exact derivative of the
+full expression as a byproduct of evaluation.
+
+\paragraph{Seeding and directional derivatives.}
+
+Given a function $f : \mathbb{R}^n \to \mathbb{R}^m$,
+dual numbers compute directional derivatives.  To
+obtain $\partial f / \partial x^i$, \emph{seed} the $i$-th
+input with dual part one and all other inputs with dual part
+zero:
+%
+\begin{equation}
+  \tilde{x}^j = x^j + \delta^j{}_i\,\varepsilon \,.
+  \label{eq:dual-seed}
+\end{equation}
+%
+Evaluating $f(\tilde{x}^0, \ldots, \tilde{x}^{n-1})$ then
+yields all $m$ output components with their partial
+derivatives with respect to $x^i$ stored in the dual parts.
+For the metric function --- which maps four coordinates to
+ten independent metric components --- a single seeded
+evaluation produces one column of the $10 \times 4$ Jacobian
+matrix $\partial g_{\alpha\beta} / \partial x^\mu$.  Four
+evaluations, one per coordinate direction, produce the
+complete set of 40 derivatives.
+
+\paragraph{The codebase implementation.}
+
+The event-horizon codebase avoids explicit dual-number
+types in user code through parametric polymorphism.  Every
+metric function has a polymorphic type
+signature --- it accepts any numeric type that supports the
+standard floating-point operations, not just
+\texttt{Double}.  When called with ordinary double-precision
+values, the function evaluates the metric normally.  When
+called with the AD library's dual-number type, the same
+code --- unchanged, not rewritten --- propagates derivatives
+alongside values.
+\implnote{The rank-2 polymorphism (\texttt{forall a.}) ensures
+that the caller, not the metric function, chooses the numeric
+type.  The \texttt{ad} library's \texttt{jacobian} function
+exploits this by internally substituting a dual-number type.}
+
+This pattern is wrapped into a single call by the function
+\texttt{metricDerivativesAD} in
+\codemodule{Spacetime.AutoDiff}:
+%
+\begin{lstlisting}[language=Haskell]
+metricDerivativesAD
+  :: (forall a. Floating a => [a] -> [a])
+  -> [Double]
+  -> (Sym4 'Covariant, Sym4 'Covariant,
+      Sym4 'Covariant, Sym4 'Covariant)
+\end{lstlisting}
+%
+It accepts a polymorphic metric function and a coordinate
+point, and returns four \texttt{Sym4} tensors --- one per
+coordinate direction --- containing $\pd{\mu} g_{\alpha\beta}$
+for $\mu = 0, 1, 2, 3$.  Internally, it calls the
+\texttt{ad} library's \texttt{jacobian} function, which
+performs the four seeded evaluations of
+\cref{eq:dual-seed} and collects the results into a
+$10 \times 4$ matrix, from which each column is packed into a
+symmetric tensor.
+
+Physical parameters such as the black hole mass $M$ or spin
+$a$ enter through partial application before the metric
+function reaches the AD machinery.  The Schwarzschild metric
+function, for example, has type
+\texttt{Floating a => a -> [a] -> [a]}, with mass as its
+first argument.  The Christoffel computation partially
+applies the mass via \texttt{realToFrac}~$M$,
+producing a closure of type
+\texttt{forall a. Floating a => [a] -> [a]} that treats
+$M$ as a constant during differentiation --- exactly the
+correct mathematical behaviour, since the derivatives
+$\pd{\mu} g_{\alpha\beta}$ are taken with respect to
+coordinates, not parameters.
+
+\paragraph{Cost.}
+
+All 40 metric derivatives cost roughly eight times a single
+metric evaluation --- a factor that sounds expensive but is
+modest in practice.  The factor arises because each of the
+four seeded passes costs
+approximately twice a standard evaluation (every
+floating-point operation is paired with a derivative
+operation), giving $4 \times 2 = 8$.  The Dormand--Prince
+integrator (\cref{sec:rk-dormand-prince}) calls the
+right-hand side six times per accepted step (after FSAL
+reuse), so the derivative computation adds roughly $48$
+metric evaluations per step --- far less than the cost of
+implementing, debugging, and maintaining hand-coded
+derivative expressions for each spacetime.
+\xrefnote{A quantitative comparison of AD, finite-difference,
+and analytic derivatives --- including accuracy and wall-clock
+timing --- appears in \cref{sec:ad-comparison}.}
+
+The accuracy payoff is equally significant: AD produces
+derivatives correct to machine precision, with no truncation
+error from finite-difference step sizes and no risk of
+transcription errors in analytic expressions.  For a
+reference ray tracer where correctness matters more than raw
+speed, this tradeoff is decisive.

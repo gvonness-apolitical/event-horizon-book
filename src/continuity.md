@@ -234,6 +234,29 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $h_{\text{new}}$ | `sec:rk-adaptive` | Proposed next step size after accept/reject; uses `\text` (not `\mathrm`) for consistency with `sec:geo-raytracing` |
 | $y = (x^\mu, p_\mu)$ | `sec:rk-geodesic-application` | Geodesic state vector (8 components); restates `eq:geodesic-state` from `sec:geo-formulations` in integrator context |
 | `eq:geodesic-rhs` | `sec:rk-geodesic-application` | Hamilton's equations as ODE RHS; velocity equation first, then momentum update with velocity substitution explicitly noted |
+| $\varepsilon$ | `sec:ad-forward` | Dual-number infinitesimal; $\varepsilon^2 = 0$, $\varepsilon \neq 0$; carries derivative information |
+| $\mathbb{D}$ | `sec:ad-forward` | Ring of dual numbers; $\mathbb{D} = \{a + b\,\varepsilon \mid a, b \in \mathbb{R}\}$; commutative ring with zero divisors |
+| $\tilde{x}^j = x^j + \delta^j{}_i\,\varepsilon$ | `sec:ad-forward` | Seeded dual-number coordinate input; dual part selects derivative direction |
+| eq:christoffel-recall | `sec:ad-christoffels` | Christoffel formula restated from eq:christoffel-formula for AD context |
+| eq:pdot-ad | `sec:ad-christoffels` | Covariant momentum equation restated from eq:geo-pdot-cov; $\dot{p}_\mu = \frac{1}{2}(\pd{\mu}g_{\alpha\beta})\dot{x}^\alpha\dot{x}^\beta$; AD-native form |
+| $\epsilon_{\text{m}}$ | `sec:ad-comparison` | Unit round-off of IEEE 754 double precision; $\epsilon_{\text{m}} = 2^{-52} \approx 2.2 \times 10^{-16}$. Distinct from $\varepsilon$ (dual infinitesimal, `sec:ad-forward`) and $\epsilon_a$, $\epsilon_r$ (tolerances, `sec:rk-adaptive`). |
+| $h$ (FD step size) | `sec:ad-comparison` | Finite-difference perturbation step size; distinct from $h$ (integrator step size) in `sec:rk-butcher` et seq. Context distinguishes: FD context = spatial perturbation, integrator context = time step. |
+| $h^*$ | `sec:ad-comparison` | Optimal FD step size balancing truncation and round-off; $h^* = (3\epsilon_{\text{m}}\abs{f}/\abs{f'''})^{1/3}$ |
+| $E(h)$, $E^*$ | `sec:ad-comparison` | Total FD error as function of $h$; optimal error $E^* \sim \epsilon_{\text{m}}^{2/3}$. Distinct from energy $E$ in `sec:sr-causal` et seq.; context distinguishes. |
+| $e_\mu$ | `sec:ad-comparison` | Coordinate unit vector in $\mu$-direction (FD perturbation direction) |
+| $f$, $f'''$ | `sec:ad-comparison` | Generic metric component and its third derivative (local to error analysis); $f$ also used as Kerr--Schild scalar in `sec:gr-exact-solutions`; context distinguishes |
+| eq:fd-central-metric | `sec:ad-comparison` | Central-difference approximation of metric derivative with $\order{h^2}$ truncation error |
+| eq:fd-total-error | `sec:ad-comparison` | Total FD error: truncation $\order{h^2}$ + round-off $\order{\epsilon_{\text{m}}/h}$ |
+| eq:fd-optimal | `sec:ad-comparison` | Optimal FD step size and accuracy ceiling: $E^* \sim \epsilon_{\text{m}}^{2/3}$ |
+| tab:ad-comparison | `sec:ad-comparison` | Summary table: AD vs FD vs analytic on accuracy, cost (metric evals), and effort per spacetime |
+| $\bar{v}_i$ | `sec:ad-reverse` | Adjoint variable; $\bar{v}_i = \partial f / \partial v_i$; sensitivity of output to intermediate variable $v_i$ |
+| $v_i$ ($i = 1, \ldots, N$) | `sec:ad-reverse` | Intermediate variables in computational graph; $v_N = f$ is the output |
+| $c$ (AD cost constant) | `sec:ad-reverse` | Reverse-mode overhead factor ($\approx 3$--$5\times$ forward evaluation); distinct from $c$ speed-of-light convention ($c = 1$) |
+| $\iota$ | `sec:ad-reverse` | Observer inclination (parameter estimation example); not used elsewhere in book |
+| $\operatorname{succ}(i)$ | `sec:ad-reverse` | Successor nodes of $v_i$ in the computational DAG |
+| eq:adjoint-def | `sec:ad-reverse` | Adjoint variable definition: $\bar{v}_i = \partial f / \partial v_i$ |
+| eq:adjoint-accumulation | `sec:ad-reverse` | Reverse accumulation rule: $\bar{v}_i = \sum_{j \in \operatorname{succ}(i)} \bar{v}_j \, \partial v_j / \partial v_i$ |
+| eq:ad-cost-comparison | `sec:ad-reverse` | Cost crossover: forward $\sim n \times \text{cost}(f)$ vs reverse $\sim c \times \text{cost}(f)$ |
 
 ## Analogy Registry
 
@@ -273,6 +296,8 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Butcher barrier (stages > order for $p \geq 5$) | `sec:rk-butcher` | Minimum stages grow faster than order due to combinatorial growth of order conditions. Maps: cost-accuracy tradeoff; motivates 7-stage Dormand--Prince. Breaks: barrier is about algebraic constraints on tableau coefficients, not computational limits. |
 | Midpoint rule vs left-endpoint rule (multi-sampling motivation) | `sec:rk-butcher` | Evaluating slope partway through a step cancels leading error terms, like midpoint quadrature beats left-endpoint. Maps: sampling at interior points improves accuracy. Breaks: RK stages are more complex than quadrature nodes; they sample $f$ at different $y$ values, not just $t$. |
 | Local extrapolation (propagate higher-order solution) | `sec:rk-dormand-prince` | Propagate the 5th-order solution; use 4th-order companion only for error estimation. Maps: conservative error estimate applied to a more accurate solution; controller rarely allows errors exceeding the tolerance. Breaks: the $\order{h^5}$ error estimate bounds the companion's LTE, not the propagated solution's; safety is empirical, not guaranteed. |
+| Dual numbers vs complex numbers (nilpotent vs $i^2=-1$) | `sec:ad-forward` | Both extend $\mathbb{R}$ by an abstract element with a defining algebraic rule. Maps: similar algebraic structure. Breaks: $\varepsilon^2 = 0$ (nilpotent) vs $i^2 = -1$ (invertible); $\mathbb{D}$ has zero divisors and is not a field; nilpotency truncates Taylor series to first order. |
+| Forward vs reverse as chain-rule parenthesisation | `sec:ad-reverse` | Same chain-rule product, different evaluation order. Maps: forward = inputs→outputs (like dual numbers); reverse = output→inputs (like backpropagation). Breaks: parenthesisation analogy is algebraic, not geometric; it does not capture the memory overhead of reverse mode. |
 
 ## Forward / Backward References
 
@@ -358,6 +383,14 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Time-integration order and interaction with spatial accuracy | `sec:fd-convergence` | `ch:ode-integration` (TBD) |
 | AMR boundary interaction with convergence testing | `sec:fd-convergence` | `ch:amr` (TBD) |
 | Verification chain: time integration, AMR, constraint evolution | `sec:fd-convergence` | `ch:ode-integration`, `ch:amr`, `ch:bssn-ccz4` (all TBD) |
+| Quantitative AD vs FD vs analytic comparison | `sec:ad-forward` | `sec:ad-comparison` ✓ |
+| AD for Christoffel symbols (fulfils earlier promises) | `sec:ad-forward` | `sec:ad-christoffels` ✓ |
+| AD for Christoffel symbols | `sec:dg-covariant` | `sec:ad-christoffels` ✓ |
+| AD for Christoffel symbols | `sec:gr-exact-solutions` | `sec:ad-christoffels` ✓ |
+| AD for Kerr Christoffel symbols | `sec:kerr-ks` | `sec:ad-christoffels` ✓ |
+| AD type for exact metric derivatives | `sec:geo-null` | `sec:ad-christoffels` ✓ |
+| AD type for exact metric derivatives | `sec:geo-raytracing` | `sec:ad-christoffels` ✓ |
+| Reverse-mode AD for parameter estimation and differentiable rendering | `sec:ad-reverse` | Future chapters on parameter fitting / rendering (TBD) |
 
 ## Key Decisions
 
@@ -508,3 +541,16 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $L^2$ norm as default for convergence monitoring | Resolution-independent, averages over grid; $L^\infty$ reserved for localised-error detection | `sec:fd-convergence` |
 | Grid-function norms scaled by $1/N$ | Approximate continuous $L^p$ norms; remain bounded as $N \to \infty$ | `sec:fd-convergence` |
 | Verification chain metaphor for cross-chapter testing | Each chapter adds a link; pattern: predict rate, measure, treat discrepancy as bug | `sec:fd-convergence` |
+| Function lifting as operational definition, not Taylor derivation | Avoids analyticity question; eq:dual-lift defined operationally for each elementary function; consistent with actual AD implementations | `sec:ad-forward` |
+| Division requires $c \neq 0$ | Pure dual numbers ($c = 0$) are zero divisors and not invertible; qualifier added to eq:dual-div | `sec:ad-forward` |
+| $\varepsilon$ for dual infinitesimal (not $\epsilon$) | $\epsilon$ already used for tolerances ($\epsilon_a$, $\epsilon_r$) in `sec:rk-adaptive`; $\varepsilon$ standard in AD literature | `sec:ad-forward` |
+| `\coderef` at first concept mention, not implementation paragraph | Follows tone.md §6: "Place at first encounter of a concept implemented in the codebase"; metric derivative computation is the concept, not the code discussion | `sec:ad-forward` |
+| Covariant shortcut over explicit Christoffel assembly | `hamiltonianRHS` uses `metricDerivativesAD` directly, bypassing `christoffelsAD`; covariant momentum absorbs connection terms | `sec:ad-christoffels` |
+| `christoffelsAD` available but not on hot path | Remains for curvature invariants, geodesic deviation; integrator uses covariant momentum equation directly | `sec:ad-christoffels` |
+| $\epsilon_{\text{m}}$ not $\epsilon$ for machine precision | $\epsilon$ already used for tolerances ($\epsilon_a$, $\epsilon_r$); subscript `m` distinguishes machine precision | `sec:ad-comparison` |
+| Leibniz notation $\partial^3 g / \partial(x^\mu)^3$ for third derivative | Avoids ambiguous $\pd{\mu}^3$ notation; clearer for non-specialists | `sec:ad-comparison` |
+| Analytic accuracy listed as $\sim\!\epsilon_{\text{m}}$ not "exact" | Analytic expressions are exact before evaluation but accumulate round-off during evaluation; table caption clarifies distinction from AD | `sec:ad-comparison` |
+| FD step size $h = \max(10^{-6}, 10^{-6}\abs{x^\mu})$ cited from codebase | Near-optimal $h^* \sim \epsilon_{\text{m}}^{1/3} \approx 6 \times 10^{-6}$; well-chosen default noted but ceiling remains | `sec:ad-comparison` |
+| Reverse-mode AD as `\starmark` survey | Section surveys reverse mode for completeness; codebase uses forward mode exclusively; no code excerpts needed | `sec:ad-reverse` |
+| $c$ for reverse-mode constant, not speed of light | Geometric units convention ($c = 1$) removes speed-of-light $c$; no ambiguity in context | `sec:ad-reverse` |
+| "Mathematically equivalent" not "identical" for backpropagation | Backpropagation is a specific instance of reverse-mode AD applied to neural-network loss functions; "equivalent" is more precise | `sec:ad-reverse` |

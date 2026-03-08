@@ -1,0 +1,187 @@
+% sec:ad-reverse — Reverse-Mode AD
+\section{Reverse-Mode AD\starmark{}}
+\label{sec:ad-reverse}
+
+Forward-mode AD propagates derivatives alongside values in a
+single forward pass through the computation.  Each seeded
+evaluation produces one column of the Jacobian --- one
+directional derivative --- so computing the full Jacobian of
+a function $f : \mathbb{R}^n \to \mathbb{R}^m$ requires $n$
+passes.  For the metric function ($n = 4$, $m = 10$), four
+passes suffice and the cost is modest.  But gradient-based
+optimisation of spacetime parameters --- fitting a black hole
+mass and spin to observational data, for example --- inverts
+this ratio: the objective is a single scalar ($m = 1$), and
+the parameters may number in the dozens or hundreds ($n \gg 1$).
+Forward mode would require one pass per parameter.
+Reverse-mode AD solves this by propagating derivatives
+backward through the computation graph, producing the
+complete gradient $\nabla f \in \mathbb{R}^n$ in a single
+backward pass regardless of $n$.
+
+\paragraph{The computational graph.}
+
+Every numerical computation can be decomposed into a sequence
+of elementary operations --- additions, multiplications, calls
+to \texttt{sin} or \texttt{sqrt} --- each producing an
+intermediate variable.  These operations form a directed
+acyclic graph (DAG): inputs at the leaves, the final output
+at the root, and elementary operations at the internal nodes.
+Forward-mode AD traverses this graph from leaves to root,
+accumulating derivatives via the chain rule at each node.
+The dual-number arithmetic of \cref{sec:ad-forward}
+implements exactly this traversal: each intermediate result
+carries its derivative forward through the graph.
+
+Reverse-mode AD traverses the same graph in the opposite
+direction.  It first performs a forward pass that evaluates
+$f$ and records every intermediate variable and the local
+partial derivatives at each node.  It then performs a
+backward pass from the root to the leaves, accumulating the
+chain rule in reverse.  The quantity propagated backward is
+the \emph{adjoint} $\bar{v}_i = \partial f / \partial v_i$
+--- the sensitivity of the final output to each intermediate
+variable $v_i$.
+
+\paragraph{The reverse accumulation rule.}
+
+For a computation that produces intermediate variables
+$v_1, \ldots, v_N$ from inputs $x_1, \ldots, x_n$, with the
+final output $f = v_N$, the adjoint of each variable is
+defined as
+%
+\begin{equation}
+  \bar{v}_i = \frac{\partial f}{\partial v_i} \,.
+  \label{eq:adjoint-def}
+\end{equation}
+%
+The backward pass computes these adjoints in reverse
+topological order.  If node $v_j$ depends on $v_i$ through
+the elementary operation $v_j = \phi(\ldots, v_i, \ldots)$,
+then $v_i$'s adjoint accumulates a contribution from $v_j$
+via the chain rule.  Summing over all successor nodes gives
+the complete adjoint:
+%
+\begin{equation}
+  \bar{v}_i
+    = \sum_{j \in \operatorname{succ}(i)}
+      \bar{v}_j \,
+      \frac{\partial v_j}{\partial v_i} \,.
+  \label{eq:adjoint-accumulation}
+\end{equation}
+%
+Each intermediate variable collects sensitivity contributions
+from every node that directly uses it.  The factors
+$\partial v_j / \partial v_i$ are local partial derivatives
+of single elementary operations --- the same derivatives that
+forward mode would propagate through the dual part.  The
+difference is the direction of accumulation: forward mode
+starts at the inputs and pushes derivatives toward the output,
+while reverse mode starts at the output and pulls sensitivities
+back toward the inputs.
+\physnote{The forward and reverse modes correspond to two
+different parenthesisations of the same chain-rule product.
+Neither changes the mathematical result; the difference is
+purely computational --- which order minimises the total
+number of multiplications.}
+
+\paragraph{Cost comparison.}
+
+The backward pass visits each node once, performing one
+multiplication and one addition per edge in the graph.  The
+total cost is proportional to the cost of evaluating $f$
+itself, regardless of the number of inputs $n$.  More
+precisely, the reverse pass costs at most a small constant
+multiple (typically $3$--$5\times$) of the forward evaluation
+\cite{Griewank2008}.  Contrast this with forward mode, which
+requires $n$ forward passes for the full gradient.  The
+crossover is clear:
+%
+\begin{equation}
+  \text{cost}(\nabla f) \;\sim\;
+  \begin{cases}
+    n \times \text{cost}(f) & \text{forward mode,} \\
+    c \times \text{cost}(f) & \text{reverse mode,}
+  \end{cases}
+  \label{eq:ad-cost-comparison}
+\end{equation}
+%
+where $c \approx 3$--$5$ is independent of $n$.  For the
+metric function ($n = 4$), forward mode wins: four passes at
+$2\times$ each gives $8\times$, versus a single reverse pass
+at $3$--$5\times$ plus the memory overhead of storing the
+computation graph.  For a scalar objective function of $100$
+parameters, reverse mode is faster by a factor of $\sim\!20$.
+\warnnote{The reverse pass requires storing every intermediate
+variable from the forward pass, so its memory cost scales
+with the depth of the computation graph.  For long
+integration chains (thousands of time steps), this can be
+prohibitive without checkpointing strategies that trade
+recomputation for memory \cite{Griewank2008}.}
+
+\paragraph{Connection to backpropagation.}
+
+Reverse-mode AD is mathematically equivalent to the
+backpropagation algorithm used to train neural networks
+\cite{Baydin2018}.  A neural network is a composition of
+affine maps and elementwise nonlinearities; backpropagation
+computes the gradient of a scalar loss function with respect
+to all network weights by traversing this composition in
+reverse.  The AD perspective reveals that backpropagation is
+not specific to neural networks --- it applies to any
+differentiable computation, including the evaluation of
+spacetime metrics, geodesic integrators, and radiative
+transfer solvers.
+\histnote{Backpropagation was popularised in machine learning
+by Rumelhart, Hinton, and Williams in 1986, but the
+underlying reverse-mode AD technique dates to Speelpenning
+(1980) and Linnainmaa (1970) \cite{Baydin2018}.}
+
+\paragraph{Potential applications in GR.}
+
+The event-horizon codebase does not use reverse-mode AD ---
+forward mode is the natural choice for the metric derivative
+computation that dominates the integrator's cost
+(\cref{sec:ad-christoffels}).  But reverse-mode AD becomes
+relevant whenever a scalar quantity depends on many
+parameters:
+
+\begin{itemize}
+\item \textbf{Parameter estimation.}  Fitting a black hole
+  mass $M$, spin $a$, and observer inclination $\iota$ to
+  an observed image requires minimising a scalar residual
+  over these parameters.  Reverse-mode AD computes the
+  gradient of the residual with respect to all parameters
+  in a single backward pass through the ray-tracing
+  pipeline.
+
+\item \textbf{Differentiable rendering.}  Modern
+  differentiable renderers propagate gradients through the
+  entire image-formation process --- from spacetime
+  parameters through geodesic integration to pixel
+  intensities --- enabling gradient-based optimisation of
+  scene parameters.  Reverse-mode AD is the enabling
+  technology.
+
+\item \textbf{Waveform modelling.}  In gravitational-wave
+  data analysis, matched filtering requires waveform
+  templates that depend on source parameters (masses, spins,
+  eccentricities).  Reverse-mode AD through a numerical
+  relativity solver could provide exact gradients for
+  accelerating template-bank searches, though the memory
+  cost of differentiating through thousands of time steps
+  remains a practical challenge.
+\end{itemize}
+
+\noindent
+These applications share a common structure: a
+high-dimensional parameter space, a scalar objective, and a
+computation that is already implemented as a composition of
+differentiable operations.  Reverse-mode AD turns any such
+computation into a gradient oracle at modest cost ---
+precisely the structure that forward mode, with its
+per-parameter passes, handles inefficiently.
+\xrefnote{The application of AD to numerical general
+relativity is surveyed in \cite{Liska2018}; the broader
+landscape of AD in scientific computing is reviewed in
+\cite{Baydin2018}.}

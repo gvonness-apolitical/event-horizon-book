@@ -1,0 +1,250 @@
+% sec:spec-diffmat — Differentiation Matrices
+\section{Differentiation Matrices}
+\label{sec:spec-diffmat}
+
+Once a function is represented by its values at collocation nodes,
+differentiation reduces to a single matrix-vector multiply --- no
+symbolic calculus, no finite-difference stencils, just linear
+algebra.  A spectral solver performs this multiply thousands of
+times per time step.  Given the function values
+$f(x_0), \ldots, f(x_N)$ at the
+collocation nodes, we need the derivative values
+$f'(x_0), \ldots, f'(x_N)$ at the same nodes.  Because the
+interpolating polynomial $p_N$ of \cref{eq:lagrange-interp} is a
+linear combination of the function values, its derivative at any node
+is also a linear combination --- the map from values to derivatives is
+a matrix-vector product.  The matrix encoding this map is the
+\emph{spectral differentiation matrix}, and constructing it
+efficiently and accurately is the subject of this section.
+\coderef{spectral}{rs}
+
+\paragraph{Differentiating the Lagrange basis.}
+
+The interpolant $p_N(x) = \sum_{j=0}^{N} f(x_j)\,\ell_j(x)$ from
+\cref{eq:lagrange-interp} is built from the Lagrange basis polynomials
+$\ell_j$ of \cref{eq:lagrange-basis}.  Differentiating and evaluating
+at a node $x_i$ gives
+%
+\begin{equation}
+  p_N'(x_i) = \sum_{j=0}^{N} f(x_j)\,\ell_j'(x_i) \,.
+  \label{eq:diffmat-deriv}
+\end{equation}
+%
+This is a matrix-vector product $\mathbf{f}' = D\,\mathbf{f}$, where
+the vectors $\mathbf{f}$ and $\mathbf{f}'$ collect the function values
+and derivative values at the nodes, and the differentiation matrix $D$
+has entries
+%
+\begin{equation}
+  D_{ij} = \ell_j'(x_i) \,.
+  \label{eq:diffmat-def}
+\end{equation}
+%
+Each row of $D$ encodes the differentiation stencil at a single node,
+and each column records how the function value at $x_j$ influences
+every derivative.  For $N + 1$ nodes, $D$ is an
+$(N+1) \times (N+1)$ dense matrix --- every node contributes to
+every derivative, reflecting the global nature of polynomial
+interpolation.
+\physnote{The density of $D$ is the spectral analogue of a wide
+finite-difference stencil.  A second-order centred stencil uses 3
+points; a spectral stencil uses all $N + 1$.  The extra information is
+what buys exponential convergence.}
+
+\paragraph{Explicit formula for CGL nodes.}
+
+Differentiating the Lagrange basis product
+(\cref{eq:lagrange-basis}) directly is possible but numerically
+fragile: each $\ell_j'(x_i)$ involves a sum of $N$ terms, each a
+product of $N - 1$ factors, with catastrophic cancellation at high
+$N$.  A stable alternative uses the \emph{barycentric weights}
+$w_j$ defined by
+%
+\begin{equation}
+  w_j = \frac{1}{\prod_{\substack{k=0 \\ k \neq j}}^{N}
+    (x_j - x_k)} \,,
+  \label{eq:bary-weights}
+\end{equation}
+%
+which encode the node geometry in a single factor per node.
+Differentiating the barycentric interpolation formula and
+evaluating at $x_i$ produces the off-diagonal entries of $D$:
+%
+\begin{equation}
+  D_{ij} = \frac{w_j / w_i}{x_i - x_j} \,, \qquad i \neq j \,.
+  \label{eq:diffmat-offdiag}
+\end{equation}
+%
+Each entry is a ratio of two barycentric weights divided by a
+node spacing --- a single division and a single multiplication,
+with no sums over $N$ terms and no catastrophic cancellation.
+For CGL nodes $x_k = \cos(k\pi/N)$, the barycentric weights take the
+closed form $w_k = (-1)^k / c_k$, where $c_0 = c_N = 2$ and
+$c_k = 1$ for $1 \leq k \leq N - 1$.  Substituting into
+\cref{eq:diffmat-offdiag} gives the explicit entry
+%
+\begin{equation}
+  D_{ij} = \frac{c_i}{c_j}\,
+    \frac{(-1)^{i+j}}{x_i - x_j} \,, \qquad i \neq j \,,
+  \label{eq:diffmat-cgl}
+\end{equation}
+%
+which requires only a sign, a ratio of endpoint flags, and a node
+difference --- no products over $N$ terms, and no cancellation.
+\histnote{The barycentric form of the differentiation matrix appears
+in Trefethen's \emph{Spectral Methods in MATLAB}
+\cite{Trefethen2000}, building on earlier work by
+Fornberg \cite{Fornberg1988}.}
+
+\paragraph{The row-sum property and diagonal entries.}
+
+Differentiating the constant function $f(x) = 1$ must yield
+$f'(x) = 0$, so each row of $D$ sums to zero:
+%
+\begin{equation}
+  \sum_{j=0}^{N} D_{ij} = 0 \qquad
+  \text{for every } i \,.
+  \label{eq:diffmat-rowsum}
+\end{equation}
+%
+Since the off-diagonal entries are already determined by
+\cref{eq:diffmat-cgl}, this identity pins down the remaining
+unknowns --- the diagonal entries --- as the negative row sums of
+the off-diagonal part:
+%
+\begin{equation}
+  D_{ii} = -\sum_{\substack{j=0 \\ j \neq i}}^{N} D_{ij} \,.
+  \label{eq:diffmat-diag}
+\end{equation}
+%
+Computing the diagonal via \cref{eq:diffmat-diag} rather than from
+the direct formula avoids a separate derivation and,
+more importantly, guarantees that the row-sum property holds to
+machine precision regardless of roundoff in the off-diagonal
+entries.  Both the Chebyshev and LGL implementations in the
+codebase use this approach.
+\warnnote{An equivalent closed-form expression exists for the
+CGL diagonal entries:
+$D_{ii} = -x_i / [2(1 - x_i^2)]$ for interior nodes,
+$D_{00} = (2N^2 + 1)/6$, $D_{NN} = -(2N^2 + 1)/6$.
+Using this formula directly can violate the row-sum condition by
+$\order{N\,\epsilon_{\text{mach}}}$, which degrades derivative
+accuracy for large $N$.}
+
+\paragraph{Higher-order derivatives.}
+
+The second-derivative matrix $D^{(2)}$ maps function values to second
+derivatives: $\mathbf{f}'' = D^{(2)}\,\mathbf{f}$.  The simplest
+construction is the matrix square
+%
+\begin{equation}
+  D^{(2)} = D \cdot D \,,
+  \label{eq:diffmat-d2}
+\end{equation}
+%
+since applying $D$ twice differentiates the interpolant twice ---
+crucially, both applications use the same collocation grid, so the
+composition is exact for polynomials of degree $N$.  The matrix
+$D^{(2)}$ inherits the conditioning of $D$ squared:
+$\norm{D^{(2)}}_2 = \order{N^4}$, which is severe but manageable
+at the moderate polynomial degrees ($N \sim 20$--$30$) used in
+practice.  The codebase's \texttt{ChebyshevBasis} stores both
+\texttt{d1} and \texttt{d2} as flat row-major arrays, computing
+\texttt{d2} from the matrix product at construction time.  For
+elliptic problems --- where the second derivative appears in the
+Laplacian --- having $D^{(2)}$ precomputed avoids a redundant
+matrix multiply at every solver iteration.
+\implnote{Higher derivatives ($D^{(3)}$, $D^{(4)}$) can be computed
+by further matrix products, but roundoff accumulates: each
+multiplication amplifies errors by a factor of $\order{N^2}$.
+In practice, third and fourth derivatives are rarely needed directly;
+the XCTS solver requires only first and second.}
+
+\paragraph{Conditioning.}
+
+The spectral differentiation matrix $D$ is dense and has large
+entries near the endpoints, reflecting the tight node clustering
+there.  Its operator norm scales as
+%
+\begin{equation}
+  \norm{D}_2 = \order{N^2} \,,
+  \label{eq:diffmat-norm}
+\end{equation}
+%
+meaning that an $\order{\epsilon}$ perturbation in the function values
+produces an $\order{N^2\,\epsilon}$ perturbation in the
+derivatives \cite{Trefethen2000}.  For $N = 20$, the amplification
+factor is $\order{400}$; for $N = 50$, it exceeds $\order{2500}$.
+This growth is not a deficiency of the spectral approach --- it is
+intrinsic to numerical differentiation.  The finite-difference
+analogue is no better: a centred difference
+$f'(x) \approx (f(x+h) - f(x-h))/(2h)$ amplifies data errors by
+$1/h$, and achieving $\order{h^p}$ accuracy with $N$ points on a
+fixed interval forces $h = \order{1/N}$, giving $\order{N}$
+amplification --- less than spectral's $\order{N^2}$ --- but with
+far worse truncation error that more than offsets this advantage.
+
+The crucial difference is in what happens to the \emph{truncation}
+error.  A $p$-th order finite-difference stencil has truncation
+error $\order{h^p}$, which improves only polynomially as $N$
+grows.  The spectral method has truncation error that decreases
+\emph{exponentially} with $N$ for smooth functions
+(\cref{sec:spec-convergence}): the rapid decay of the Chebyshev
+coefficients ensures that the interpolation error shrinks faster
+than $D$ can amplify it.  At $N = 20$, the spectral derivative of an
+analytic function is typically accurate to $10^{-12}$ or
+better --- twelve orders of magnitude beyond what a second-order
+finite difference achieves on the same grid.
+\xrefnote{The spectral convergence theorem
+(\cref{sec:spec-convergence}) makes this trade-off precise: for
+analytic functions, the Chebyshev interpolation error decreases
+geometrically at rate $\rho^{-N}$, where $\rho > 1$ depends on
+the function's analyticity strip.}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/diffmat-convergence.pgf}
+  \caption[Spectral vs.\ finite-difference differentiation convergence]{%
+    Supremum-norm error in the derivative of
+    $f(x) = e^{\sin(\pi x)}$ on $[-1,1]$.  The spectral
+    differentiation matrix on CGL nodes (gold) achieves exponential
+    convergence, reaching machine precision near $N = 20$.
+    Second-order (blue) and fourth-order (grey, dashed) centred
+    finite differences on equidistant grids converge only
+    algebraically at rates $\order{h^2}$ and $\order{h^4}$,
+    requiring hundreds of grid points to match the accuracy the
+    spectral method achieves with twenty.}
+  \label{fig:diffmat-convergence}
+\end{figure}
+
+\paragraph{The codebase implementations.}
+
+The \texttt{chebyshev\_basis} constructor in \codemodule{spectral}
+builds the CGL differentiation matrix using
+\cref{eq:diffmat-cgl} for the off-diagonal entries and
+\cref{eq:diffmat-diag} for the diagonal.  The second-derivative
+matrix is computed as the matrix square $D^{(2)} = D \cdot D$:
+%
+\begin{lstlisting}[language=Rust]
+// Off-diagonal: D[i,j] = (c_i/c_j) * (-1)^{i+j} / (x_i - x_j)
+let sign_ij = if (i + j) % 2 == 0 { 1.0 } else { -1.0 };
+d1[i * n + j] = (c[i] / c[j]) * sign_ij / (nodes[i] - nodes[j]);
+
+// Diagonal: negative row sum
+d1[i * n + i] = -row_sum;
+
+// D2 = D1 * D1
+\end{lstlisting}
+%
+The DG solver in \codemodule{dg} uses a different but analogous
+formula for the LGL differentiation matrix, with the Chebyshev
+$c_i$ weights replaced by evaluations of the Legendre polynomial
+$P_N$ at each node \cite{HesthavenWarburton2008}.  Despite the
+different node distributions, both constructions share the same
+row-sum diagonal, the same $\order{N^2}$ conditioning, and the
+same exponential convergence for smooth data --- the spectral
+differentiation matrix is a general tool, not tied to a particular
+polynomial family.
+\xrefnote{\Cref{sec:spec-legendre} develops the Legendre polynomial
+theory behind the LGL nodes, and \cref{sec:spec-lgl} details the
+quadrature weights that accompany them.}

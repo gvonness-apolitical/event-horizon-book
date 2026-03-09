@@ -1,0 +1,233 @@
+% sec:spec-interpolation — Polynomial Interpolation
+\section{Polynomial Interpolation}
+\label{sec:spec-interpolation}
+
+The discontinuous Galerkin solver at the heart of the numerical
+relativity engine represents the solution within each element as a
+polynomial.  Every operation the solver performs --- differentiating,
+integrating, exchanging data across element faces --- reduces to
+manipulating polynomials defined by their values at a set of nodes.
+The quality of this representation depends entirely on where those
+nodes are placed.  This section develops the interpolation theory that
+governs the choice: Lagrange interpolation on general node sets, the
+error bound that ties accuracy to node placement, and the spectacular
+failure that results from the most natural choice of all ---
+equidistant points.
+
+\paragraph{Lagrange interpolation.}
+
+Suppose we are given $N + 1$ distinct
+nodes on an interval $[a, b]$ and the corresponding function values.
+There exists a unique polynomial $p_N$ of degree at most $N$ that
+passes through every data point $(x_j, f(x_j))$.  The idea is to construct $N + 1$ ``selector'' polynomials,
+each of which equals one at exactly one node and vanishes at all the
+others; the interpolant is then a weighted combination that picks out
+the correct function value at every node.  The explicit construction
+uses the \emph{Lagrange basis polynomials}
+%
+\begin{equation}
+  \ell_j(x)
+    = \prod_{\substack{k=0 \\ k \neq j}}^{N}
+      \frac{x - x_k}{x_j - x_k} \,,
+  \qquad j = 0, 1, \ldots, N \,.
+  \label{eq:lagrange-basis}
+\end{equation}
+%
+Each basis polynomial $\ell_j$ equals one at $x_j$ and vanishes at
+every other node: $\ell_j(x_k) = \delta_{jk}$.  The interpolant is
+then
+%
+\begin{equation}
+  p_N(x)
+    = \sum_{j=0}^{N} f(x_j)\,\ell_j(x) \,.
+  \label{eq:lagrange-interp}
+\end{equation}
+%
+This is not an approximation --- $p_N$ agrees with $f$ exactly at the
+nodes.  The question is how well it approximates $f$ between them.
+
+\paragraph{The interpolation error.}
+
+For a function $f \in C^{N+1}[a,b]$, the pointwise error satisfies
+%
+\begin{equation}
+  f(x) - p_N(x)
+    = \frac{f^{(N+1)}(\xi)}{(N+1)!}\;\omega_{N+1}(x) \,,
+  \label{eq:interp-error}
+\end{equation}
+%
+where $\xi \in [a,b]$ depends on $x$ and $\omega_{N+1}$ is the
+\emph{node polynomial}
+%
+\begin{equation}
+  \omega_{N+1}(x)
+    = \prod_{j=0}^{N} (x - x_j) \,.
+  \label{eq:node-polynomial}
+\end{equation}
+%
+\Cref{eq:interp-error} separates the error into two factors: the
+smoothness of $f$ (through its $(N+1)$-th derivative) and the
+geometry of the node set (through $\omega_{N+1}$).  The first factor
+is fixed by the function being interpolated; the second is under our
+control.  Choosing nodes to minimise $\max_{x \in [a,b]}
+\abs{\omega_{N+1}(x)}$ is the central problem of interpolation
+theory, and the subject of the next section.
+\physnote{The error formula \cref{eq:interp-error} has the same
+structure as the remainder term in Taylor's theorem --- both express
+the approximation error through a higher derivative evaluated at an
+unknown intermediate point.  The difference is that Taylor's theorem
+uses a single expansion point, while Lagrange interpolation
+distributes the information across $N + 1$ nodes.}
+
+\paragraph{The Lebesgue constant.}
+
+The error formula \cref{eq:interp-error} requires $(N+1)$-th
+derivative information that is rarely available in practice.  A more
+operational measure of interpolation quality is the \emph{Lebesgue
+constant} $\Lambda_N$, defined as
+%
+\begin{equation}
+  \Lambda_N
+    = \max_{x \in [a,b]}
+      \sum_{j=0}^{N} \abs{\ell_j(x)} \,.
+  \label{eq:lebesgue-constant}
+\end{equation}
+%
+Informally, $\Lambda_N$ measures the worst-case amplification: if the
+function values $f(x_j)$ are perturbed by a small amount $\epsilon$,
+the interpolant can change by as much as $\Lambda_N\,\epsilon$.  A
+Lebesgue constant near one means the interpolant is stable; a
+Lebesgue constant of $10^4$ means tiny perturbations at the nodes
+produce enormous swings between them.  The Lebesgue constant also
+controls how close the interpolant is to the best possible polynomial
+approximation: if $p_N^*$ denotes the best approximation of degree $N$
+in the supremum norm, then
+%
+\begin{equation}
+  \norm{f - p_N}_\infty
+    \;\leq\; (1 + \Lambda_N)\,\norm{f - p_N^*}_\infty \,.
+  \label{eq:lebesgue-bound}
+\end{equation}
+%
+A small Lebesgue constant means the interpolant is near-optimal;
+a large one means the node set amplifies errors unnecessarily.  For
+equidistant nodes, $\Lambda_N$ grows exponentially with $N$ --- a fact
+that underlies the Runge phenomenon described below.
+\warnnote{The Lebesgue constant is a property of the node set alone,
+not of any particular function.  A large $\Lambda_N$ means the node
+set is a poor choice for \emph{every} smooth function, not just
+pathological ones.}
+
+\paragraph{The Runge phenomenon.}
+
+The most natural choice of nodes --- equally spaced on $[a, b]$ ---
+turns out to be catastrophically bad at high polynomial degree.  Carl
+Runge demonstrated this in 1901 using the innocent-looking function
+%
+\begin{equation}
+  f(x) = \frac{1}{1 + 25\,x^2}
+  \label{eq:runge-function}
+\end{equation}
+%
+on $[-1, 1]$.  This function is smooth, bounded, and gently peaked at
+the origin.  Yet polynomial interpolation on equidistant nodes
+diverges as $N$ increases: the interpolant develops wild oscillations
+near the endpoints that grow without bound.  At degree 15 the
+endpoint error already exceeds the function's maximum value, and by
+degree 25 the oscillations dwarf the function itself --- adding more
+data makes the approximation worse, not better.
+\histnote{Runge published this counterexample in 1901, nearly half a
+century after Chebyshev had identified the optimal node distribution
+in the 1850s.  The phenomenon surprised many who assumed that more
+data points would always improve polynomial approximation.}
+
+The node polynomial of \cref{eq:node-polynomial} reveals the
+mechanism.  For equidistant nodes, $\omega_{N+1}$
+is much larger near the endpoints than near the centre of the
+interval.  The ratio between its endpoint and midpoint values grows
+exponentially with $N$, so the error formula \cref{eq:interp-error}
+produces large errors near $x = \pm 1$ even when the derivative
+factor $f^{(N+1)}$ remains moderate.  The Lebesgue constant for
+equidistant nodes grows as
+$\Lambda_N \sim 2^N / (e\,N\ln N)$ \cite{Trefethen2000}, confirming
+that the instability is not specific to Runge's function but is an
+intrinsic property of the node distribution.
+
+\begin{figure}[t]
+\centering
+\input{../figures/runge-phenomenon.pgf}
+\caption[Runge phenomenon on equidistant vs.\ Chebyshev nodes]{%
+  Polynomial interpolation of $f(x) = 1/(1 + 25x^2)$ on $[-1,1]$.
+  (a) Equidistant nodes: the interpolant converges near the centre
+  but develops violent oscillations near the endpoints that grow
+  with increasing polynomial degree --- the Runge phenomenon.
+  (b) Chebyshev Gauss--Lobatto nodes (\cref{sec:spec-chebyshev}):
+  the interpolant converges uniformly across the entire interval,
+  with the error decreasing monotonically as $N$ increases.  The
+  clustered node placement near the endpoints suppresses the node
+  polynomial $\omega_{N+1}$, eliminating the instability.}
+\label{fig:runge-phenomenon}
+\end{figure}
+
+\paragraph{The cure: clustered nodes.}
+
+The Runge phenomenon is not a failure of polynomial interpolation
+itself but of the node placement.  The fix is to cluster nodes toward
+the endpoints of the interval, where the equidistant node polynomial
+is largest.  The idea is to make $\abs{\omega_{N+1}(x)}$ as uniform as
+possible across $[a, b]$, so that no region of the interval suffers
+disproportionately large error.
+
+The optimal node distribution on $[-1, 1]$ --- the one that minimises
+$\max_{x} \abs{\omega_{N+1}(x)}$ --- turns out to be the zeros of the
+$(N+1)$-th Chebyshev polynomial of the first kind:
+%
+\begin{equation}
+  x_j = \cos\!\left(\frac{2j + 1}{2(N+1)}\,\pi\right) ,
+  \qquad j = 0, 1, \ldots, N \,.
+  \label{eq:chebyshev-zeros}
+\end{equation}
+%
+These nodes cluster quadratically near $\pm 1$, with spacing
+$\order{1/N^2}$ at the endpoints compared to $\order{1/N}$ in the
+interior.  For this distribution, the node polynomial satisfies
+$\max_{x \in [-1,1]} \abs{\omega_{N+1}(x)} = 2^{-N}$, the smallest
+supremum norm on $[-1,1]$ achievable by any monic polynomial of
+degree $N+1$ --- a classical result of Chebyshev \cite{Trefethen2000}.  The Lebesgue constant
+grows only logarithmically, $\Lambda_N \sim (2/\pi)\ln N$, compared
+to the exponential growth for equidistant nodes.
+
+A closely related distribution --- the \emph{Chebyshev--Gauss--Lobatto}
+(CGL) nodes --- includes the endpoints $\pm 1$:
+%
+\begin{equation}
+  x_j = \cos\!\left(\frac{j}{N}\,\pi\right) ,
+  \qquad j = 0, 1, \ldots, N \,.
+  \label{eq:cgl-nodes}
+\end{equation}
+%
+The CGL nodes are the extrema of the $N$-th Chebyshev polynomial
+(which include the endpoints $\pm 1$).  They share the logarithmic Lebesgue
+growth and the quadratic endpoint clustering of the Chebyshev zeros,
+with the practical advantage that including $\pm 1$ simplifies
+boundary conditions and inter-element coupling in a spectral-element
+or DG context.
+\xrefnote{The next section (\cref{sec:spec-chebyshev}) develops the
+Chebyshev polynomial theory that explains why these particular nodes
+are optimal.  \Cref{sec:spec-lgl} derives the Legendre--Gauss--Lobatto
+(LGL) nodes used by the codebase's DG solver, which share the
+essential clustering property.}
+
+\paragraph{From interpolation to spectral methods.}
+
+The Runge phenomenon teaches that polynomial approximation can
+achieve arbitrarily high accuracy for smooth functions, but only if
+the nodes are chosen correctly.  Spectral methods build on this
+insight: they represent the numerical solution as a polynomial on
+clustered nodes and use the polynomial structure to compute
+derivatives, integrals, and inter-element fluxes.  The rest of this
+chapter develops the machinery: Chebyshev and Legendre polynomial
+bases that make clustered nodes natural, differentiation and
+quadrature operators built directly from them, and the Vandermonde
+matrices that convert between nodal and modal representations in the
+DG solver.

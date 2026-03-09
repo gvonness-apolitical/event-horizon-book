@@ -1,0 +1,186 @@
+% sec:spec-lgl — LGL Differentiation and Mass Lumping
+\section{LGL Differentiation and Mass Lumping}
+\label{sec:spec-lgl}
+
+The DG solver doesn't use a spectral differentiation matrix in the
+same way as the collocation solver of \cref{sec:spec-diffmat}.
+Collocation methods apply the $D$ matrix directly to function values;
+DG methods work in weak form, multiplying by test functions and
+integrating.  The weak-form machinery requires three matrices
+assembled from the LGL nodes and weights of
+\cref{sec:spec-legendre}: a differentiation matrix, a mass matrix,
+and a stiffness matrix.  Together with the Vandermonde matrix
+(\cref{sec:spec-vandermonde}) for modal--nodal conversion, all four
+live inside the \texttt{LglBasis} struct that the codebase constructs
+once at startup and reuses at every time step.
+\coderef{dg}{LglBasis}
+
+\paragraph{The LGL differentiation matrix.}
+
+The LGL differentiation matrix is constructed by the same recipe
+as the CGL version (\cref{sec:spec-diffmat}): the entry $D_{ij} =
+\ell_j'(x_i)$ records the derivative of the $j$-th Lagrange
+interpolant evaluated at the $i$-th node.  What changes is the node
+set --- LGL nodes instead of CGL --- and consequently the formula for
+the off-diagonal entries.  On CGL nodes the closed-form entry uses
+endpoint flags $c_i$ (\cref{eq:diffmat-cgl}); on LGL nodes the
+analogous formula uses evaluations of the Legendre polynomial $P_N$:
+%
+\begin{equation}
+  D_{ij} = \frac{P_N(x_i)}{P_N(x_j)}
+    \cdot \frac{1}{x_i - x_j} \,,
+  \qquad i \neq j \,.
+  \label{eq:lgl-diffmat-offdiag}
+\end{equation}
+%
+The values $P_N(x_i)$ are already available from the Newton iteration
+that computed the nodes (\cref{sec:spec-legendre}), so the matrix
+construction requires no additional polynomial evaluations.  The
+diagonal entries follow from the same row-sum property as before
+(\cref{eq:diffmat-rowsum}): setting $D_{ii} = -\sum_{j \neq i}
+D_{ij}$ guarantees that the matrix differentiates constants exactly.
+The two endpoint entries have closed forms that bypass the row sum:
+%
+\begin{equation}
+  D_{00} = -\frac{N(N+1)}{4} \,, \qquad
+  D_{NN} = \frac{N(N+1)}{4} \,,
+  \label{eq:lgl-diffmat-endpoints}
+\end{equation}
+%
+with all interior diagonals computed from the negative row sum.
+\implnote{The codebase function \texttt{lgl\_diff\_matrix} in
+\codemodule{dg} implements \cref{eq:lgl-diffmat-offdiag} with the
+endpoint formulas \cref{eq:lgl-diffmat-endpoints}, then fills
+interior diagonals by negative row summation --- identical in
+structure to the CGL code in \codemodule{spectral}.}
+
+\paragraph{The mass matrix.}
+
+The DG weak form multiplies the governing PDE by a test function
+$\phi_i$ and integrates over a single element.  In the Lagrange nodal
+basis, the test functions are the Lagrange interpolants $\ell_i$
+themselves, and the mass matrix that results from the left-hand side
+has entries
+%
+\begin{equation}
+  M_{ij} = \int_{-1}^{1} \ell_i(x)\,\ell_j(x)\,\d x \,.
+  \label{eq:mass-matrix}
+\end{equation}
+%
+This integral involves a product of two degree-$N$ polynomials ---
+an integrand of degree $2N$.  The LGL quadrature rule with $N + 1$
+nodes is exact for polynomials of degree at most $2N - 1$
+(\cref{sec:spec-legendre}), so it misses the mark by one degree.
+Approximating the integral by the LGL rule gives the
+\emph{lumped mass matrix}
+%
+\begin{equation}
+  \hat{M}_{ij}
+  = \sum_{k=0}^{N} w_k\,\ell_i(x_k)\,\ell_j(x_k)
+  = w_i\,\delta_{ij} \,,
+  \label{eq:mass-lumped}
+\end{equation}
+%
+where the last step uses $\ell_i(x_k) = \delta_{ik}$ (the cardinal
+property of Lagrange interpolants at the collocation nodes).  The
+lumped mass matrix is diagonal: its only entries are the LGL
+quadrature weights $w_i$ from \cref{eq:lgl-weights}.  Inverting it
+requires only $N + 1$ divisions, not a matrix solve.
+\physnote{Mass lumping is exact for all but the highest mode.  The
+quadrature error affects only the $(P_N, P_N)$ entry in the modal
+basis, as established in \cref{sec:spec-legendre}.  For smooth
+solutions, the highest mode carries exponentially small amplitude,
+so the lumping error is negligible.}
+
+\paragraph{Why mass lumping works.}
+
+The one-degree shortfall deserves scrutiny: if the quadrature doesn't
+integrate $\ell_i\,\ell_j$ exactly, why trust the result?  The
+argument from \cref{sec:spec-legendre} showed that the Legendre modal
+mass matrix is diagonal by orthogonality, and that the LGL quadrature
+reproduces this diagonality for all entries except $(P_N, P_N)$.
+In the nodal basis the same conclusion holds by a different route.
+The Lagrange interpolants at LGL nodes satisfy an exact
+discrete orthogonality --- the identity \cref{eq:mass-lumped}
+holds because of the cardinal property, regardless of the
+quadrature's polynomial exactness.  The lumped mass matrix is the
+identity (up to the weight factors) by construction --- it is the
+\emph{exact} integral of $\ell_i\,\ell_j$ that differs from it, and
+the difference is confined to a single mode.  Mass lumping doesn't
+introduce error by under-resolving a difficult integral; it
+\emph{defines} the inner product that the DG scheme uses, and that
+inner product is spectrally close to the exact one.
+\warnnote{Mass lumping is not free: it modifies the numerical scheme
+by replacing the exact $L^2$ inner product with the discrete LGL
+inner product.  For $p$-refinement studies comparing different $N$
+at fixed element count, the mass-lumping error decreases
+exponentially with $N$ and is invisible in practice.  For very
+coarse resolutions ($N = 1$ or $2$), the error can be noticeable.}
+
+\paragraph{The stiffness matrix.}
+
+The right-hand side of the DG weak form produces the stiffness
+matrix, which encodes differentiation weighted by the test function.
+Applying LGL quadrature to the integral
+$\int \ell_i(x)\,\ell_j'(x)\,\d x$ --- an integrand of degree
+$2N - 1$, so the quadrature is exact --- gives
+%
+\begin{equation}
+  S_{ij} = \sum_{k=0}^{N} w_k\,\ell_i(x_k)\,\ell_j'(x_k)
+  = w_i\,D_{ij} \,,
+  \label{eq:stiffness-matrix}
+\end{equation}
+%
+using $\ell_i(x_k) = \delta_{ik}$ and the differentiation matrix
+definition $D_{ij} = \ell_j'(x_i)$ from \cref{eq:diffmat-def}.
+The stiffness matrix is the mass-weighted differentiation matrix:
+$S = \operatorname{diag}(w_0, \ldots, w_N) \cdot D$.  The
+combination $\hat{M}^{-1} S = D$ --- the lumped mass inverse times
+the stiffness matrix is just the differentiation matrix itself.
+This identity is the algebraic payoff of mass lumping: the weak-form
+DG operator reduces to a simple matrix-vector multiply by $D$,
+with no matrix inversion at each time step.
+\xrefnote{The DG solver applies $D$ in each coordinate direction
+independently, producing the volume derivative terms.  Face
+contributions from the numerical flux are added separately
+(\cref{ch:dg-methods}).}
+
+\paragraph{Assembly in the codebase.}
+
+The \texttt{lgl\_basis} constructor in \codemodule{dg} assembles all
+four components in sequence: nodes and weights from
+\texttt{lgl\_nodes\_weights} (\cref{sec:spec-legendre}), the
+differentiation matrix from \texttt{lgl\_diff\_matrix}
+(\cref{eq:lgl-diffmat-offdiag}), and the Vandermonde matrix from
+\texttt{legendre\_all} (\cref{sec:spec-vandermonde}).  The resulting
+\texttt{LglBasis} struct stores:
+%
+\begin{lstlisting}[language=Rust]
+pub struct LglBasis {
+    pub order: usize,          // polynomial order p
+    pub n: usize,              // number of nodes: p+1
+    pub nodes: Vec<f64>,       // LGL nodes in [-1,1]
+    pub weights: Vec<f64>,     // LGL quadrature weights
+    pub d_matrix: Vec<f64>,    // D, n*n row-major
+    pub v_matrix: Vec<f64>,    // Vandermonde V (modal->nodal)
+    pub v_inv: Vec<f64>,       // V^{-1}
+}
+\end{lstlisting}
+%
+The struct is constructed once per simulation and shared across all
+elements of the same polynomial order.  At each Runge--Kutta stage,
+the volume derivative $D\,\mathbf{u}$ is computed by a dense
+matrix-vector multiply; the mass matrix never appears explicitly
+because the lumped inverse is absorbed into the operator.  For the
+polynomial orders used in practice ($N = 3$--$7$), the $D$-matrix
+multiply dominates the cost of each element update, and its
+$\order{N^2}$ operation count per node is modest --- a single
+element with $N = 5$ requires $36$ multiplies per derivative
+direction.
+\implnote{In three dimensions each element stores
+$(N+1)^3$ unknowns per field variable.  The volume derivative
+applies $D$ along each axis independently via tensor-product
+structure, reducing the per-element cost from
+$\order{N^6}$ (dense matrix) to $\order{N^4}$ (three
+one-dimensional passes) --- the sum-factorisation technique of
+\cite{Kopriva2009}.}

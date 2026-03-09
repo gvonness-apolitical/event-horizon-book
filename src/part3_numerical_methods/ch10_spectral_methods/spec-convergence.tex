@@ -1,0 +1,251 @@
+% sec:spec-convergence — Spectral Convergence
+\section{Spectral Convergence}
+\label{sec:spec-convergence}
+
+The previous sections built the machinery of spectral methods ---
+polynomial bases, differentiation matrices, quadrature rules --- but
+left a central claim unsubstantiated: that spectral methods converge
+exponentially for smooth functions.  Finite-difference methods gain a
+fixed number of digits of accuracy each time the grid is refined by a
+constant factor; spectral methods gain a fixed number of digits each
+time a single node is added.  This qualitative difference --- algebraic
+versus exponential convergence --- is the reason that twenty CGL nodes
+can match the accuracy of hundreds of finite-difference grid points
+(\cref{fig:diffmat-convergence}).  The mechanism is the rapid decay of
+Chebyshev expansion coefficients, and that decay is governed entirely
+by the smoothness and analyticity of the function being approximated.
+
+\paragraph{Coefficient decay for smooth functions.}
+
+The Chebyshev expansion coefficients $a_n$ defined in
+\cref{eq:chebyshev-expansion} are Fourier cosine coefficients in the
+variable $\theta = \arccos x$.  Integration by parts applied to the
+integral $a_n = (2/\pi c_n)\int_0^\pi
+f(\cos\theta)\cos(n\theta)\,\d\theta$ (with $c_0 = 2$, $c_n = 1$ for
+$n \geq 1$) yields a factor of $1/n$ for
+each derivative of $f$ that exists and is continuous.  A function
+$f \in C^k[-1,1]$ with a $(k+1)$-th derivative of bounded variation
+therefore has coefficients satisfying
+%
+\begin{equation}
+  \abs{a_n} = \order{n^{-(k+1)}}
+  \qquad \text{as } n \to \infty \,.
+  \label{eq:coeff-decay-smooth}
+\end{equation}
+%
+Each additional derivative of $f$ buys one more power of decay.  A
+$C^\infty$ function has coefficients that decay faster than any
+polynomial in $1/n$ --- superalgebraic decay --- because the
+integration-by-parts argument can be applied arbitrarily many times.
+\physnote{The integration-by-parts argument is the same mechanism that
+makes Fourier coefficients of smooth periodic functions decay rapidly.
+The Chebyshev case inherits this directly through the
+$x = \cos\theta$ substitution.}
+
+\paragraph{Geometric convergence for analytic functions.}
+
+Functions that are merely smooth have superalgebraic coefficient decay,
+but analytic functions do better: their coefficients decay
+geometrically.  The key idea is that an analytic function can be
+extended into the complex plane, and the Chebyshev coefficients can
+be estimated using contour integrals on an elliptical contour rather
+than on $[-1,1]$ itself.
+
+Under the substitution $x = \cos\theta$, the interval
+$[-1,1]$ lifts to the real axis of the $\theta$-plane, and the
+substitution $z = \cos\zeta$ (with $\zeta = \theta + i\sigma$)
+extends the map into the complex $x$-plane.  The image of the strip
+$\abs{\operatorname{Im}\zeta} < \sigma_0$ under $x = \cos\zeta$ is
+an ellipse in the complex $x$-plane with foci at $\pm 1$ and
+semi-axis sum
+%
+\begin{equation}
+  \rho = e^{\sigma_0} \,.
+  \label{eq:bernstein-rho}
+\end{equation}
+%
+This ellipse, called the \emph{Bernstein ellipse} $\mathcal{E}_\rho$,
+has semi-major axis $a_\rho = (\rho + \rho^{-1})/2$ along the real
+axis and semi-minor axis $b_\rho = (\rho - \rho^{-1})/2$ along the
+imaginary axis.  When $\rho$ is close to $1$ the ellipse collapses
+onto $[-1,1]$; as $\rho$ grows, the ellipse inflates into the complex
+plane.
+\histnote{The connection between analyticity in a Bernstein ellipse and
+Chebyshev coefficient decay appears in Bernstein's work from the early
+twentieth century.  The modern treatment follows Trefethen
+\cite{Trefethen2000} and the detailed exposition in
+\cite{Trefethen2019}.}%
+\warnnote{The symbol $\rho$ here denotes the Bernstein ellipse
+parameter, not the convergence ratio of a finite-difference stencil
+(\cref{sec:fd-convergence}).  Both usages are standard in their
+respective fields.}
+
+\paragraph{The geometric decay bound.}
+
+If $f$ is analytic and bounded inside the Bernstein ellipse
+$\mathcal{E}_\rho$ for some $\rho > 1$, then its Chebyshev
+coefficients satisfy
+%
+\begin{equation}
+  \abs{a_n} \leq \frac{2M}{\rho^n} \,,
+  \label{eq:coeff-decay-analytic}
+\end{equation}
+%
+where $M = \max_{z \in \mathcal{E}_\rho}\abs{f(z)}$.
+The proof uses Cauchy's integral formula: the Chebyshev coefficient
+$a_n$ is a contour integral of $f(z)T_n(z)$ around $[-1,1]$, and
+deforming the contour to $\mathcal{E}_\rho$ introduces the factor
+$\rho^{-n}$ from the growth of $T_n$ on the ellipse
+($\abs{T_n(z)} \leq \rho^n/2$ on $\mathcal{E}_\rho$ for $n \geq 1$).  The
+coefficients decay like powers of $1/\rho$ --- geometric convergence,
+with the rate set by the size of the largest ellipse inside which $f$
+remains analytic.
+\warnnote{The constant $\rho$ is determined by the nearest singularity
+of $f$ in the complex plane, not by any property of $f$ on the real
+interval alone.  A function that appears perfectly smooth on $[-1,1]$
+can have slow spectral convergence if it has a pole or branch point
+near the real axis.}
+
+\paragraph{From coefficients to interpolation error.}
+
+The Chebyshev interpolant $p_N(x) = \sum_{n=0}^{N}
+\hat{a}_n\,T_n(x)$ reproduces the first $N+1$ coefficients of $f$
+exactly (up to aliasing), so the interpolation error is controlled by
+the tail of the expansion.  For an analytic function bounded in
+$\mathcal{E}_\rho$, the truncation error satisfies
+%
+\begin{equation}
+  \norm{f - p_N}_\infty
+    \leq \frac{2M\,\rho^{-N}}{\rho - 1} \,,
+  \label{eq:spec-interp-error}
+\end{equation}
+%
+since $\sum_{n=N+1}^{\infty} \abs{a_n} \leq
+2M\sum_{n=N+1}^{\infty}\rho^{-n} = 2M\rho^{-N}/(\rho - 1)$ and
+$\abs{T_n(x)} \leq 1$ on $[-1,1]$.  The error decreases by a
+factor of $\rho$ for each additional node, confirming the exponential
+convergence observed in \cref{fig:diffmat-convergence}: the gold curve
+drops by roughly a constant factor per node until reaching machine
+precision.  The aliasing error from the discrete projection adds terms
+of order $\rho^{-2N}$, which is negligible compared to the truncation
+tail.
+\xrefnote{The Lebesgue constant (\cref{eq:lebesgue-bound}) provides an
+alternative route to the interpolation error: for CGL nodes,
+$\Lambda_N \sim (2/\pi)\ln N$, so the interpolant is within a
+logarithmic factor of the best polynomial approximation.  The bound
+\cref{eq:spec-interp-error} is tighter for analytic functions because
+it exploits the specific decay rate of the coefficients.}
+
+\paragraph{Runge's function revisited.}
+
+Runge's function $f(x) = 1/(1 + 25x^2)$ from
+\cref{sec:spec-interpolation} provides a concrete illustration.  Its
+singularities are the simple poles at $x = \pm i/5$, which lie at
+distance $1/5$ from the real axis.  The largest Bernstein ellipse inside which $f$ remains analytic has
+semi-axis sum $\rho$ determined by $b_\rho = 1/5$, where
+$b_\rho = (\rho - \rho^{-1})/2$.  Solving gives
+%
+\begin{equation}
+  \rho = \frac{1}{5} + \sqrt{1 + \frac{1}{25}}
+  = \frac{1 + \sqrt{26}}{5}
+  \approx 1.220 \,.
+  \label{eq:runge-rho}
+\end{equation}
+%
+The poles lie \emph{on} $\mathcal{E}_\rho$, so the bound
+\cref{eq:coeff-decay-analytic} holds for any $\rho' < \rho$; in
+practice the convergence rate approaches $\rho$ from below.
+Each additional Chebyshev node reduces the interpolation error by
+roughly the factor $\rho \approx 1.22$, or about $0.86$ digits per
+node.
+At $N = 15$, the predicted error is roughly $1.22^{-15} \approx
+0.037$, which matches the $\approx 4\%$ maximum error visible in
+\cref{fig:runge-phenomenon}(b).  The modest convergence rate
+--- compared to the machine-precision accuracy achieved at $N = 20$ for
+$f(x) = e^{\sin(\pi x)}$ in \cref{fig:diffmat-convergence} ---
+reflects the poles lurking close to the real axis.  An entire
+function (no finite singularities) has $\rho = \infty$, and the bound
+\cref{eq:spec-interp-error} must be replaced by a supergeometric
+estimate; for $e^{\sin(\pi x)}$, the coefficients decay
+roughly as $\order{(2/(\pi e))^n / \sqrt{n}}$.
+
+\paragraph{The convergence hierarchy.}
+
+The relationship between smoothness and convergence rate is a
+hierarchy with sharp boundaries:
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Smoothness of $f$ & Coefficient decay & Convergence rate \\
+  \midrule
+  $C^k$, $(k{+}1)$-th deriv.\ of BV
+    & $\abs{a_n} = \order{n^{-(k+1)}}$
+    & algebraic, $\order{N^{-(k+1)}}$ \\
+  $C^\infty$
+    & faster than any $n^{-k}$
+    & superalgebraic \\
+  Analytic in $\mathcal{E}_\rho$
+    & $\abs{a_n} = \order{\rho^{-n}}$
+    & geometric, $\order{\rho^{-N}}$ \\
+  Entire
+    & faster than any $\rho^{-n}$
+    & supergeometric \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Each step up in smoothness produces qualitatively faster convergence.
+A function with a discontinuity in its $k$-th derivative converges at
+the algebraic rate $\order{N^{-(k+1)}}$, indistinguishable from a
+finite-difference method of order $k + 1$ --- spectral methods buy
+nothing for non-smooth functions.  The exponential advantage emerges
+only when $f$ is analytic, and the rate improves as the nearest complex
+singularity moves further from the real axis.
+\physnote{The metric functions of the Schwarzschild and Kerr spacetimes
+in Kerr--Schild coordinates are rational functions of the Cartesian
+coordinates --- analytic everywhere except at the physical singularity
+($r = 0$).  On any domain that excludes the singularity, the spectral
+solver achieves geometric convergence with $\rho$ determined by the
+distance to $r = 0$ in the mapped coordinate.  This is why the XCTS
+solver reaches machine precision at moderate polynomial degrees
+($N \sim 20$--$30$).}
+
+\paragraph{Convergence of spectral derivatives.}
+
+Differentiating the Chebyshev expansion term by term introduces
+algebraic factors of $n$ in the derivative's coefficients, worsening
+the decay by at most one algebraic power.  For an analytic function
+with geometric coefficient decay $\abs{a_n} = \order{\rho^{-n}}$,
+these algebraic factors are absorbed by the geometric term:
+$n\rho^{-n} \to 0$ at the same geometric rate.  The spectral
+derivative therefore converges geometrically at essentially the same
+rate as the function itself --- the differentiation matrix amplifies
+errors by $\order{N^2}$ (\cref{eq:diffmat-norm}), but the
+exponentially small interpolation error shrinks fast enough to
+overwhelm this amplification.
+
+Quantitatively, the derivative error satisfies
+%
+\begin{equation}
+  \norm{f' - p_N'}_\infty
+    \leq C\,N^2\,\rho^{-N}
+  \label{eq:spec-deriv-error}
+\end{equation}
+%
+for an analytic function in $\mathcal{E}_\rho$, where $C$ depends on
+$\rho$ and $M$ but not on $N$ \cite{Trefethen2000}.  The algebraic
+prefactor $N^2$ is negligible compared to the geometric decay for any
+$\rho > 1$: at $N = 20$ and $\rho = 2$, the bound is roughly
+$400 \times 10^{-6} = 4 \times 10^{-4}$, while the actual error is
+typically much smaller because the bound is not tight.  This is the
+precise sense in which spectral convergence ``overwhelms'' the
+conditioning of the differentiation matrix, as claimed in
+\cref{sec:spec-diffmat}.
+\warnnote{The geometric convergence of spectral derivatives breaks
+down at discontinuities.  If $f$ has a jump in its $k$-th derivative,
+the spectral derivative converges only at rate
+$\order{N^{-k}}$ --- one power slower than the function itself.
+For the DG solver, each element carries its own polynomial, so
+discontinuities are confined to element interfaces and handled by
+the numerical flux, not by the spectral basis.}

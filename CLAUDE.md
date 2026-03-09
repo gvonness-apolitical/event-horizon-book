@@ -54,6 +54,22 @@ The companion code repository is at github.com/gvonness/event-horizon (Haskell +
 <!-- MEMORY_START -->
 ## Memory Context
 
-*Memory system temporarily unavailable. Will be restored on next session.*
+## Recent Context
+- [09/03/2026] [Assistant] I now have everything needed for a thorough pedagogical review. Here is my assessment:  ---  ## Pedagogical Review: Section 10.6 — LGL Differentiation and Mass Lumping  ### Verdict: **MINO...
+- [09/03/2026] [User] You are a technical writing and cross-chapter consistency specialist reviewing a draft section for notation consistency, continuity, and conventions.  ## Your scope  You check **continuity, not...
+- [09/03/2026] [Assistant] Now I have all the information I need. Let me compile the review.  ---  ## Continuity Review: `sec:spec-lgl`  ### MAJOR Issues  1. **Notation inconsistency: `$\ell_j'(x_i)$` vs registry `$...
+
+## Last Session (05/03/2026 01:44)
+- [Assistant] Now I have all the information needed to perform a rigorous mathematical review. Let me verify each formula systematically.  **Formula 1: ...
+- [User] You are a science and mathematics pedagogy specialist reviewing a draft section of a graduate-level textbook for pedagogical effectiveness.  ##...
+
+### Drafting Black Hole Sections
+This conversation cluster is about a user working with a tool to draft sections related to black holes, covering topics like Kerr horizons, geodesics, and Schwarzschild coordinates.
+
+### Lorentz Transformations and Observer Tetrads
+This topic cluster is about the Lorentz group, which describes the allowed coordinate transformations between different inertial observers in special relativity. It also discusses how observer tetrads, constructed from four vectors, generalize the local frame of an observer to curved spacetime.
+
+---
+*Memory summary: 2 topics, 3 recent items, last session included*
 
 <!-- MEMORY_END -->

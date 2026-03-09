@@ -257,6 +257,89 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | eq:adjoint-def | `sec:ad-reverse` | Adjoint variable definition: $\bar{v}_i = \partial f / \partial v_i$ |
 | eq:adjoint-accumulation | `sec:ad-reverse` | Reverse accumulation rule: $\bar{v}_i = \sum_{j \in \operatorname{succ}(i)} \bar{v}_j \, \partial v_j / \partial v_i$ |
 | eq:ad-cost-comparison | `sec:ad-reverse` | Cost crossover: forward $\sim n \times \text{cost}(f)$ vs reverse $\sim c \times \text{cost}(f)$ |
+| $\ell_j(x)$ | `sec:spec-interpolation` | Lagrange basis polynomial; $\ell_j(x_k) = \delta_{jk}$. Note: glyph collides with proper radial distance $\ell$ (`sec:gr-exact-solutions`); context distinguishes |
+| $p_N(x)$ | `sec:spec-interpolation` | Interpolating polynomial of degree $\leq N$. Note: glyph collides with pressure $p$ (`sec:gr-stress-energy`) and other uses; subscript $N$ disambiguates |
+| $p_N^*$ | `sec:spec-interpolation` | Best polynomial approximation of degree $N$ in supremum norm; appears in Lebesgue bound |
+| $\omega_{N+1}(x)$ | `sec:spec-interpolation` | Node polynomial; $\prod_{j=0}^{N}(x - x_j)$. Note: glyph collides with ZAMO angular velocity $\omega$ (`sec:kerr-horizons`); context distinguishes |
+| $\Lambda_N$ | `sec:spec-interpolation` | Lebesgue constant; supremum norm of interpolation operator. Note: glyph collides with cosmological constant $\Lambda$ (`sec:gr-efe`); subscript $N$ disambiguates |
+| $N$ (polynomial degree) | `sec:spec-interpolation` | Polynomial degree; $N+1$ interpolation nodes. Reuses $N$ from `sec:fd-stencils` (stencil points); context distinguishes |
+| $f(x)$ (Runge function) | `sec:spec-interpolation` | Generic function / Runge's function $1/(1+25x^2)$. Glyph collides with Kerr--Schild scalar $f$ (`sec:gr-exact-solutions`); context distinguishes |
+| eq:lagrange-basis | `sec:spec-interpolation` | Lagrange basis polynomial product formula |
+| eq:lagrange-interp | `sec:spec-interpolation` | Lagrange interpolation formula |
+| eq:interp-error | `sec:spec-interpolation` | Interpolation error formula with node polynomial and $(N+1)$-th derivative |
+| eq:node-polynomial | `sec:spec-interpolation` | Node polynomial $\omega_{N+1}(x) = \prod(x - x_j)$ |
+| eq:lebesgue-constant | `sec:spec-interpolation` | Lebesgue constant definition |
+| eq:lebesgue-bound | `sec:spec-interpolation` | Near-optimality bound: $\norm{f-p_N}_\infty \leq (1+\Lambda_N)\norm{f-p_N^*}_\infty$ |
+| eq:runge-function | `sec:spec-interpolation` | Runge's function $1/(1+25x^2)$ |
+| eq:chebyshev-zeros | `sec:spec-interpolation` | Chebyshev zeros: $x_j = \cos((2j+1)\pi/(2(N+1)))$ |
+| eq:cgl-nodes | `sec:spec-interpolation` | Chebyshev--Gauss--Lobatto nodes: $x_j = \cos(j\pi/N)$ |
+| $T_n(x)$ | `sec:spec-chebyshev` | Chebyshev polynomial of the first kind; $T_n(x) = \cos(n\arccos x)$ |
+| $\tilde{T}_n(x)$ | `sec:spec-chebyshev` | Monic Chebyshev polynomial; $\tilde{T}_n = T_n / 2^{n-1}$ |
+| $a_n$ (Chebyshev coefficients) | `sec:spec-chebyshev` | Chebyshev expansion coefficients; Fourier cosine coefficients under $x = \cos\theta$ |
+| $c_n$ (Chebyshev normalisation) | `sec:spec-chebyshev` | Normalisation constants: $c_0 = 2$, $c_n = 1$ for $n \geq 1$ |
+| $\theta$ (Chebyshev angle) | `sec:spec-chebyshev` | Change of variable $x = \cos\theta$; links polynomial and trigonometric domains. Note: glyph reused from angular coordinates; context distinguishes |
+| $L^2_w[-1,1]$ | `sec:spec-chebyshev` | Weighted $L^2$ space with Chebyshev weight $(1-x^2)^{-1/2}$ |
+| eq:chebyshev-def | `sec:spec-chebyshev` | Chebyshev polynomial cosine definition |
+| eq:chebyshev-recurrence | `sec:spec-chebyshev` | Three-term recurrence: $T_{n+1} = 2xT_n - T_{n-1}$ |
+| eq:chebyshev-zeros-Tn | `sec:spec-chebyshev` | Zeros of $T_n$: $x_k = \cos((2k+1)\pi/(2n))$ |
+| eq:chebyshev-extrema | `sec:spec-chebyshev` | Extrema of $T_n$ (= CGL nodes): $x_j = \cos(j\pi/n)$ |
+| eq:chebyshev-minimax | `sec:spec-chebyshev` | Minimax property: $\max\abs{\tilde{T}_n} = 2^{-(n-1)}$ |
+| eq:chebyshev-ortho | `sec:spec-chebyshev` | Chebyshev weighted orthogonality integral |
+| eq:chebyshev-expansion | `sec:spec-chebyshev` | Chebyshev series expansion with coefficient formula |
+| $D_{ij}$ | `sec:spec-diffmat` | Spectral differentiation matrix entry; $D_{ij} = \ell'_j(x_i)$; maps function values to derivative values via $\mathbf{f}' = D\mathbf{f}$ |
+| $w_j$ (barycentric) | `sec:spec-diffmat` | Barycentric weights; $w_j = 1/\prod_{k \neq j}(x_j - x_k)$. Note: glyph collides with FD stencil weights $w_k$ (`sec:fd-stencils`); context distinguishes |
+| $c_i$ (endpoint flags) | `sec:spec-diffmat` | Endpoint flags in CGL differentiation matrix; $c_0 = c_N = 2$, $c_k = 1$ otherwise. Same constants as $c_n$ in `sec:spec-chebyshev` but indexed by $i$ |
+| $D^{(2)}$ | `sec:spec-diffmat` | Second-derivative matrix; $D^{(2)} = D \cdot D$; $\norm{D^{(2)}}_2 = \order{N^4}$ |
+| eq:diffmat-deriv | `sec:spec-diffmat` | Derivative of interpolant at node: $p'_N(x_i) = \sum f(x_j)\ell'_j(x_i)$ |
+| eq:diffmat-def | `sec:spec-diffmat` | Differentiation matrix definition: $D_{ij} = \ell'_j(x_i)$ |
+| eq:bary-weights | `sec:spec-diffmat` | Barycentric weight definition |
+| eq:diffmat-offdiag | `sec:spec-diffmat` | Off-diagonal formula: $D_{ij} = (w_j/w_i)/(x_i - x_j)$ |
+| eq:diffmat-cgl | `sec:spec-diffmat` | CGL explicit formula: $D_{ij} = (c_i/c_j)(-1)^{i+j}/(x_i - x_j)$ |
+| eq:diffmat-rowsum | `sec:spec-diffmat` | Row-sum property: $\sum_j D_{ij} = 0$ |
+| eq:diffmat-diag | `sec:spec-diffmat` | Diagonal from negative row sum: $D_{ii} = -\sum_{j \neq i} D_{ij}$ |
+| eq:diffmat-d2 | `sec:spec-diffmat` | Second-derivative matrix: $D^{(2)} = D \cdot D$ |
+| eq:diffmat-norm | `sec:spec-diffmat` | Operator norm scaling: $\norm{D}_2 = \order{N^2}$ |
+| $P_n(x)$ | `sec:spec-legendre` | Legendre polynomial of degree $n$; $P_n(1) = 1$, $P_n(-1) = (-1)^n$; orthogonal with unit weight |
+| $w(x) = 1$ | `sec:spec-legendre` | Legendre orthogonality weight function; contrast with Chebyshev $(1-x^2)^{-1/2}$. Note: function $w(x)$ distinct from indexed weights $w_i$, $w_j$ |
+| $w_i$ (quadrature) | `sec:spec-legendre` | Quadrature weights (Gauss or LGL); note glyph collision with barycentric $w_j$ (`sec:spec-diffmat`) and stencil $w_k$ (`sec:fd-stencils`); context distinguishes |
+| $n$ (Gauss nodes) | `sec:spec-legendre` | Number of Gauss quadrature nodes; $N+1$ in LGL specialisation |
+| $x_i$ (LGL) | `sec:spec-legendre` | LGL quadrature nodes; $x_0=-1$, $x_N=1$, interior nodes are zeros of $P_N'$. Same glyph as interpolation nodes (`sec:spec-interpolation`) |
+| $\phi_i$ | `sec:spec-legendre` | DG basis polynomial (generic); note glyph collision with rapidity $\phi$ (`sec:sr-lorentz`) and `\bssnphi`; subscript distinguishes |
+| $M_{ij}$ | `sec:spec-legendre` | Mass matrix entry; $M_{ij} = \int \phi_i \phi_j \,\d x$ |
+| eq:legendre-recurrence | `sec:spec-legendre` | Bonnet recurrence: $(n+1)P_{n+1} = (2n+1)xP_n - nP_{n-1}$ |
+| eq:legendre-ortho | `sec:spec-legendre` | Legendre orthogonality: $\int P_m P_n \d x = \frac{2}{2n+1}\delta_{mn}$ |
+| eq:gauss-quadrature | `sec:spec-legendre` | $n$-point Gauss quadrature formula; exact for degree $\leq 2n-1$ |
+| eq:gauss-division | `sec:spec-legendre` | Division-with-remainder: $q = P_n s + r$; key step in exactness proof |
+| eq:lgl-nodes | `sec:spec-legendre` | LGL node condition: $(1-x_i^2)P_N'(x_i) = 0$ |
+| eq:lgl-weights | `sec:spec-legendre` | LGL weights: $w_i = 2/[N(N+1)P_N(x_i)^2]$ |
+| $\rho$ (Bernstein) | `sec:spec-convergence` | Bernstein ellipse semi-axis sum $\rho = e^{\sigma_0}$; determines geometric convergence rate. Note: glyph collision with FD convergence ratio $\rho$ (`sec:fd-convergence`); disambiguation warning note included in section |
+| $\mathcal{E}_\rho$ | `sec:spec-convergence` | Bernstein ellipse with foci $\pm 1$ and semi-axis sum $\rho$; analyticity domain for geometric convergence |
+| $M$ (sup norm) | `sec:spec-convergence` | $M = \max_{z \in \mathcal{E}_\rho}\lvert f(z)\rvert$; appears in coefficient and interpolation error bounds. Note: glyph collision with mass $M$ in physics chapters; context distinguishes |
+| $c_n$ (Chebyshev) | `sec:spec-convergence` | Chebyshev normalisation constants; $c_0 = 2$, $c_n = 1$ for $n \geq 1$; defined inline in coefficient integral. Same as $c_i$ in `sec:spec-diffmat` |
+| eq:coeff-decay-smooth | `sec:spec-convergence` | Algebraic decay: $\lvert a_n\rvert = \order{n^{-(k+1)}}$ for $f \in C^k$ |
+| eq:bernstein-rho | `sec:spec-convergence` | Bernstein ellipse parameter: $\rho = e^{\sigma_0}$ |
+| eq:coeff-decay-analytic | `sec:spec-convergence` | Geometric decay bound: $\lvert a_n\rvert \leq 2M/\rho^n$ |
+| eq:spec-interp-error | `sec:spec-convergence` | Truncation error bound: $\norm{f - p_N}_\infty \leq 2M\rho^{-N}/(\rho - 1)$ |
+| eq:runge-rho | `sec:spec-convergence` | Runge function $\rho = (1+\sqrt{26})/5 \approx 1.220$ |
+| eq:spec-deriv-error | `sec:spec-convergence` | Derivative error: $\norm{f' - p_N'}_\infty \leq CN^2\rho^{-N}$ |
+| $\hat{M}_{ij}$ | `sec:spec-lgl` | Lumped mass matrix; diagonal with entries $w_i\delta_{ij}$; LGL quadrature approximation to exact mass matrix $M_{ij}$ |
+| $S_{ij}$ | `sec:spec-lgl` | Stiffness matrix; $S = \hat{M} D$ (mass-weighted differentiation); $\hat{M}^{-1}S = D$ |
+| eq:lgl-diffmat-offdiag | `sec:spec-lgl` | LGL off-diagonal: $D_{ij} = P_N(x_i)/[P_N(x_j)(x_i - x_j)]$ |
+| eq:lgl-diffmat-endpoints | `sec:spec-lgl` | LGL endpoint diagonals: $D_{00} = -N(N+1)/4$, $D_{NN} = N(N+1)/4$ |
+| eq:mass-matrix | `sec:spec-lgl` | Exact mass matrix: $M_{ij} = \int \ell_i \ell_j \d x$ |
+| eq:mass-lumped | `sec:spec-lgl` | Lumped mass: $\hat{M}_{ij} = w_i\delta_{ij}$ (diagonal by cardinal property) |
+| eq:stiffness-matrix | `sec:spec-lgl` | Stiffness: $S_{ij} = w_i D_{ij}$ (exact quadrature, degree $2N{-}1$) |
+| $\hat{u}_j$ | `sec:spec-vandermonde` | Modal (Legendre expansion) coefficients; $u(x) = \sum \hat{u}_j P_j(x)$ |
+| $V_{ij}$ | `sec:spec-vandermonde` | Vandermonde matrix; $V_{ij} = P_j(x_i)$; maps modal→nodal ($\mathbf{u} = V\hat{\mathbf{u}}$) |
+| $\sigma(k)$ | `sec:spec-vandermonde` | Exponential filter function; $\sigma(k) = \exp(-\alpha(k/N)^s)$; damps high modes |
+| $F$ (filter matrix) | `sec:spec-vandermonde` | $F = V \operatorname{diag}(\sigma) V^{-1}$; nodal-space filter operator. Note: glyph collides with Faraday tensor $F_{\mu\nu}$ (`sec:gr-stress-energy`); context distinguishes |
+| $\alpha$ (filter) | `sec:spec-vandermonde` | Filter attenuation parameter; $\alpha = -\ln(10^{-16}) \approx 36.8$. Note: glyph collides with ADM lapse $\alpha$ and affine rescaling constant from `sec:geo-null`; context distinguishes |
+| $s$ (filter order) | `sec:spec-vandermonde` | Exponential filter steepness; $s = 16$ in codebase. Note: glyph collides with RK stages $s$ (`sec:rk-butcher`); context distinguishes |
+| $\kappa(V)$ | `sec:spec-vandermonde` | Condition number of Vandermonde matrix. Note: $\kappa$ collides with geodesic norm indicator (`sec:schw-orbits`); context distinguishes |
+| eq:modal-expansion | `sec:spec-vandermonde` | Legendre modal expansion: $u(x) = \sum \hat{u}_j P_j(x)$ |
+| eq:vandermonde | `sec:spec-vandermonde` | Vandermonde matrix definition: $V_{ij} = P_j(x_i)$ |
+| eq:filter-matrix | `sec:spec-vandermonde` | Filter matrix: $F = V \operatorname{diag}(\sigma) V^{-1}$ |
+| eq:exponential-filter | `sec:spec-vandermonde` | Exponential filter: $\sigma(k) = \exp(-\alpha(k/N)^s)$ |
 
 ## Analogy Registry
 
@@ -298,6 +381,16 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Local extrapolation (propagate higher-order solution) | `sec:rk-dormand-prince` | Propagate the 5th-order solution; use 4th-order companion only for error estimation. Maps: conservative error estimate applied to a more accurate solution; controller rarely allows errors exceeding the tolerance. Breaks: the $\order{h^5}$ error estimate bounds the companion's LTE, not the propagated solution's; safety is empirical, not guaranteed. |
 | Dual numbers vs complex numbers (nilpotent vs $i^2=-1$) | `sec:ad-forward` | Both extend $\mathbb{R}$ by an abstract element with a defining algebraic rule. Maps: similar algebraic structure. Breaks: $\varepsilon^2 = 0$ (nilpotent) vs $i^2 = -1$ (invertible); $\mathbb{D}$ has zero divisors and is not a field; nilpotency truncates Taylor series to first order. |
 | Forward vs reverse as chain-rule parenthesisation | `sec:ad-reverse` | Same chain-rule product, different evaluation order. Maps: forward = inputs→outputs (like dual numbers); reverse = output→inputs (like backpropagation). Breaks: parenthesisation analogy is algebraic, not geometric; it does not capture the memory overhead of reverse mode. |
+| More data = better approximation (equidistant interpolation) | `sec:spec-interpolation` | Naive expectation that adding equidistant nodes improves polynomial accuracy. Maps: true for low $N$. Breaks: Runge phenomenon — equidistant interpolation diverges at high $N$; node placement matters more than node count. |
+| Spectral stencil vs FD stencil (D density) | `sec:spec-diffmat` | $D$ is dense (all $N+1$ nodes contribute to every derivative) — spectral analogue of a wide FD stencil. Maps: more information → higher accuracy. Breaks: spectral uses global polynomials, not local Taylor expansions; mechanism is fundamentally different. |
+| Matrix-vector multiply replaces symbolic calculus | `sec:spec-diffmat` | Differentiation reduced to $D\mathbf{f}$ — no symbolic derivatives, no stencil design. Maps: linear algebra replaces calculus. Breaks: D itself encodes polynomial calculus; the matrix construction requires careful numerics (barycentric weights, row-sum diagonal). |
+| Chebyshev weight for collocation vs Legendre weight for DG | `sec:spec-legendre` | Weight function choice matches method formulation: $(1-x^2)^{-1/2}$ for spectral collocation (cosine substitution), $w=1$ for DG (weak form, no auxiliary weight). Maps: Chebyshev natural for single-domain collocation; Legendre natural for variational formulations. Breaks: both polynomial families can be used for either purpose; the "natural" pairing is about convenience, not necessity. |
+| Smoothness-convergence hierarchy | `sec:spec-convergence` | C^k → algebraic, C^∞ → superalgebraic, analytic → geometric, entire → supergeometric. Maps: each smoothness class buys one qualitative level of convergence. Breaks: sharp only in asymptotic sense; pre-asymptotic behaviour can differ. |
+| Fourier–Chebyshev parallel (integration by parts) | `sec:spec-convergence` | Chebyshev coefficient decay mirrors Fourier coefficient decay via $x = \cos\theta$. Maps: same integration-by-parts mechanism. Breaks: Chebyshev series is not periodic; endpoint behaviour differs. |
+| Nearest singularity controls convergence (Bernstein ellipse) | `sec:spec-convergence` | Size of largest singularity-free ellipse determines $\rho$. Maps: complex-plane analyticity → real-axis convergence rate. Breaks: entire functions have no finite singularity, requiring supergeometric estimates. |
+| Orthogonal polynomial absorbs half the integrand (Gauss exactness) | `sec:spec-legendre` | Choosing zeros of $P_n$ as quadrature nodes halves the problem — orthogonality kills the $P_n \cdot s$ term, leaving only the remainder $r$ to integrate. Maps: division-with-remainder argument. Breaks: only works when nodes are exactly the zeros of the orthogonal polynomial; approximate nodes lose the exactness. |
+| Mass lumping defines the inner product (not approximates it) | `sec:spec-lgl` | Lumped mass matrix is exact by cardinal property; it defines the DG discrete inner product, which is spectrally close to the $L^2$ inner product. Maps: reframes "approximation" as "definition". Breaks: the defined inner product differs from the exact one for the highest mode; error noticeable only at very low $N$. |
+| Modal filtering as spectral-element Kreiss–Oliger dissipation | `sec:spec-vandermonde` | Both add controlled damping to high-frequency modes to stabilise the scheme near under-resolved features. Maps: exponential filter targets the modal spectrum directly; KO targets the grid wavenumber via FD operators. Breaks: KO is a spatial derivative operator applied at every step; modal filtering is a transform-multiply-transform operation applied selectively near punctures. |
 
 ## Forward / Backward References
 
@@ -391,6 +484,16 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | AD type for exact metric derivatives | `sec:geo-null` | `sec:ad-christoffels` ✓ |
 | AD type for exact metric derivatives | `sec:geo-raytracing` | `sec:ad-christoffels` ✓ |
 | Reverse-mode AD for parameter estimation and differentiable rendering | `sec:ad-reverse` | Future chapters on parameter fitting / rendering (TBD) |
+| Chebyshev polynomial theory behind optimal nodes | `sec:spec-interpolation` | `sec:spec-chebyshev` ✓ |
+| LGL nodes used by DG solver | `sec:spec-interpolation` | `sec:spec-lgl` ✓ |
+| Spectral convergence theorem (coefficient decay rates) | `sec:spec-chebyshev` | `sec:spec-convergence` ✓ |
+| Differentiation matrices from CGL nodes | `sec:spec-chebyshev` | `sec:spec-diffmat` ✓ |
+| Spectral convergence theorem (exponential error decay) | `sec:spec-diffmat` | `sec:spec-convergence` ✓ |
+| Legendre polynomial theory behind LGL nodes | `sec:spec-diffmat` | `sec:spec-legendre` ✓ |
+| LGL quadrature weights | `sec:spec-diffmat` | `sec:spec-lgl` ✓ |
+| Legendre polynomials and recurrence | `sec:spec-chebyshev` | `sec:spec-legendre` ✓ |
+| LGL differentiation matrix and Vandermonde matrices | `sec:spec-legendre` | `sec:spec-lgl` ✓ |
+| Vandermonde matrix for modal-nodal conversion and filtering | `sec:spec-lgl` | `sec:spec-vandermonde` ✓ |
 
 ## Key Decisions
 
@@ -448,6 +551,16 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $r_- = 0$ at $a = 0$ noted as singularity, not Cauchy horizon | In Schwarzschild limit, inner "horizon" coincides with $r = 0$ curvature singularity | `sec:kerr-bl` |
 | BL coordinates pedagogical, KS computational | BL used for analytic structure (horizons, limiting cases); KS used by codebase for integration | `sec:kerr-bl` |
 | Ingoing KS form (not outgoing) | Ingoing principal null rays are coordinate lines; codebase uses ingoing form; outgoing variant acknowledged but not developed | `sec:kerr-ks` |
+| $w_i$ glyph reuse (quadrature vs barycentric vs stencil) | Quadrature weights $w_i$ (`sec:spec-legendre`), barycentric weights $w_j$ (`sec:spec-diffmat`), stencil weights $w_k$ (`sec:fd-stencils`) all use $w$ with subscripts; context distinguishes | `sec:spec-legendre` |
+| $n$ for Gauss nodes, $N+1$ for LGL nodes | Standard convention: Gauss theorem stated for generic $n$ nodes; LGL specialisation uses $N+1$ to match chapter's polynomial-degree $N$ convention | `sec:spec-legendre` |
+| 0-indexed Gauss quadrature sum | Changed from 1-indexed ($i=1,\ldots,n$) to 0-indexed ($i=0,\ldots,n-1$) per chapter convention; all prior sections use 0-indexing | `sec:spec-legendre` |
+| Mass lumping described in modal basis | Explained diagonality in Legendre modal basis; deferred nodal-basis treatment to `sec:spec-lgl` | `sec:spec-legendre` |
+| Vandermonde $V$ maps modal→nodal | $V_{ij} = P_j(x_i)$; standard convention. Codebase comment says "nodal→modal" (incorrect); textbook listing corrected | `sec:spec-lgl` |
+| Stiffness quadrature exact | Integrand $\ell_i \ell'_j$ has degree $2N{-}1$; LGL exact for degree $\leq 2N{-}1$; contrasts mass matrix (degree $2N$, one short) | `sec:spec-lgl` |
+| $\alpha = -\ln(10^{-16})$ not IEEE $\epsilon_\text{m}$ | Codebase uses `-(1e-16_f64).ln()`, not `f64::EPSILON.ln()`; $10^{-16} \approx \epsilon_\text{m}$ but not identical | `sec:spec-vandermonde` |
+| "$k \lesssim N/2$" filter transparency threshold | $\sigma(0.5) \approx 1 - 10^{-14}$ for $s=16$; original draft's "$0.8N$" was wrong ($\sigma(0.8) \approx 0.36$) | `sec:spec-vandermonde` |
+| "Same asymptotic scaling" not "matching cost" | Filtering costs $\sim 2\times$ derivative (two matrix multiplies + diagonal), but both are $\order{N^4}$; "matching" was misleading | `sec:spec-vandermonde` |
+| Legendre ODE for $P_N''$ in Newton iteration | Avoids differentiating recurrence a second time; rearranges ODE $(1-x^2)P'' = 2xP' - N(N+1)P$ for $\abs{x} < 1$ | `sec:spec-legendre` |
 | "AD metric-derivative" not "AD Jacobian" | Consistent with ch:autodiff terminology; section uses "AD metric-derivative evaluation" | `sec:rk-geodesic-application` |
 | $p_z$ (not $p_\theta$) for zero-crossing example | Cartesian KS coordinates have no $p_\theta$; $p_z$ crosses zero for photons crossing equatorial plane | `sec:rk-geodesic-application` |
 | Velocity substitution explicit in RHS equation | eq:geodesic-rhs notes $\dot{x}^\alpha = g^{\alpha\beta}p_\beta$ feeds from velocity into momentum equation; matches codebase evaluation order | `sec:rk-geodesic-application` |
@@ -554,3 +667,15 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Reverse-mode AD as `\starmark` survey | Section surveys reverse mode for completeness; codebase uses forward mode exclusively; no code excerpts needed | `sec:ad-reverse` |
 | $c$ for reverse-mode constant, not speed of light | Geometric units convention ($c = 1$) removes speed-of-light $c$; no ambiguity in context | `sec:ad-reverse` |
 | "Mathematically equivalent" not "identical" for backpropagation | Backpropagation is a specific instance of reverse-mode AD applied to neural-network loss functions; "equivalent" is more precise | `sec:ad-reverse` |
+| Diagonal via negative row sum (not closed form) | Row-sum construction guarantees $\sum_j D_{ij} = 0$ to machine precision; closed-form diagonal violates by $\order{N\epsilon_{\text{mach}}}$ | `sec:spec-diffmat` |
+| $w_j$ barycentric glyph collision acknowledged | Same glyph as FD stencil weights $w_k$ (`sec:fd-stencils`); no conflict in practice because contexts are non-overlapping | `sec:spec-diffmat` |
+| "Analytic function" for $10^{-12}$ accuracy claim | Smooth but non-analytic functions have algebraic Chebyshev coefficient decay; exponential convergence to machine precision requires analyticity | `sec:spec-diffmat` |
+| $\rho$ disambiguation (Bernstein vs FD) | Bernstein ellipse $\rho$ (`sec:spec-convergence`) vs FD convergence ratio $\rho$ (`sec:fd-convergence`); warning note in section disambiguates; standard in both communities | `sec:spec-convergence` |
+| Truncation error bound (not full interpolation error) | eq:spec-interp-error bounds truncation tail only; aliasing contributes $\order{\rho^{-2N}}$ stated separately. Reviewer suggested $4M$ for full interpolation; rejected as truncation-only bound is standard (Trefethen Thm 8.2) | `sec:spec-convergence` |
+| $N^2$ derivative prefactor (not $N$) | eq:spec-deriv-error uses $N^2$ from $\norm{D}_2 = \order{N^2}$ multiplied by interpolation error; this is the conventional bound, not the tighter tail-sum bound with $N$ prefactor | `sec:spec-convergence` |
+| "Exact discrete orthogonality" wording | Cardinal property $\ell_i(x_k) = \delta_{ik}$ makes eq:mass-lumped hold exactly regardless of quadrature accuracy; "approximate" was misleading. Corrected per physicist + mathematician consensus | `sec:spec-lgl` |
+| eq:discrete-ortho removed as duplicate | Originally repeated eq:mass-lumped verbatim; replaced with back-reference to avoid redundant label | `sec:spec-lgl` |
+| $\sigma(0.8N)$ quantitative claim corrected | Draft claimed modes below $0.8N$ attenuated by $< 10^{-14}$; $\sigma(0.8) \approx 0.36$ (far from 1). Corrected to "$k \lesssim N/2$" per physicist MAJOR issue | `sec:spec-vandermonde` |
+| $\order{10}$ replaced with "of order $10$" | Big-O notation $\mathcal{O}(10)$ is meaningless (constant independent of parameters); mathematician MAJOR issue | `sec:spec-vandermonde` |
+| Unisolvence sentence added after eq:vandermonde | Invertibility of $V$ was stated but not justified; added appeal to unisolvence theorem and cross-reference to `sec:spec-interpolation` | `sec:spec-vandermonde` |
+| Orthogonality argument removed from conditioning paragraph | Legendre orthogonality does not imply good conditioning of $V$ (that depends on node distribution, not basis orthogonality); kept node-distribution argument only | `sec:spec-vandermonde` |

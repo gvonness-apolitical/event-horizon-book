@@ -1,0 +1,160 @@
+% sec:spec-vandermonde — Vandermonde Matrices and Modal-Nodal Representations
+\section{Vandermonde Matrices and Modal-Nodal Representations}
+\label{sec:spec-vandermonde}
+
+The LGL basis stores function values at nodes — a \emph{nodal}
+representation.  The Legendre polynomials $P_0, P_1, \ldots, P_N$
+provide an alternative \emph{modal} representation in which a
+polynomial is described by its expansion coefficients.  Converting
+between the two is a matrix multiply, and the matrix that performs
+the conversion appears in every spectral filtering or limiting
+operation.  When the DG solver encounters steep gradients near a
+black hole puncture, it needs to damp high-frequency oscillations
+without corrupting the smooth part of the solution — and damping is
+far more natural in the modal picture, where ``high frequency'' simply
+means ``large index $k$''.
+\coderef{dg}{LglBasis}
+
+\paragraph{The Vandermonde matrix.}
+
+A polynomial of degree $N$ can be written in the Legendre modal basis
+as
+%
+\begin{equation}
+  u(x) = \sum_{j=0}^{N} \hat{u}_j\,P_j(x) \,,
+  \label{eq:modal-expansion}
+\end{equation}
+%
+where $\hat{u}_j$ are the modal coefficients.  Evaluating this
+expansion at the $i$-th LGL node $x_i$ gives
+$u(x_i) = \sum_j V_{ij}\,\hat{u}_j$, where the Vandermonde matrix
+has entries
+%
+\begin{equation}
+  V_{ij} = P_j(x_i) \,, \qquad
+  i, j = 0, \ldots, N \,.
+  \label{eq:vandermonde}
+\end{equation}
+%
+Since the $N + 1$ LGL nodes are distinct and $\{P_0, \ldots, P_N\}$
+is a basis for the polynomials of degree $\leq N$, the Vandermonde
+matrix is nonsingular --- this is the unisolvence theorem for
+polynomial interpolation (\cref{sec:spec-interpolation}).  In matrix
+notation, $\mathbf{u} = V\hat{\mathbf{u}}$: the Vandermonde matrix
+maps modal coefficients to nodal values.  The inverse transform
+$\hat{\mathbf{u}} = V^{-1}\mathbf{u}$ recovers the modal
+coefficients from the nodal data.
+\implnote{The codebase constructs $V$ in \texttt{lgl\_basis} by
+evaluating \texttt{legendre\_all} at each LGL node, then computes
+$V^{-1}$ via LU decomposition.  For the polynomial orders used in
+practice ($N \leq 7$), the matrix is at most $8 \times 8$ and the
+inversion is negligible.}
+
+\paragraph{Conditioning.}
+
+The Vandermonde matrix on LGL nodes is well-conditioned for moderate
+polynomial orders because the LGL nodes are near-optimal
+interpolation points for the Legendre basis: they cluster near the
+endpoints in a pattern closely related to the Chebyshev distribution
+that minimises the Lebesgue constant
+(\cref{sec:spec-interpolation}).  For $N \leq 7$ the condition number
+$\kappa(V)$ remains modest --- of order $10$ --- so the matrix
+inversion introduces no significant round-off amplification.  At very
+high orders ($N \gtrsim 20$), the condition number grows and the
+transform should be performed via a recurrence or fast algorithm
+rather than dense inversion, but the DG solver in the codebase
+operates at $N = 3$--$7$ where the dense approach is both fast and
+stable.
+\warnnote{The Vandermonde matrix on \emph{equidistant} nodes is
+notoriously ill-conditioned: $\kappa(V)$ grows exponentially with $N$.
+LGL (and CGL) nodes avoid this by clustering at the endpoints, just
+as they tame the Runge phenomenon for interpolation
+(\cref{sec:spec-interpolation}).}
+
+\paragraph{Modal filtering.}
+
+The primary use of the Vandermonde transform in the codebase is
+\emph{modal filtering}: selectively damping the highest-order
+expansion modes to remove oscillations near discontinuities or sharp
+features.  The idea is straightforward.  Transform the nodal
+solution to modal space via $\hat{\mathbf{u}} = V^{-1}\mathbf{u}$,
+multiply each coefficient by a filter function $\sigma(k)$ that
+equals $1$ for low modes and decays to $0$ for the highest mode,
+then transform back via $\mathbf{u}_{\text{filtered}} =
+V\,\hat{\mathbf{u}}_{\text{filtered}}$.  In the nodal basis the
+entire operation is a single matrix multiply by the filter matrix
+%
+\begin{equation}
+  F = V \cdot \operatorname{diag}\bigl(\sigma(0), \sigma(1),
+    \ldots, \sigma(N)\bigr) \cdot V^{-1} \,.
+  \label{eq:filter-matrix}
+\end{equation}
+%
+Because $V$, $V^{-1}$, and the filter weights are all fixed for a
+given polynomial order, $F$ can be assembled once at startup and
+reused --- filtering reduces to a single matrix-vector multiply per
+element per coordinate direction.  The filter function used in the
+codebase is the exponential filter of order $s$:
+%
+\begin{equation}
+  \sigma(k) = \exp\!\Bigl(-\alpha\,\Bigl(\frac{k}{N}\Bigr)^{\!s}\Bigr) \,,
+  \label{eq:exponential-filter}
+\end{equation}
+%
+where $\alpha = -\ln(10^{-16}) = 16\ln 10 \approx 36.8$ sets the
+attenuation of the highest mode to $\sigma(N) = 10^{-16} \approx
+\epsilon_{\text{m}}$, and $s$ controls the steepness of the roll-off.
+For $s = 1$ the filter resembles a low-pass with gradual decay; for
+large $s$ it acts as a near-ideal brick-wall that leaves low modes
+untouched and kills the highest modes.  The codebase uses $s = 16$,
+which leaves modes $k \lesssim N/2$ essentially unchanged
+($1 - \sigma < 10^{-14}$) while concentrating the attenuation in
+the top few modes --- $\sigma(N) = 10^{-16}$.
+\physnote{Modal filtering is the spectral-element analogue of
+Kreiss--Oliger dissipation (\cref{sec:fd-dissipation}).  Both add
+controlled damping to high-frequency modes to stabilise the scheme
+near under-resolved features.  The exponential filter targets the
+modal spectrum directly; Kreiss--Oliger dissipation targets the grid
+wavenumber via finite-difference operators.}
+
+\paragraph{Tensor-product filtering in three dimensions.}
+
+In three dimensions the solution on a hexahedral element has
+$(N+1)^3$ degrees of freedom.  A naive application of
+\cref{eq:filter-matrix} would require multiplying by the full
+$(N+1)^3 \times (N+1)^3$ filter matrix --- an $\order{N^6}$ operation
+per element.  The tensor-product structure of the LGL basis reduces
+this to three one-dimensional passes, one along each coordinate
+direction.  Each pass applies $V^{-1}$, multiplies by the diagonal
+filter, and applies $V$; the total cost is $\order{N^4}$ per element,
+the same asymptotic scaling as the volume derivative from
+\cref{sec:spec-lgl}.
+\implnote{The function \texttt{apply\_modal\_filter} in
+\codemodule{dg} implements the tensor-product filter using $s = 16$.
+It loops over $x$, $y$, $z$ lines in sequence, applying the 1D
+forward transform $V^{-1}$, the diagonal filter, and the backward
+transform $V$ to each line --- the same sum-factorisation strategy
+used for derivatives (\cref{sec:spec-lgl}).}
+
+\paragraph{When to filter.}
+
+Not every element needs filtering --- applying it uniformly wastes
+work and unnecessarily diffuses smooth solutions.  The codebase
+applies the exponential filter only to elements near a black hole
+puncture, where the initial data or evolved fields contain steep
+gradients that the polynomial basis cannot resolve.  In such
+elements the highest Legendre modes carry non-negligible amplitude
+and, without damping, produce Gibbs-like oscillations that can
+corrupt the evolution.  The filter removes these oscillations at the
+cost of spectral accuracy in the filtered region --- a deliberate
+trade-off, since the solution near a puncture is not smooth and
+spectral accuracy was never available there.
+
+The Vandermonde matrix completes the LGL toolbox: nodes, weights,
+differentiation matrix, and now the modal-nodal transform that
+enables filtering.  Together these components form the
+\texttt{LglBasis} struct that the DG solver constructs once and reuses
+throughout the simulation.
+\xrefnote{The DG chapter (\cref{ch:dg-methods}) discusses the
+filtering strategy in the context of puncture initial data and the
+interplay with the Rusanov numerical flux.}

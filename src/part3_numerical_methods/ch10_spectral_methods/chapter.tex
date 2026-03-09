@@ -2,58 +2,50 @@
 \chapter{Spectral Methods}
 \label{ch:spectral-methods}
 
-Spectral methods achieve exponential convergence for smooth problems by
-representing functions as global polynomial expansions. This chapter develops
-the Chebyshev and Legendre frameworks used in the codebase's discontinuous
-Galerkin solver, covering interpolation, differentiation matrices, quadrature,
-and the modal-nodal duality.
+The finite difference stencils of \cref{ch:finite-differences} approximate
+derivatives by combining a handful of neighbouring grid values --- five points
+for a fourth-order first derivative, seven for the dissipation operator.
+Adding more points to the stencil raises the order of accuracy, but the
+improvement is only algebraic: doubling the stencil width roughly doubles the
+convergence rate.  Spectral methods take the idea to its logical conclusion
+by using \emph{every} point in the element to approximate the derivative at
+each node.  The resulting differentiation matrix is dense rather than banded,
+and for smooth functions the convergence is no longer algebraic but
+\emph{exponential} --- each additional node can buy an extra digit of
+accuracy rather than a fixed fraction of one.  This is the accuracy advantage
+that makes high-order discontinuous Galerkin (DG) methods competitive with
+finite differences at a fraction of the grid resolution.
 
-\section{Polynomial Interpolation}
-\label{sec:spec-interpolation}
+The practical question is which polynomials and which nodes.  The chapter
+opens with the interpolation theory that governs the choice, showing how
+equidistant nodes fail catastrophically at high order (the Runge phenomenon)
+and how clustered nodes cure the instability.  Two polynomial families
+provide the clustering: Chebyshev polynomials, whose zeros and extrema
+deliver near-optimal interpolation points for collocation methods, and
+Legendre polynomials, whose orthogonality under the unit weight function
+makes them the natural basis for the DG weak form.  The Legendre--Gauss--Lobatto
+(LGL) nodes that the codebase uses sit at the intersection of these two
+threads --- they inherit the endpoint clustering that tames the Runge
+phenomenon and the quadrature exactness that makes mass lumping diagonal.
 
-We review Lagrange interpolation on general node sets, introduce the Runge
-phenomenon, and motivate the use of clustered node distributions.
+The chapter assembles the LGL toolbox piece by piece: interpolation and
+the Lebesgue constant (\cref{sec:spec-interpolation}), Chebyshev polynomial
+theory (\cref{sec:spec-chebyshev}), spectral differentiation matrices
+(\cref{sec:spec-diffmat}), Legendre polynomials and Gaussian quadrature
+(\cref{sec:spec-legendre}), convergence rates tied to function smoothness
+(\cref{sec:spec-convergence}), the LGL differentiation and mass matrices
+used in the DG weak form (\cref{sec:spec-lgl}), and the Vandermonde
+transform that converts between nodal and modal representations for spectral
+filtering (\cref{sec:spec-vandermonde}).
 
-\section{Chebyshev Polynomials and Gauss-Lobatto Nodes}
-\label{sec:spec-chebyshev}
-\coderef{spectral}{rs}
-
-We define the Chebyshev polynomials of the first kind, derive the
-Gauss-Lobatto node distribution, and show that it near-optimally suppresses
-interpolation error.
-
-\section{Differentiation Matrices}
-\label{sec:spec-diffmat}
-
-We construct the polynomial differentiation matrix that maps function values
-at collocation nodes to derivative values, and discuss its conditioning.
-
-\section{Legendre Polynomials and Gaussian Quadrature}
-\label{sec:spec-legendre}
-
-We introduce Legendre polynomials, derive Gauss and Gauss-Lobatto quadrature
-rules, and establish the exactness conditions for polynomial integrands.
-
-\section{Spectral Convergence}
-\label{sec:spec-convergence}
-
-We state and illustrate the exponential convergence theorem for spectral
-methods applied to smooth functions, contrasting with the algebraic
-convergence of finite differences.
-
-\section{Legendre-Gauss-Lobatto Quadrature}
-\label{sec:spec-lgl}
-\coderef{dg}{rs}
-
-We detail the LGL quadrature rule and its role in the mass-lumping
-approximation used by the discontinuous Galerkin scheme.
-
-\section{Vandermonde Matrices and Modal-Nodal Representations}
-\label{sec:spec-vandermonde}
-
-We define the Vandermonde matrix that transforms between modal (expansion
-coefficient) and nodal (point value) representations, and discuss its use in
-filtering and limiting.
+% ---- Drafted sections ----
+\input{part3_numerical_methods/ch10_spectral_methods/spec-interpolation}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-chebyshev}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-diffmat}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-legendre}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-convergence}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-lgl}
+\input{part3_numerical_methods/ch10_spectral_methods/spec-vandermonde}
 
 \paragraph{Key References.}
 The spectral-methods framework follows \cite{Hesthaven2007} and

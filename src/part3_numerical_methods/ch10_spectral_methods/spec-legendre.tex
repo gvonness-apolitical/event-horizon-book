@@ -1,0 +1,240 @@
+% sec:spec-legendre — Legendre Polynomials and Gaussian Quadrature
+\section{Legendre Polynomials and Gauss Quadrature}
+\label{sec:spec-legendre}
+
+The Chebyshev polynomials of \cref{sec:spec-chebyshev} carry a weight
+function $(1 - x^2)^{-1/2}$ that diverges at the endpoints --- natural
+for the cosine change of variable, but awkward for a DG solver that
+needs unweighted $L^2$ inner products to build mass and stiffness
+matrices.  The Legendre polynomials are the orthogonal family for the
+simplest possible weight: $w(x) = 1$.  Their zeros and extrema define
+the Gauss and Gauss--Lobatto quadrature rules that underpin every
+integral evaluation in the DG codebase, and the exactness of these
+rules for polynomial integrands is what makes spectral-element methods
+work.
+\coderef{dg}{rs}
+
+\paragraph{The Bonnet recurrence.}
+
+To use Legendre polynomials in a numerical code, we need a stable way
+to evaluate $P_n(x)$ at arbitrary points without computing
+coefficients explicitly.  The Legendre polynomials satisfy the
+three-term recurrence
+%
+\begin{equation}
+  (n+1)\,P_{n+1}(x) = (2n+1)\,x\,P_n(x) - n\,P_{n-1}(x) \,,
+  \label{eq:legendre-recurrence}
+\end{equation}
+%
+with $P_0(x) = 1$ and $P_1(x) = x$.  The first few are
+$P_2(x) = (3x^2 - 1)/2$ and $P_3(x) = (5x^3 - 3x)/2$.  Each $P_n$
+is a polynomial of degree exactly $n$ with $P_n(1) = 1$ and
+$P_n(-1) = (-1)^n$; the normalisation at $x = 1$ fixes the leading
+coefficient and distinguishes the Legendre convention from the monic
+convention used in the Chebyshev minimax theorem
+(\cref{eq:chebyshev-minimax}).  The recurrence is the standard method
+for evaluating $P_n(x)$: starting from $P_0 = 1$ and $P_1 = x$, each
+step costs two multiplies and a subtract, accumulating the polynomial
+value from degree $0$ up to $n$.
+\implnote{The codebase's \texttt{legendre\_and\_deriv} function in
+\codemodule{dg} evaluates $P_n(x)$ and $P_n'(x)$ simultaneously
+by differentiating the Bonnet recurrence
+(\cref{eq:legendre-recurrence}): each step updates $P_k'$
+alongside $P_k$, accumulating both values from degree $0$ up to $n$.
+Both are needed at each Newton step when computing LGL nodes.}
+
+\begin{figure}[t]
+\centering
+\input{../figures/legendre-polynomials.pgf}
+\caption[Legendre polynomials]{The first six Legendre polynomials on
+  $[-1,1]$.  Each $P_n$ has exactly $n$ zeros in the interior of the
+  interval and satisfies the normalisation $P_n(1) = 1$.  Unlike the
+  Chebyshev polynomials, whose local extrema all have magnitude $1$ by
+  the cosine definition, the Legendre polynomials oscillate with
+  non-uniform amplitude: the local maxima of $\abs{P_n}$ are largest
+  near the endpoints and decay toward the centre of the interval,
+  though $\abs{P_n(x)} \leq 1$ everywhere.  The dots on the $x$-axis
+  mark the six Legendre--Gauss--Lobatto nodes (the extrema of $P_5$
+  together with $\pm 1$), which cluster toward the endpoints in the
+  same quadratic pattern as the CGL nodes of
+  \cref{sec:spec-chebyshev}.}
+\label{fig:legendre-polynomials}
+\end{figure}
+
+\paragraph{Orthogonality.}
+
+The Legendre polynomials are orthogonal on $[-1,1]$ with unit weight:
+%
+\begin{equation}
+  \int_{-1}^{1} P_m(x)\,P_n(x)\,\d x
+  = \frac{2}{2n+1}\,\delta_{mn} \,.
+  \label{eq:legendre-ortho}
+\end{equation}
+%
+The integral $\int P_m\,P_n\,\d x$ vanishes unless $m = n$, with no
+auxiliary weight function --- exactly the structure the DG mass matrix
+entries $\int \phi_i\,\phi_j\,\d x$ require to decouple in a modal
+basis.  The unit weight is the essential difference from the Chebyshev
+case (\cref{eq:chebyshev-ortho}), where the inner product carries the
+factor $(1 - x^2)^{-1/2}$.
+\physnote{The Chebyshev weight $(1-x^2)^{-1/2}$ arises from the
+$x = \cos\theta$ substitution and is natural for spectral collocation
+on a single domain.  The Legendre unit weight is natural for
+variational (weak-form) methods like DG, where the governing equations
+are integrated against test functions without any auxiliary weight.}
+
+\paragraph{Gaussian quadrature.}
+
+The DG solver must evaluate integrals of polynomial functions at every
+time step --- mass matrices, flux terms, source terms.  Quadrature
+rules approximate these integrals as weighted sums of point
+evaluations, and the central question is: how many points suffice for
+exact results?  A rule with $n$ nodes and $n$ weights has $2n$ free
+parameters, so it can in principle satisfy $2n$ independent
+conditions.  Gaussian quadrature chooses both nodes and weights to
+maximise the polynomial degree of exactness: the $n$-point Gauss rule
+%
+\begin{equation}
+  \int_{-1}^{1} f(x)\,\d x
+  \;\approx\; \sum_{i=0}^{n-1} w_i\,f(x_i)
+  \label{eq:gauss-quadrature}
+\end{equation}
+%
+is exact for all polynomials of degree at most $2n - 1$.  No
+quadrature rule with $n$ nodes can do better --- the $2n$ conditions
+(one for each monomial $1, x, \ldots, x^{2n-1}$) exactly exhaust the
+available degrees of freedom.
+\histnote{Gauss derived this result in 1814 for the specific case of
+the Legendre weight, using continued fractions.  The connection to
+orthogonal polynomials was established later by Jacobi and
+Christoffel.}
+
+\paragraph{Why exactness holds.}
+
+The mechanism behind the $2n - 1$ exactness is a
+division-with-remainder argument.  Any polynomial $q$ of degree at
+most $2n - 1$ can be written
+%
+\begin{equation}
+  q(x) = P_n(x)\,s(x) + r(x) \,,
+  \label{eq:gauss-division}
+\end{equation}
+%
+where $s$ and $r$ are polynomials of degree at most $n - 1$.
+Integrating both sides and using orthogonality
+(\cref{eq:legendre-ortho}), the first term vanishes:
+$\int P_n\,s\,\d x = 0$ because $s$ is a linear combination of
+$P_0, \ldots, P_{n-1}$, all orthogonal to $P_n$.  So
+$\int q\,\d x = \int r\,\d x$.  If the quadrature nodes $x_i$ are
+the zeros of $P_n$, then $q(x_i) = r(x_i)$ at every node (because
+$P_n(x_i) = 0$), and a quadrature rule that integrates $r$ exactly
+--- which has degree at most $n - 1$, well within reach of $n$ nodes
+--- also integrates $q$ exactly.  The weights are uniquely determined
+by requiring exactness on polynomials of degree at most $n - 1$; the
+division argument then guarantees exactness extends to degree
+$2n - 1$.  In effect, choosing the zeros of $P_n$ as nodes halves
+the problem: the orthogonal polynomial absorbs half the integrand's
+complexity, leaving the quadrature rule with only the remainder to
+handle.
+\warnnote{The $n$-point Gauss rule uses the zeros of $P_n$, which
+lie strictly inside $(-1,1)$ --- the endpoints are not included.
+For boundary-value problems and inter-element coupling in a DG
+solver, one needs the endpoints in the node set.  This motivates the
+Gauss--Lobatto variant below.}
+
+\paragraph{Gauss--Lobatto nodes.}
+
+The Legendre--Gauss--Lobatto (LGL) nodes fix the endpoints
+$x_0 = -1$ and $x_N = 1$ and choose the remaining $N - 1$ interior
+nodes to maximise exactness.  With two of the $N + 1$ node positions
+fixed, the $N - 1$ free interior positions and $N + 1$ free weights
+give $2N$ parameters, enough for exactness on polynomials of degree
+at most $2N - 1$.  The interior nodes are the zeros of $P_N'$, so the
+full node set satisfies
+%
+\begin{equation}
+  (1 - x_i^2)\,P_N'(x_i) = 0 \,,
+  \qquad i = 0, 1, \ldots, N \,.
+  \label{eq:lgl-nodes}
+\end{equation}
+%
+The factor $(1 - x_i^2)$ vanishes at the endpoints and $P_N'(x_i)$
+vanishes at the interior nodes, so this single condition captures
+both the fixed endpoints and the optimally chosen interior points.
+The corresponding quadrature weights are
+%
+\begin{equation}
+  w_i = \frac{2}{N(N+1)\,[P_N(x_i)]^2} \,,
+  \qquad i = 0, 1, \ldots, N \,.
+  \label{eq:lgl-weights}
+\end{equation}
+%
+At the endpoints, $P_N(\pm 1) = (\pm 1)^N$, so
+$w_0 = w_N = 2/[N(N+1)]$.  The interior weights are larger,
+reflecting the wider effective spacing of the clustered interior
+nodes.
+\xrefnote{\Cref{sec:spec-lgl} uses these nodes and weights to
+build the LGL differentiation matrix and the Vandermonde matrices
+that the DG solver uses to convert between nodal and modal
+representations.}
+
+\paragraph{Computing LGL nodes.}
+
+The interior LGL nodes --- the zeros of $P_N'$ --- cannot be written
+in closed form for general $N$.  The codebase computes them by Newton
+iteration, using the Bonnet recurrence
+(\cref{eq:legendre-recurrence}) to evaluate $P_N$ and $P_N'$ at each
+iterate.  A good initial guess comes from the Chebyshev extrema
+(\cref{eq:chebyshev-extrema}), which cluster in the same quadratic
+pattern near the endpoints.  For interior nodes ($\abs{x} < 1$), the
+second derivative $P_N''$ needed by Newton's method is not computed by
+differentiating the recurrence again; instead, the Legendre
+differential equation $(1-x^2)P_N'' - 2xP_N' + N(N+1)P_N = 0$ is
+rearranged to give $P_N''$ directly from $P_N$ and $P_N'$:
+%
+\begin{lstlisting}[language=Rust]
+// Initial guess from Chebyshev extrema
+let mut x = -(i as f64 * PI / N as f64).cos();
+// Newton on P'_N: use Legendre ODE for P''_N
+for _ in 0..MAX_ITER {
+    let (p, dp) = legendre_and_deriv(N, x);
+    // (1-x^2)P'' = 2xP' - N(N+1)P
+    let d2p = (2.0*x*dp - N*(N+1) as f64 * p)
+              / (1.0 - x*x);
+    x -= dp / d2p;
+}
+\end{lstlisting}
+%
+Newton converges quadratically from the Chebyshev initial guess,
+typically reaching machine precision in 5--8 iterations even at
+$N = 50$.  Once the nodes are known, the weights follow from
+\cref{eq:lgl-weights} using the $P_N$ values already accumulated
+during the recurrence.
+\implnote{The \texttt{LglBasis} struct in \codemodule{dg} stores the
+LGL nodes, weights, differentiation matrix, and Vandermonde matrices.
+The constructor calls \texttt{lgl\_nodes\_weights} for the nodes and
+weights, then \texttt{lgl\_diff\_matrix} for the differentiation
+matrix --- the same row-sum-diagonal construction as the Chebyshev
+case (\cref{sec:spec-diffmat}).}
+
+\paragraph{Quadrature precision in the DG solver.}
+
+The $2N - 1$ exactness of the LGL rule has a direct consequence for
+the DG mass matrix.  The mass matrix entry
+$M_{ij} = \int \phi_i\,\phi_j\,\d x$ involves products of degree-$N$
+basis polynomials, giving integrands of degree $2N$ --- one degree
+beyond the exactness threshold.  The resulting quadrature error is
+small but nonzero, and makes the discrete mass matrix slightly
+different from the exact one.  In the Legendre modal basis, the exact
+mass matrix is diagonal by orthogonality (\cref{eq:legendre-ortho}).
+The LGL-quadrature approximation is also diagonal: for $m \neq n$,
+the product $P_m\,P_n$ has degree $m + n \leq 2N - 1$ (since at
+least one index is less than $N$), so the orthogonal zero is
+reproduced exactly; the quadrature error affects only the diagonal
+$P_N \cdot P_N$ entry, whose degree $2N$ exceeds the threshold.
+This is why mass lumping --- replacing the full mass matrix by the
+diagonal matrix of quadrature weights --- is exact in the modal
+basis for all but the highest mode.  Unweighted orthogonality and
+near-exact quadrature combine to give a mass matrix that is diagonal
+by construction --- the payoff of choosing Legendre over Chebyshev
+for the DG basis.

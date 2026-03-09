@@ -1,0 +1,251 @@
+% sec:spec-chebyshev — Chebyshev Polynomials and Gauss-Lobatto Nodes
+\section{Chebyshev Polynomials and Gauss-Lobatto Nodes}
+\label{sec:spec-chebyshev}
+
+The previous section showed that clustered nodes cure the Runge
+phenomenon, and that the Chebyshev zeros minimise the node polynomial
+over all monic polynomials of a given degree.  But where do these
+special nodes come from?  The answer lies in a single change of
+variable: the map $x = \cos\theta$ transforms polynomial
+approximation on $[-1, 1]$ into trigonometric approximation on
+$[0, \pi]$, and the rich theory of Fourier series carries over
+wholesale.  The Chebyshev polynomials that emerge from this
+correspondence carry algebraic, orthogonality, and minimax properties
+that explain why the Chebyshev--Gauss--Lobatto (CGL) nodes of
+\cref{eq:cgl-nodes} --- the extrema of these polynomials --- are the
+natural choice for spectral collocation.
+\coderef{spectral}{rs}
+
+\paragraph{The cosine definition.}
+
+The $n$-th Chebyshev polynomial of the first kind is defined by the
+trigonometric identity
+%
+\begin{equation}
+  T_n(x) = \cos(n\,\arccos x) \,,
+  \qquad x \in [-1, 1] \,.
+  \label{eq:chebyshev-def}
+\end{equation}
+%
+Setting $\theta = \arccos x$ reveals the essential idea: $T_n$ is
+simply $\cos(n\theta)$ written in the variable
+$x = \cos\theta$.  The first few are $T_0(x) = 1$,
+$T_1(x) = x$, and $T_2(x) = 2x^2 - 1$ (the double-angle
+formula).  Despite the transcendental appearance of the definition,
+$T_n$ is a polynomial of degree exactly $n$ with integer
+coefficients and leading coefficient $2^{n-1}$ for $n \geq 1$.
+\histnote{Chebyshev introduced these polynomials in the 1850s in the
+context of mechanism design --- specifically, approximating a
+rectilinear linkage --- long before their role in numerical analysis
+was recognised.}
+
+\paragraph{Three-term recurrence.}
+
+The trigonometric identity
+$\cos((n+1)\theta) = 2\cos\theta\,\cos(n\theta) - \cos((n-1)\theta)$
+translates directly into the polynomial recurrence
+%
+\begin{equation}
+  T_{n+1}(x) = 2x\,T_n(x) - T_{n-1}(x) \,,
+  \label{eq:chebyshev-recurrence}
+\end{equation}
+%
+with initial conditions $T_0(x) = 1$, $T_1(x) = x$.  This
+recurrence generates every Chebyshev polynomial from the two
+simplest, and is the standard method for evaluating $T_n(x)$ at a
+given point --- each step costs one multiply and one subtract, with no
+trigonometric function calls.  The recurrence also reveals that the
+leading coefficient of $T_n$ doubles at each step, confirming the
+factor $2^{n-1}$ for $n \geq 1$.
+\implnote{The codebase's \texttt{ChebyshevBasis} in
+\codemodule{spectral} uses the cosine formula
+(\cref{eq:chebyshev-def}) to place the CGL nodes directly, rather
+than evaluating the recurrence.  The recurrence appears in the
+Legendre polynomial evaluation (\cref{sec:spec-legendre}), where the
+analogous three-term relation is the primary computational tool.}
+
+\paragraph{Zeros and extrema.}
+
+The zeros and extrema of $T_n$ are direct consequences of the
+cosine definition.  Setting $T_n(x) = \cos(n\theta) = 0$ gives
+$n\theta = (2k+1)\pi/2$, so the $n$ zeros are
+%
+\begin{equation}
+  x_k = \cos\!\left(\frac{2k + 1}{2n}\,\pi\right) ,
+  \qquad k = 0, 1, \ldots, n-1 \,.
+  \label{eq:chebyshev-zeros-Tn}
+\end{equation}
+%
+These are exactly the Chebyshev zeros of $T_n$ --- the same nodes
+that appeared in \cref{eq:chebyshev-zeros} of the previous section
+with $n = N + 1$.  The extrema of $T_n$ occur where
+$\cos(n\theta) = \pm 1$, i.e.\ $n\theta = j\pi$, giving
+the $n + 1$ points
+%
+\begin{equation}
+  x_j = \cos\!\left(\frac{j}{n}\,\pi\right) ,
+  \qquad j = 0, 1, \ldots, n \,,
+  \label{eq:chebyshev-extrema}
+\end{equation}
+%
+which are the CGL nodes of \cref{eq:cgl-nodes} with $n = N$.
+At these points, $T_n(x_j) = \cos(j\pi) = (-1)^j$: the polynomial
+alternates between $+1$ and $-1$ at its extrema, touching both
+bounds at every one of $n + 1$ equally spaced points in
+$\theta$-space.
+
+\paragraph{The minimax property.}
+
+The alternation $T_n(x_j) = (-1)^j$ at the extrema is the key to
+the minimax optimality claimed in the previous section.  Among all monic
+polynomials of degree $n$ on $[-1, 1]$, the scaled Chebyshev
+polynomial $\tilde{T}_n(x) = T_n(x) / 2^{n-1}$ has the smallest
+possible supremum norm:
+%
+\begin{equation}
+  \max_{x \in [-1,1]} \abs{\tilde{T}_n(x)}
+    = \frac{1}{2^{n-1}} \,.
+  \label{eq:chebyshev-minimax}
+\end{equation}
+%
+Any other monic polynomial of degree $n$ must have a larger
+supremum norm.  The proof is a short contradiction argument using
+the equioscillation theorem: suppose a monic polynomial $q_n$
+satisfies $\norm{q_n}_\infty < 2^{-(n-1)}$.  Then
+$\tilde{T}_n - q_n$ is a polynomial of degree at most $n - 1$
+(the leading terms cancel), but
+$\tilde{T}_n(x_j) = (-1)^j / 2^{n-1}$ has magnitude exceeding
+$\norm{q_n}_\infty$ at each of the $n + 1$ extremal points.
+Since $\abs{\tilde{T}_n(x_j)} > \norm{q_n}_\infty \geq \abs{q_n(x_j)}$,
+the sign of $\tilde{T}_n(x_j) - q_n(x_j)$ equals the sign of
+$\tilde{T}_n(x_j) = (-1)^j$.  The difference $\tilde{T}_n - q_n$
+therefore changes sign between each consecutive pair of extremal
+points, giving at least $n$ zeros --- impossible for a polynomial of
+degree $n - 1$.
+
+The minimax property explains why the Chebyshev zeros produce the
+smallest node polynomial: the monic polynomial
+$\omega_{N+1}(x) = \prod_{j=0}^{N}(x - x_j)$
+of \cref{eq:node-polynomial} is minimised in supremum norm precisely
+when it equals $\tilde{T}_{N+1}$, i.e.\ when the nodes are the
+zeros of $T_{N+1}$.
+\physnote{The equioscillation property is also the reason Chebyshev
+nodes suppress the Runge phenomenon: the node polynomial oscillates
+\emph{uniformly} across $[-1,1]$, so no region of the interval
+suffers disproportionately large interpolation error.  Equidistant
+nodes lack this balance --- the node polynomial is orders of magnitude
+larger near the endpoints.}
+
+\paragraph{Orthogonality.}
+
+The Chebyshev polynomials are orthogonal with respect to the
+weighted inner product
+%
+\begin{equation}
+  \int_{-1}^{1} T_m(x)\,T_n(x)\,
+    \frac{\d x}{\sqrt{1 - x^2}}
+  = \begin{cases}
+      0 & m \neq n \\
+      \pi & m = n = 0 \\
+      \pi/2 & m = n \geq 1
+    \end{cases}
+  \label{eq:chebyshev-ortho}
+\end{equation}
+%
+This follows directly from the substitution $x = \cos\theta$: the
+weight function $(1 - x^2)^{-1/2}$ cancels the Jacobian of the
+change of variable, and the integral reduces to
+$\int_0^\pi \cos(m\theta)\,\cos(n\theta)\,\d\theta$, which is a
+standard Fourier orthogonality integral.  The weight
+$(1 - x^2)^{-1/2}$ diverges at $x = \pm 1$, reflecting the
+clustering of the $\theta$-grid near the endpoints of $[-1,1]$
+--- the same clustering that suppresses the Runge phenomenon.
+\warnnote{The Chebyshev weight $(1-x^2)^{-1/2}$ differs from the
+Legendre weight, which is simply $1$.  The two families are
+orthogonal with respect to different inner products, and the choice
+of weight function determines which nodes (CGL vs LGL) are natural
+for a given application.  \Cref{sec:spec-legendre} develops the
+Legendre case.}
+
+\paragraph{Chebyshev expansion.}
+
+Because the Chebyshev polynomials are orthogonal
+(\cref{eq:chebyshev-ortho}), any function
+$f \in L^2_w[-1,1]$ (square-integrable with respect to
+the Chebyshev weight) in a Chebyshev series, converging in the
+weighted $L^2$ norm:
+%
+\begin{equation}
+  f(x) = \sum_{n=0}^{\infty} a_n\,T_n(x) \,,
+  \qquad
+  a_n = \frac{2}{\pi\,c_n}
+    \int_{-1}^{1} f(x)\,T_n(x)\,
+    \frac{\d x}{\sqrt{1 - x^2}} \,,
+  \label{eq:chebyshev-expansion}
+\end{equation}
+%
+where $c_0 = 2$ and $c_n = 1$ for $n \geq 1$.  The coefficients
+$a_n$ are Fourier cosine coefficients in disguise: under
+$x = \cos\theta$, the expansion becomes
+$f(\cos\theta) = \sum a_n \cos(n\theta)$, and the $a_n$ are
+computed by the standard cosine transform.  For smooth functions,
+the coefficients $a_n$ decay faster than any power of $1/n$ ---
+this is the spectral convergence that gives spectral methods their
+name, developed quantitatively in \cref{sec:spec-convergence}.
+
+\paragraph{Discrete orthogonality and aliasing.}
+
+Continuous Chebyshev expansions are elegant but impractical: the
+integral in \cref{eq:chebyshev-expansion} is rarely available in
+closed form.  The CGL nodes provide an exact quadrature rule for
+polynomials: for any polynomials $T_m$ and $T_n$ with
+$m + n \leq 2N - 1$, the Gauss--Lobatto quadrature on the $N + 1$
+CGL nodes reproduces the continuous orthogonality integral exactly.
+This discrete orthogonality means that the Chebyshev expansion of a
+polynomial of degree $N$ can be computed exactly from its values at
+the CGL nodes, using the discrete cosine transform (DCT).
+
+When the function is not a polynomial --- or is a polynomial of degree
+higher than $N$ --- the discrete expansion aliases high modes onto low
+ones, just as sampling a continuous signal at a finite rate folds
+frequencies above the Nyquist limit.  Concretely, the discrete
+coefficient $\hat{a}_k$ computed from $N + 1$ samples equals the true
+$a_k$ plus contributions from $a_{2N-k}$, $a_{2N+k}$, and so on.
+For smooth functions these aliased contributions are negligible
+because the high-mode coefficients decay rapidly; for non-smooth
+functions, aliasing introduces persistent errors that limit
+convergence to algebraic rates.
+\xrefnote{The spectral convergence theorem
+(\cref{sec:spec-convergence}) quantifies the decay rate of Chebyshev
+coefficients as a function of the smoothness of $f$.}
+
+\paragraph{The codebase implementation.}
+
+The \texttt{ChebyshevBasis} struct in \codemodule{spectral}
+encapsulates the CGL nodes and the associated differentiation
+matrices for $n = N + 1$ collocation points (the struct field
+\texttt{n} counts points, not polynomial degree):
+%
+\begin{lstlisting}[language=Rust]
+pub struct ChebyshevBasis {
+    pub n: usize,
+    pub nodes: Vec<f64>,   // CGL: cos(pi*k/(n-1))
+    pub d1: Vec<f64>,      // first derivative matrix
+    pub d2: Vec<f64>,      // second derivative matrix
+}
+\end{lstlisting}
+%
+The nodes are computed directly from the cosine formula
+$x_k = \cos(\pi k / (n-1))$ for $k = 0, \ldots, n-1$, where
+$n = N + 1$ is the number of collocation points.  The
+differentiation matrices \texttt{d1} and \texttt{d2} --- constructed
+using the barycentric formula of Trefethen \cite{Trefethen2000} ---
+are the subject of \cref{sec:spec-diffmat}.  The XCTS initial-data
+solver uses \texttt{ChebyshevBasis} for elliptic problems on
+multi-domain radial grids: each radial subdomain carries its own
+set of CGL nodes, and the exponential convergence established above
+means that modest polynomial degrees ($N \sim 20$--$30$) suffice to
+resolve the metric fields to machine precision.  The Chebyshev
+framework thus converts the abstract minimax and orthogonality
+results of this section into a concrete computational tool ---
+one that underpins every spectral solve in the codebase.

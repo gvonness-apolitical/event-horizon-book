@@ -1,0 +1,317 @@
+% sec:adm-equations — The ADM Evolution and Constraint Equations
+\section{The ADM Evolution and Constraint Equations}
+\label{sec:adm-equations}
+
+The spatial metric $\spatialmetric$ and the extrinsic curvature $\extrinsic$
+carry the gravitational initial data, but Einstein's equations have not yet
+told us which combinations of these fields are freely specifiable and which
+are constrained, nor how the unconstrained data evolve from one slice to the
+next.  The answer comes from decomposing the spacetime Riemann tensor into
+parts tangent and normal to $\Sigma_t$ --- the Gauss and Codazzi equations
+of hypersurface geometry --- and substituting into Einstein's field
+equations.  The result is a constrained evolution system: four constraint
+equations that the initial data must satisfy on every slice, and twelve
+evolution equations that propagate $\spatialmetric$ and $\extrinsic$
+forward in time.  The system is the gravitational analogue of the
+Maxwell constraint--evolution split, where $\nabla \cdot \mathbf{E} = \rho$
+constrains the initial electric field and Faraday's law evolves it ---
+except that here both the ``field'' ($\spatialmetric$) and its ``velocity''
+($\extrinsic$) are constrained.  The analogy breaks down in two ways: the
+Maxwell constraints are linear in the fields, whereas the ADM constraints
+are nonlinear; and in electrodynamics only the field is constrained
+($\nabla \cdot \mathbf{E} = \rho$), whereas here $\spatialmetric$ and
+$\extrinsic$ are jointly constrained by coupled elliptic equations.
+\physnote{In electrodynamics, the divergence constraints propagate
+automatically if satisfied initially.  The same holds for the ADM
+constraints --- but only at the continuum level.  Numerical violations of
+the constraints can grow, motivating the reformulations of
+\cref{ch:bssn-ccz4}.}
+
+\paragraph{The Gauss equation.}
+
+The Gauss equation relates the intrinsic curvature of $\Sigma_t$ to the
+spacetime curvature projected entirely onto the slice.  Projecting all four
+indices of the spacetime Riemann tensor onto $\Sigma_t$ with the spatial
+projector $\gamma^\mu{}_\nu$ (\cref{eq:adm-projector}) gives
+%
+\begin{equation}
+  \gamma^\alpha{}_\mu\,\gamma^\beta{}_\nu\,
+  \gamma^\gamma{}_\rho\,\gamma^\delta{}_\sigma\,
+  R_{\alpha\beta\gamma\delta}
+  = {}^{(3)}\!R_{\mu\nu\rho\sigma}
+    + K_{\mu\rho}\,K_{\nu\sigma}
+    - K_{\mu\sigma}\,K_{\nu\rho} \,,
+  \label{eq:adm-gauss}
+\end{equation}
+%
+where ${}^{(3)}\!R_{\mu\nu\rho\sigma}$ is the Riemann tensor built from
+$\spatialmetric$ and its spatial Christoffel symbols
+$\spatialchristoffel{i}{j}{k}$ alone.  The two $K$-squared terms encode
+the contribution of the embedding: even if the spatial geometry is
+intrinsically flat (${}^{(3)}\!R_{\mu\nu\rho\sigma} = 0$), a curved
+embedding ($\extrinsic \neq 0$) generates nonzero spacetime curvature
+within the slice.  \Cref{eq:adm-gauss} is the higher-dimensional
+generalisation of Gauss's \emph{Theorema Egregium} --- the remarkable
+theorem that the Gaussian curvature of a surface can be computed from
+measurements within the surface alone, without reference to the ambient
+space.  Here the spatial Riemann tensor plays the role of the intrinsic
+curvature, and the extrinsic curvature terms capture the corrections from
+the embedding.
+\histnote{Gauss proved his Theorema Egregium (``remarkable theorem'') in
+1827 for surfaces in $\mathbb{R}^3$.  The generalisation to hypersurfaces
+in pseudo-Riemannian manifolds is due to the work of Eisenhart and others
+in the early twentieth century.}
+
+\paragraph{The Codazzi equation.}
+
+Projecting three indices of the Riemann tensor onto $\Sigma_t$ and one
+along the normal gives
+%
+\begin{equation}
+  \gamma^\alpha{}_\mu\,n^\beta\,
+  \gamma^\gamma{}_\nu\,\gamma^\delta{}_\rho\,
+  R_{\alpha\beta\gamma\delta}
+  = D_\mu K_{\nu\rho} - D_\nu K_{\mu\rho} \,,
+  \label{eq:adm-codazzi}
+\end{equation}
+%
+where $D_i$ is the spatial covariant derivative introduced in
+\cref{sec:adm-extrinsic-curvature}.  The Codazzi equation constrains how
+the extrinsic curvature varies across the slice: you cannot freely
+prescribe how the bending varies from point to point --- the variation must
+be consistent with the spacetime curvature threading through the slice.
+Physically, the Codazzi equation is the integrability condition ensuring
+that the slice fits smoothly into the ambient spacetime.
+
+\paragraph{The Ricci equation.}
+
+The final projection --- two indices along the normal and two tangent to the
+slice --- yields the Ricci equation (sometimes called the Mainardi equation):
+%
+\begin{equation}
+  \gamma^\alpha{}_\mu\,n^\beta\,\gamma^\gamma{}_\nu\,n^\delta\,
+  R_{\alpha\beta\gamma\delta}
+  = -\lie{n} K_{\mu\nu} - \frac{1}{\lapse}\,D_\mu D_\nu \lapse
+    + K_{\mu\lambda}\,K^\lambda{}_\nu \,.
+  \label{eq:adm-ricci}
+\end{equation}
+%
+This equation determines how the extrinsic curvature changes along the
+normal direction.  The $D_\mu D_\nu \lapse / \lapse$ term reflects the
+dependence on the gauge choice: different lapse functions produce different
+rates of change of $\extrinsic$, even for the same physical spacetime.
+When combined with the Einstein equation, this becomes the $\extrinsic$
+evolution equation (\cref{eq:adm-kij-evolution}) that propagates the
+extrinsic curvature forward in time.
+\warnnote{The Ricci equation (\cref{eq:adm-ricci}) is distinct from the
+Ricci \emph{tensor} $\ricci$.  The name refers to Gregorio Ricci-Curbastro
+only indirectly; the equation is more commonly attributed to Mainardi and
+Codazzi in the differential geometry literature.}
+
+\paragraph{The Hamiltonian constraint.}
+
+Contracting the Gauss equation (\cref{eq:adm-gauss}) on its first and
+third indices with $\gamma^{\mu\rho}$ produces the spatial Ricci tensor
+$\spatialricci$ on the left and a combination of $K$-squared terms on the
+right.  A second contraction with $\inversespatialmetric$ gives a scalar
+identity.  Substituting into the $\einstein\,n^\mu\,n^\nu$ projection of
+Einstein's equation $\einstein = 8\pi\,\stressenergy$ yields the
+\emph{Hamiltonian constraint}:
+%
+\begin{equation}
+  \spatialricciscalar + \meanextrinsic^2
+    - K_{ij}\,K^{ij} = 16\pi\,\rho \,,
+  \label{eq:adm-hamiltonian}
+\end{equation}
+%
+where $\spatialricciscalar = \inversespatialmetric\,\spatialricci$ is the
+spatial Ricci scalar, $\meanextrinsic = \inversespatialmetric\,\extrinsic$
+is the mean curvature (\cref{eq:adm-mean-curvature}), and $\rho$ is the
+energy density measured by Eulerian observers:
+$\rho = \stressenergy\,n^\mu\,n^\nu$.  For vacuum spacetimes the right-hand
+side vanishes and the constraint becomes
+$\spatialricciscalar + \meanextrinsic^2 - K_{ij}\,K^{ij} = 0$.  This is
+an elliptic equation --- it contains no time derivatives, only spatial
+derivatives of $\spatialmetric$ (through $\spatialricciscalar$) and
+algebraic combinations of $\extrinsic$.  It must hold on every slice, not
+just the initial one; any solution of the evolution equations that drifts
+away from satisfying \cref{eq:adm-hamiltonian} has developed a constraint
+violation.
+\physnote{The Hamiltonian constraint is the relativistic generalisation of
+the Newtonian Poisson equation $\laplacian\Phi = 4\pi\rho$
+(\cref{sec:gr-efe}).  In the weak-field, slow-motion limit the
+$K$-squared terms vanish and $\spatialricciscalar$ reduces to spatial
+derivatives of the Newtonian potential, recovering Poisson's equation.}
+
+\paragraph{The momentum constraint.}
+
+The mixed projection $\einstein\,\gamma^{\mu}{}_i\,n^\nu = 8\pi\,S_i$,
+where $S_i = -\gamma_{i\mu}\,T^{\mu\nu}\,n_\nu$ is the momentum density
+measured by Eulerian observers, contracts the Codazzi equation
+(\cref{eq:adm-codazzi}) to give
+%
+\begin{equation}
+  D_j\bigl(K^{ij} - \inversespatialmetric\,\meanextrinsic\bigr) = 8\pi\,S^i \,.
+  \label{eq:adm-momentum}
+\end{equation}
+%
+Like the Hamiltonian constraint, this is a purely spatial equation with no
+time derivatives.  It constrains the divergence of the extrinsic curvature:
+the trace-corrected combination
+$K^{ij} - \gamma^{ij}\,\meanextrinsic$ must have a specific divergence
+set by the matter momentum density.  In vacuum the right-hand side
+vanishes, and the extrinsic curvature must be divergence-free in this
+trace-corrected sense.  The three components of \cref{eq:adm-momentum}
+together with the single Hamiltonian constraint
+(\cref{eq:adm-hamiltonian}) constitute four constraint equations --- the
+same count as the four gauge degrees of freedom ($\lapse$, $\shift$)
+removed from the twelve components of $\spatialmetric$ and $\extrinsic$.
+\implnote{Monitoring the $L^2$ norms of the Hamiltonian and momentum
+constraint violations during evolution provides the primary diagnostic for
+numerical accuracy.  A well-resolved simulation shows constraint violations
+converging to zero with increasing resolution at the expected order of the
+spatial discretisation.}
+
+\paragraph{The $\extrinsic$ evolution equation.}
+
+The evolution equation for $\spatialmetric$ was already derived in
+\cref{sec:adm-extrinsic-curvature} (\cref{eq:adm-metric-evolution}):
+$\partial_t\gamma_{ij} = -2\lapse\,\extrinsic + D_i\beta_j + D_j\beta_i$.
+The companion equation for $\extrinsic$ follows from the Ricci equation
+(\cref{eq:adm-ricci}) and the spatial projection of Einstein's equation.
+The full derivation combines the Ricci equation (\cref{eq:adm-ricci}) with
+the spatial projection of the Einstein equation, converts the Lie
+derivative along $n^\mu$ to a coordinate time derivative using
+$\lie{n} = (1/\lapse)(\partial_t - \lie{\beta})$ as in
+\cref{sec:adm-extrinsic-curvature}, and eliminates the spacetime Riemann
+projection in favour of spatial curvature and matter terms.  The
+calculation is the most involved in the chapter; we state the result and
+focus on its structure:
+%
+\begin{equation}
+  \begin{split}
+  \partial_t \extrinsic
+  &= -D_i D_j \lapse
+     + \lapse\bigl(\spatialricci
+       + \meanextrinsic\,\extrinsic - 2\,K_{ik}\,K^k{}_j\bigr) \\
+  &\quad + \beta^k\,D_k\,\extrinsic
+     + K_{ik}\,D_j\beta^k + K_{kj}\,D_i\beta^k \\
+  &\quad + 4\pi\,\lapse\bigl[
+       (\gamma^{kl}\,S_{kl} - \rho)\,\gamma_{ij} - 2\,S_{ij}\bigr] \,,
+  \end{split}
+  \label{eq:adm-kij-evolution}
+\end{equation}
+%
+where $S_{ij} = \gamma_{i\mu}\,\gamma_{j\nu}\,T^{\mu\nu}$ is the spatial
+stress tensor.  The first line contains the geometric content: the spatial
+derivatives of the lapse (from the Ricci equation), the spatial Ricci
+tensor (intrinsic curvature of the slice), and the nonlinear $K$-squared
+terms (the embedding contribution).  The second line contains the Lie
+derivative along the shift, accounting for the coordinate drift between
+slices --- exactly the same structure as the shift terms in
+\cref{eq:adm-metric-evolution}.  The third line couples gravity to matter.
+
+In vacuum ($\stressenergy = 0$) the matter terms vanish, and the evolution
+equation depends only on $\spatialmetric$, $\extrinsic$, $\lapse$, and
+$\shift$.  The spatial Ricci tensor $\spatialricci$ involves second spatial
+derivatives of $\spatialmetric$ through the three-dimensional Christoffel
+symbols, making the system second-order in space and first-order in time.
+\coderef{ADMSpacetime}{spatialChristoffel}
+
+\paragraph{Structure of the ADM system.}
+
+The complete ADM system consists of:
+%
+\begin{itemize}
+  \item \textbf{Twelve evolution variables:} the six independent components
+    of $\spatialmetric$ and the six of $\extrinsic$.
+  \item \textbf{Twelve evolution equations:}
+    \cref{eq:adm-metric-evolution,eq:adm-kij-evolution}.
+  \item \textbf{Four constraints:} the Hamiltonian constraint
+    (\cref{eq:adm-hamiltonian}) and the three components of the momentum
+    constraint (\cref{eq:adm-momentum}).
+  \item \textbf{Four gauge functions:} $\lapse$ and the three components of
+    $\shift$, freely specifiable.
+\end{itemize}
+%
+The constraints involve no time derivatives and must be satisfied on every
+slice.  Solving twelve evolution equations for sixteen variables (plus four
+gauge functions) seems under-determined --- why is this consistent?  A
+fundamental property of the Einstein equations guarantees that if
+the constraints are satisfied on the initial slice and the evolution
+equations are solved exactly, then the constraints remain satisfied on all
+subsequent slices --- the constraints \emph{propagate}.  This follows from
+the contracted Bianchi identity $\cd{\mu}G^{\mu\nu} = 0$
+(\cref{sec:dg-curvature}): the divergence-free nature of the Einstein
+tensor implies that the time derivatives of the constraint quantities can
+be expressed in terms of the constraints themselves, so vanishing
+constraints remain vanishing.
+
+\paragraph{Weak hyperbolicity.}
+
+The ADM system as written suffers from a subtle but fatal deficiency for
+numerical work: it is only \emph{weakly hyperbolic}.  A PDE system is
+strongly hyperbolic if its principal symbol --- the matrix of highest-order
+spatial derivative coefficients, evaluated along an arbitrary spatial
+direction --- has a complete set of real eigenvalues and a complete basis of
+eigenvectors.  Strong hyperbolicity guarantees well-posedness: solutions
+depend continuously on initial data, and perturbations grow at most
+exponentially in time.
+
+The ADM evolution equation for $\extrinsic$ (\cref{eq:adm-kij-evolution})
+contains the spatial Ricci tensor $\spatialricci$, which involves second
+spatial derivatives of $\spatialmetric$ through the three-dimensional
+Christoffel symbols.  Analysing the principal part of the combined system
+(\cref{eq:adm-metric-evolution,eq:adm-kij-evolution}) reveals that the
+principal symbol has the correct real eigenvalues (the physical
+characteristic speeds $0$ and $\pm\lapse$), but does \emph{not} have a
+complete set of eigenvectors.  The missing eigenvectors correspond to
+gauge modes that propagate at zero speed.  As a result, the system is only
+weakly hyperbolic: the initial-value problem is not well-posed in the
+standard Hadamard sense, and numerical solutions can develop
+resolution-dependent instabilities that grow polynomially --- not
+exponentially --- with time.  In practice, this means that doubling the
+resolution does not improve the solution but can actually make it worse by
+resolving previously invisible unstable modes.
+\warnnote{Weak hyperbolicity does not mean the physics is wrong --- the
+constraint surface of the ADM system is perfectly well-defined, and the
+physical degrees of freedom propagate correctly.  The problem is entirely
+with the gauge sector: the coordinate degrees of freedom lack the
+structure needed for well-posed numerical evolution.}
+
+The resolution is to reformulate the equations so that all modes ---
+physical and gauge --- propagate with a complete set of eigenvectors.  The
+BSSN and CCZ4 formulations of \cref{ch:bssn-ccz4} achieve this by
+introducing auxiliary variables (conformal connection functions
+$\conformalconnection$) that promote the problematic zero-speed gauge modes
+to well-behaved propagating modes, and by adding constraint-damping terms
+that actively suppress numerical constraint violations.
+
+\paragraph{Codebase note.}
+
+The \texttt{ADMSpacetime} typeclass (\cref{sec:adm-lapse-shift}) provides
+all the fields appearing in the ADM system: the lapse, shift, spatial
+metric, inverse spatial metric, extrinsic curvature, spatial Christoffel
+symbols, lapse gradient, and shift Jacobian.  For analytic spacetimes these
+are closed-form expressions; for numerical evolutions they are grid
+functions updated at each time step by the BSSN or CCZ4 right-hand sides.
+The evolution code does not integrate the ADM equations directly ---
+it uses the strongly hyperbolic reformulations of \cref{ch:bssn-ccz4} ---
+but the ADM decomposition provides the conceptual and notational foundation
+on which those reformulations build.
+%
+\begin{lstlisting}[language=Haskell]
+  extrinsicCurvature :: s -> Point s -> Sym3 'Covariant
+  spatialChristoffel :: s -> Point s -> Christoffel3
+  lapseGradient      :: s -> Point s -> Vec3 'Covariant
+  shiftJacobian      :: s -> Point s -> Mat3
+\end{lstlisting}
+%
+The \texttt{lapseGradient} and \texttt{shiftJacobian} methods correspond to
+$D_i\lapse$ and $\partial_j\beta^i$ appearing in the evolution equations
+--- the spatial derivatives of the gauge variables that a numerical code
+must compute at every grid point and every time step.
+\xrefnote{The detailed analysis of the ADM principal symbol and its
+incomplete eigenvector structure is carried out in
+\cref{sec:bssn-adm-illposed}, where it motivates the BSSN conformal
+decomposition.}

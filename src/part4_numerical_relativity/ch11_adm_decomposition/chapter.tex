@@ -2,39 +2,42 @@
 \chapter{3+1 ADM Decomposition}
 \label{ch:adm-decomposition}
 
-The Arnowitt-Deser-Misner (ADM) formalism recasts Einstein's field equations as
-an initial-value problem by decomposing four-dimensional spacetime into a family
-of three-dimensional spatial hypersurfaces evolving in time. This chapter
-develops the 3+1 split that underpins every numerical relativity evolution scheme
-in the book.
+Einstein's field equations (\cref{sec:gr-efe}) are beautiful, compact, and
+completely useless for direct numerical integration.  They are covariant ---
+they treat space and time symmetrically --- but a computer needs something
+different: data on a spatial surface at one instant and a rule for marching
+that data forward to the next instant.  The Arnowitt--Deser--Misner (ADM)
+formalism provides exactly this bridge.  It decomposes the four-dimensional
+spacetime manifold into a one-parameter family of three-dimensional spatial
+slices $\Sigma_t$, each carrying a Riemannian metric $\spatialmetric$ and
+an extrinsic curvature $\extrinsic$ that together constitute the
+gravitational initial data.  Two gauge fields --- the lapse $\lapse$ and
+the shift $\shift$ --- encode the freedom in how coordinates are threaded
+through the foliation, and Einstein's equations split into constraint
+equations that the initial data must satisfy and evolution equations that
+propagate the data forward.
 
-\section{Foliation of Spacetime}
-\label{sec:adm-foliation}
+The decomposition introduces five geometric objects that recur throughout
+the rest of the book: the time function whose level sets define the slices,
+the unit normal $n^\mu$ that threads them together, the spatial projection
+operator $\gamma^\mu{}_\nu$ that separates tangent and normal components,
+the induced metric $\gamma_{\mu\nu}$ that measures distances within each
+slice, and the extrinsic curvature $K_{\mu\nu}$ that measures how each
+slice bends within the ambient spacetime.  The chapter develops these
+objects in sequence, starting from the foliation and building toward the
+full ADM evolution system.  The final section shows that the ADM system as
+written is only weakly hyperbolic --- a subtle but fatal deficiency for
+numerical work that motivates the BSSN and CCZ4 reformulations of
+\cref{ch:bssn-ccz4}.
 
-We define a foliation as a one-parameter family of spacelike hypersurfaces
-$\Sigma_t$ and introduce the unit normal vector $n^\mu$ that threads them
-together.
+% ---- Drafted sections ----
+\input{part4_numerical_relativity/ch11_adm_decomposition/adm-foliation}
 
-\section{Lapse, Shift, and the Spatial Metric}
-\label{sec:adm-lapse-shift}
-\coderef{ADMSpacetime}{typeclass}
+\input{part4_numerical_relativity/ch11_adm_decomposition/adm-lapse-shift}
 
-We decompose the line element into lapse function $\alpha$, shift vector
-$\beta^i$, and spatial three-metric $\gamma_{ij}$, explaining the gauge
-freedom each encodes.
+\input{part4_numerical_relativity/ch11_adm_decomposition/adm-extrinsic-curvature}
 
-\section{Extrinsic Curvature}
-\label{sec:adm-extrinsic-curvature}
-
-We define the extrinsic curvature $K_{ij}$ as the Lie derivative of the spatial
-metric along the normal, and relate it to the time derivative of $\gamma_{ij}$.
-
-\section{The ADM Evolution and Constraint Equations}
-\label{sec:adm-equations}
-
-We derive the Hamiltonian constraint, momentum constraint, and the evolution
-equations for $\gamma_{ij}$ and $K_{ij}$, and discuss why the ADM system as
-written is only weakly hyperbolic.
+\input{part4_numerical_relativity/ch11_adm_decomposition/adm-equations}
 
 \paragraph{Key References.}
 The ADM formalism follows \cite{ADM1962} and the pedagogical treatment in

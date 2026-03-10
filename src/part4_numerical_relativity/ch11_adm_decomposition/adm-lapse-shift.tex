@@ -1,0 +1,213 @@
+% sec:adm-lapse-shift — Lapse, Shift, and the Spatial Metric
+\section{Lapse, Shift, and the Spatial Metric}
+\label{sec:adm-lapse-shift}
+
+The foliation of \cref{sec:adm-foliation} equips spacetime with spatial
+slices $\Sigma_t$, a unit normal $n^\mu$, and an induced metric
+$\spatialmetric$ --- but it does not prescribe how spatial coordinate
+labels connect across slices.  A point $P$ at coordinates $x^i$ on
+$\Sigma_t$ is linked to $\Sigma_{t+\d t}$ by the coordinate time
+vector $(\partial/\partial t)^\mu$, which need not be normal to the
+slice.  The two fields that encode its deviation from the normal ---
+the lapse, already encountered in the foliation, and the shift --- are
+the gauge variables of the 3+1 decomposition, and together with the
+spatial metric they reconstruct the full spacetime line element.
+\coderef{ADMSpacetime}{typeclass}
+
+\paragraph{The time vector.}
+
+In adapted coordinates $(t, x^i)$, the coordinate time vector
+$(\partial/\partial t)^\mu$ connects each point on $\Sigma_t$ to the
+point with the same spatial labels on $\Sigma_{t+\d t}$.  Decomposing
+it into components normal and tangent to $\Sigma_t$ gives
+%
+\begin{equation}
+  \left(\frac{\partial}{\partial t}\right)^\mu
+  = \lapse\,n^\mu + \beta^\mu \,,
+  \label{eq:adm-time-vector}
+\end{equation}
+%
+where $\lapse$ is the lapse function from \cref{sec:adm-foliation} and
+$\beta^\mu$ is a vector tangent to $\Sigma_t$ called the \emph{shift
+vector}.  The coefficient of $n^\mu$ is consistent with the definition
+of the lapse: contracting both sides with $n_\mu$ and using
+$n_\mu\,n^\mu = -1$ together with $n_\mu\,\beta^\mu = 0$ gives
+$n_\mu\,(\partial/\partial t)^\mu = -\lapse$.  This matches the
+definition $n_\mu = -\lapse\,\cd{\mu}t$ from
+\cref{eq:adm-normal-covector}, since
+$(\partial/\partial t)^\mu\,\cd{\mu}t = 1$ in adapted coordinates.
+
+\paragraph{The shift vector.}
+
+The shift $\beta^\mu$ is tangent to $\Sigma_t$ by construction:
+%
+\begin{equation}
+  n_\mu\,\beta^\mu = 0 \,.
+  \label{eq:adm-shift-tangent}
+\end{equation}
+%
+In adapted coordinates its time component vanishes, leaving only the
+three spatial components $\shift$.  The physical meaning is geometric:
+an Eulerian observer at coordinates $x^i$ on $\Sigma_t$ moves along
+$n^\mu$ and arrives on $\Sigma_{t+\d t}$ at spatial coordinates
+$x^i - \beta^i\,\d t$, not $x^i$.  The minus sign arises because the
+shift appears with a plus sign in \cref{eq:adm-time-vector}: the
+observer follows $n^\mu$ from $(t, x^i)$ and reaches the same
+\emph{spatial point} on the next slice, but the coordinate grid has
+shifted by $+\beta^i\,\d t$, so the observer's new coordinate labels
+are $x^i - \beta^i\,\d t$.  Setting $\shift = 0$ makes the coordinate
+lines perpendicular to the slices --- the Eulerian observer's worldline
+is then a coordinate line.
+\physnote{Nonzero shift allows the coordinate grid to co-move with
+dynamical features.  Binary black hole simulations use a corotating
+shift to keep the punctures near fixed grid locations
+(\cref{sec:bssn-gauge}).}
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/adm-lapse-shift}
+  \caption[Decomposition of the coordinate time vector into lapse and
+    shift]{%
+    Decomposition of the coordinate time vector into lapse and shift.
+    From a point $P$ on $\Sigma_t$, the unit normal $\alpha\,n^\mu$
+    (blue) reaches the next slice at the same \emph{spatial point},
+    while the coordinate time vector
+    $(\partial/\partial t)^\mu$ (red) reaches the point with the same
+    coordinate labels $x^i$.  The shift $\beta^i\,\mathrm{d}t$ (gold)
+    is the tangential displacement between these two endpoints on
+    $\Sigma_{t+\mathrm{d}t}$, encoding how the coordinate grid slides
+    between slices.  The right angle at their junction reflects the
+    orthogonality $n_\mu\,\beta^\mu = 0$.}
+  \label{fig:adm-lapse-shift}
+\end{figure}
+
+\paragraph{The ADM line element.}
+
+The three ADM fields --- lapse, shift, and spatial metric --- determine
+the full spacetime geometry.  The metric components in adapted
+coordinates $(t, x^i)$ follow from the decomposition
+\cref{eq:adm-time-vector}.  Expanding
+$g(\partial_t, \partial_t) = g(\lapse\,n + \beta,\,\lapse\,n + \beta)$
+and using $n_\mu\,n^\mu = -1$, $n_\mu\,\beta^\mu = 0$ gives
+$g_{00} = -\lapse^2 + \beta_k\,\beta^k$.  The spatial block
+$g_{ij} = \gamma_{ij}$ follows directly: both $\partial_i$ and
+$\partial_j$ are tangent to $\Sigma_t$, so the induced metric agrees
+with the spacetime metric on these vectors
+(\cref{eq:adm-induced-metric}).  The cross term
+$g_{0i} = g(\lapse\,n + \beta,\,\partial_i)
+= \lapse\,n_\mu\,(\partial_i)^\mu + g(\beta,\,\partial_i)
+= \gamma_{ij}\,\beta^j = \beta_i$,
+since $n_\mu\,(\partial_i)^\mu = 0$ and both $\beta$ and $\partial_i$
+are tangent to $\Sigma_t$.  Collecting these:
+%
+\begin{equation}
+  g_{00} = -\lapse^2 + \beta_k\,\beta^k \,,\qquad
+  g_{0i} = \beta_i \,,\qquad
+  g_{ij} = \gamma_{ij} \,,
+  \label{eq:adm-metric-components}
+\end{equation}
+%
+where $\beta_i = \gamma_{ij}\,\beta^j$ is the shift with its index
+lowered by the spatial metric.  Written as a completed square, the
+line element takes a form that separates temporal and spatial
+contributions:
+%
+\begin{equation}
+  \d s^2 = -\lapse^2\,\d t^2
+    + \gamma_{ij}\bigl(\d x^i + \beta^i\,\d t\bigr)
+                  \bigl(\d x^j + \beta^j\,\d t\bigr) \,.
+  \label{eq:adm-line-element}
+\end{equation}
+%
+The first term encodes the proper-time lapse between slices: an
+Eulerian observer measures $\d\tau = \lapse\,\d t$, so
+$-\lapse^2\,\d t^2 = -\d\tau^2$.  The second term is the squared
+spatial distance after accounting for the coordinate drift introduced
+by the shift.  Expanding the product recovers
+\cref{eq:adm-metric-components}.
+
+\paragraph{The inverse metric and volume element.}
+
+Inverting the $4 \times 4$ system \cref{eq:adm-metric-components} gives
+the contravariant components
+%
+\begin{equation}
+  g^{00} = -\frac{1}{\lapse^2} \,,\qquad
+  g^{0i} = \frac{\beta^i}{\lapse^2} \,,\qquad
+  g^{ij} = \inversespatialmetric - \frac{\beta^i\,\beta^j}{\lapse^2} \,.
+  \label{eq:adm-inverse-metric}
+\end{equation}
+%
+A direct check confirms $g^{\mu\alpha}\,g_{\alpha\nu}
+= \delta^\mu{}_\nu$: for $\mu = \nu = 0$,
+$g^{00}\,g_{00} + g^{0k}\,g_{k0}
+= (-1/\lapse^2)(-\lapse^2 + \beta_l\,\beta^l)
+  + (\beta^k/\lapse^2)\,\beta_k = 1$.
+The mixed case $(\mu,\nu) = (0,i)$ also vanishes:
+$g^{00}\,g_{0i} + g^{0k}\,g_{ki}
+= (-1/\lapse^2)\,\beta_i + (\beta^k/\lapse^2)\,\gamma_{ki}
+= 0$.
+The spatial block $g^{ij}$ differs from $\inversespatialmetric$ by the
+correction $-\beta^i\beta^j/\lapse^2$, which vanishes for zero shift
+and encodes the tilt of the coordinate lines away from the normal.
+
+Since $\spatialmetric$ is a Riemannian metric on the spacelike
+hypersurface $\Sigma_t$, it is non-degenerate, and the Schur complement
+of the spatial block gives the determinant of the four-metric:
+%
+\begin{equation}
+  \detmetric = \lapse\,\sqrt{\gamma} \,,
+  \label{eq:adm-determinant}
+\end{equation}
+%
+where $\gamma = \det(\gamma_{ij})$.  The Schur complement of
+the spatial block is $g_{00} - \beta_i\,\gamma^{ij}\,\beta_j
+= -\lapse^2 + \beta_k\,\beta^k - \beta_k\,\beta^k = -\lapse^2$, so
+$\det(g_{\mu\nu}) = -\lapse^2\,\gamma$.
+The volume element thus splits into a temporal piece controlled by the
+lapse and a spatial piece controlled by the induced metric ---
+the evolution code never needs to compute a full $4 \times 4$
+determinant but instead tracks $\lapse$ and $\gamma$ separately.
+\implnote{The factorisation \cref{eq:adm-determinant} means the
+integration measure $\detmetric\,\d^4 x$ decomposes into
+$\lapse\,\sqrt{\gamma}\,\d t\,\d^3 x$, separating the gauge
+variable $\lapse$ from the dynamical volume $\sqrt{\gamma}$.}
+
+\paragraph{Gauge freedom.}
+
+The lapse $\lapse$ and the three components of the shift $\shift$
+constitute four freely specifiable functions --- precisely the number
+of coordinate degrees of freedom in four-dimensional general relativity.
+The spatial metric $\spatialmetric$ and the extrinsic curvature
+$\extrinsic$ (\cref{sec:adm-extrinsic-curvature}) carry the dynamical
+content; the lapse and shift are pure gauge.  Different choices lead to
+different coordinate representations of the same physical spacetime.
+The next section introduces the extrinsic curvature, which together
+with $\spatialmetric$ constitutes the initial data for the ADM
+evolution.
+\warnnote{The gauge freedom is a feature, not a defect.  Geodesic
+slicing ($\lapse = 1$, $\shift = 0$) hits the physical singularity in
+finite coordinate time, crashing the simulation.  The gauge conditions
+of \cref{sec:bssn-gauge} are designed to avoid this.}
+
+\paragraph{Codebase decomposition.}
+
+The \codemodule{Spacetime.Class} module defines the
+\texttt{ADMSpacetime} typeclass that any foliated spacetime must
+implement.  Its interface mirrors the three-field decomposition:
+%
+\begin{lstlisting}[language=Haskell]
+class Spacetime s => ADMSpacetime s where
+  lapse            :: s -> Point s -> Double
+  shift            :: s -> Point s -> Vec3 'Contravariant
+  spatialMetric    :: s -> Point s -> Sym3 'Covariant
+  invSpatialMetric :: s -> Point s -> Sym3 'Contravariant
+\end{lstlisting}
+%
+The lapse is a scalar, the shift a contravariant three-vector, and the
+spatial metric a symmetric $3 \times 3$ covariant tensor.  The phantom
+type parameter \texttt{'Covariant}/\texttt{'Contravariant} enforces
+index variance at compile time, making it impossible to pass a covariant
+shift where a contravariant one is expected.  From these three fields the
+full four-metric \cref{eq:adm-line-element} is assembled whenever the
+geodesic integrator or evolution code needs it.

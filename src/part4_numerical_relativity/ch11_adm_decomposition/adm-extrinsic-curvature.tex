@@ -1,0 +1,272 @@
+% sec:adm-extrinsic-curvature — Extrinsic Curvature
+\section{Extrinsic Curvature}
+\label{sec:adm-extrinsic-curvature}
+
+The spatial metric $\spatialmetric$ captures the geometry within each
+slice $\Sigma_t$ --- distances, angles, and intrinsic curvature --- but
+says nothing about how the slice sits inside the surrounding spacetime.
+A flat sheet of paper and a cylinder share the same intrinsic geometry
+(both have vanishing Gaussian curvature), yet one is flat and the other
+curves: their \emph{embeddings} differ.  The analogy is imperfect: a
+cylinder's extrinsic curvature is a scalar (a single principal
+curvature), whereas $\extrinsic$ is a six-component tensor that encodes
+direction-dependent bending --- the slice can simultaneously expand in
+one direction and contract in another.  The extrinsic curvature
+quantifies this distinction for the spatial slices of the 3+1
+decomposition.  Together with $\spatialmetric$, it constitutes the
+complete gravitational initial data whose evolution
+\cref{sec:adm-equations} will govern.
+\coderef{ADMSpacetime}{extrinsicCurvature}
+
+\paragraph{Definition.}
+
+Two neighbouring Eulerian observers separated by a displacement
+$\delta x^i$ on $\Sigma_t$ both follow the unit normal $n^\mu$ to the
+next slice.  Because the normals at nearby points need not be parallel,
+the observers converge or diverge as they advance --- the extrinsic
+curvature measures this rate of convergence.  Defining it as half the Lie
+derivative of the induced metric along the normal,
+%
+\begin{equation}
+  K_{\mu\nu} = -\frac{1}{2}\,\lie{n}\gamma_{\mu\nu} \,,
+  \label{eq:adm-extrinsic-def}
+\end{equation}
+%
+makes the geometric content transparent: if the extrinsic curvature is
+positive in some direction, two Eulerian observers separated in that
+direction see their proper distance shrinking as they advance to the
+next slice --- the slice is locally concave, bending toward the future.
+The minus sign is conventional --- positive trace $\meanextrinsic$
+corresponds to overall contraction.  Since $\gamma_{\mu\nu}$ is
+symmetric and the Lie derivative preserves tensor symmetry,
+$K_{\mu\nu} = K_{\nu\mu}$ by construction.
+\physnote{The extrinsic curvature is the gravitational analogue of the
+second fundamental form in classical differential geometry --- it measures
+how the embedded surface bends within the ambient space.}
+
+\paragraph{Covariant-derivative form.}
+
+Expanding the Lie derivative in \cref{eq:adm-extrinsic-def} yields a
+formula better suited to derivations.  Using
+$\gamma_{\mu\nu} = \metric + n_\mu\,n_\nu$
+(\cref{eq:adm-induced-metric}) and metric compatibility
+$\cd{\alpha}\metric = 0$, the Lie derivative of the spacetime metric
+reduces to $\lie{n}\metric = \cd{\mu}n_\nu + \cd{\nu}n_\mu$.  The
+remaining terms from $\lie{n}(n_\mu\,n_\nu)$ involve the acceleration
+$a_\mu = n^\alpha\,\cd{\alpha}n_\mu$ of the Eulerian observer, giving
+the full expansion
+%
+\begin{equation}
+  \lie{n}\gamma_{\mu\nu}
+  = \cd{\mu}n_\nu + \cd{\nu}n_\mu
+    + a_\mu\,n_\nu + n_\mu\,a_\nu \,.
+  \label{eq:adm-lie-gamma-expand}
+\end{equation}
+%
+We now need the spatial covariant derivative $D_\mu$ --- the intrinsic
+derivative operator on $\Sigma_t$ that will appear throughout the rest
+of the 3+1 formalism.  It is the unique torsion-free connection
+compatible with $\spatialmetric$, built from the three-dimensional
+Christoffel symbols $\spatialchristoffel{i}{j}{k}$.  For a spatial
+scalar $f$, the spatial gradient coincides with the full gradient
+projected onto $\Sigma_t$:
+$D_\mu f = \gamma^\nu{}_\mu\,\cd{\nu}f$.
+
+Using this projection, the acceleration reduces to a pure spatial
+gradient.  Differentiating
+$n_\mu = -\lapse\,\cd{\mu}t$
+(\cref{eq:adm-normal-covector}) gives
+$\cd{\alpha}n_\mu
+= -(\cd{\alpha}\lapse)\,\cd{\mu}t
+  - \lapse\,\cd{\alpha}\cd{\mu}t$.
+Contracting with $n^\alpha$ and using
+$n^\alpha\,\cd{\alpha}t = -1/\lapse$ (from the normalisation
+$n_\mu = -\lapse\,\cd{\mu}t$ contracted with $n^\mu$), the
+$\cd{\alpha}\cd{\mu}t$ term produces $\cd{\mu}\lapse/\lapse$ after
+symmetry of second derivatives and projection, yielding
+%
+\begin{equation}
+  a_\mu = D_\mu \ln\lapse \,.
+  \label{eq:adm-acceleration}
+\end{equation}
+%
+The acceleration is spatial
+($a_\mu\,n^\mu = 0$, from differentiating $n_\mu\,n^\mu = -1$), so
+the terms $a_\mu\,n_\nu + n_\mu\,a_\nu$ in
+\cref{eq:adm-lie-gamma-expand} contribute only mixed normal--tangent
+components.
+
+To extract the spatial content, project both indices of
+\cref{eq:adm-extrinsic-def} onto $\Sigma_t$.  The double projection of
+\cref{eq:adm-lie-gamma-expand} kills every term containing an $n_\mu$
+or $n_\nu$ factor, since
+$\gamma^\alpha{}_\mu\,n_\mu = 0$
+(\cref{eq:adm-projector-orthogonal}), leaving
+$K_{\mu\nu}
+= -\gamma^\alpha{}_\mu\,\gamma^\beta{}_\nu\,\cd{\alpha}n_\beta$.
+But the second projector is redundant: differentiating the
+normalisation $n_\beta\,n^\beta = -1$ gives
+$n^\beta\,\cd{\alpha}n_\beta = 0$, so $\cd{\alpha}n_\beta$ already has
+no component along $n^\beta$, and
+$\gamma^\beta{}_\nu\,\cd{\alpha}n_\beta = \cd{\alpha}n_\nu$.
+The result is
+%
+\begin{equation}
+  K_{\mu\nu} = -\gamma^\alpha{}_\mu\,\cd{\alpha}n_\nu \,.
+  \label{eq:adm-extrinsic-covariant}
+\end{equation}
+%
+The projector $\gamma^\alpha{}_\mu$ strips out the normal component of
+$\cd{\alpha}n_\nu$, leaving only the part that describes how the
+normal rotates within the slice.  Note that
+$\gamma^\alpha{}_\mu\,\cd{\alpha}n_\nu$ is symmetric in $\mu,\nu$
+despite appearances: $n_\mu$ is hypersurface-orthogonal, so
+$\cd{[\mu}n_{\nu]} = -n_{[\mu}\,a_{\nu]}$, and the antisymmetric part
+of $\cd{\mu}n_\nu$ is purely normal, annihilated by the projector.
+\warnnote{The sign convention
+$K_{\mu\nu} = -\gamma^\alpha{}_\mu\,\cd{\alpha}n_\nu$ (with the minus
+sign) matches Baumgarte \& Shapiro \cite{Baumgarte2010} and Alcubierre
+\cite{Alcubierre2008}.  Wald \cite{Wald1984} uses the opposite
+convention --- always check signs when comparing across sources.}
+
+\paragraph{Purely spatial.}
+
+For $\extrinsic$ to serve as initial data on a spatial slice, it must
+carry no information about the normal direction --- it must be purely
+spatial.  Contracting \cref{eq:adm-extrinsic-covariant} with $n^\mu$
+gives zero from the projector: $K_{\mu\nu}\,n^\mu
+= -\gamma^\alpha{}_\mu\,n^\mu\,\cd{\alpha}n_\nu = 0$, since
+$\gamma^\alpha{}_\mu\,n^\mu = 0$
+(\cref{eq:adm-projector-orthogonal}).  Contracting instead with $n^\nu$
+also vanishes: as shown above,
+$n^\nu\,\cd{\alpha}n_\nu = 0$, so
+$K_{\mu\nu}\,n^\nu
+= -\gamma^\alpha{}_\mu\,n^\nu\,\cd{\alpha}n_\nu = 0$.  The extrinsic
+curvature therefore has only six independent components --- the spatial
+components $\extrinsic$.  These six components, together with the six of
+$\spatialmetric$, constitute the twelve pieces of gravitational initial
+data that the constraint and evolution equations of
+\cref{sec:adm-equations} will govern.
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/adm-extrinsic-curvature}
+  \caption[Convergence of normals and extrinsic curvature]{%
+    Extrinsic curvature as the convergence of normals to a spatial
+    slice.  On the concave portion of $\Sigma_t$ (left), the unit
+    normals $n^\mu$ drawn at neighbouring points converge toward the
+    future, corresponding to positive mean curvature $K > 0$.  On the
+    convex portion (right), the normals diverge, giving $K < 0$.  The
+    individual components of $K_{ij}$ carry the directional
+    information; the trace $K$ records only the net volume change
+    along $n^\mu$.}
+  \label{fig:adm-extrinsic-curvature}
+\end{figure}
+
+\paragraph{Relation to the time derivative of the spatial metric.}
+
+The Lie-derivative definition \cref{eq:adm-extrinsic-def} links
+$\extrinsic$ to the rate of change of spatial distances as measured by
+Eulerian observers, but a numerical code works with the coordinate time
+derivative $\partial_t\gamma_{ij}$.  Converting between the two requires
+the decomposition of the unit normal in adapted coordinates.  From
+$(\partial/\partial t)^\mu = \lapse\,n^\mu + \beta^\mu$
+(\cref{eq:adm-time-vector}), solving for $n^\mu$ gives
+%
+\begin{equation}
+  n^\mu = \frac{1}{\lapse}\bigl(1,\,-\shift\bigr) \,,
+  \label{eq:adm-normal-adapted}
+\end{equation}
+%
+so the Lie derivative along $n$ decomposes as
+$\lie{n} = (1/\lapse)(\lie{\partial_t} - \lie{\beta})$.  In coordinates
+adapted to $\partial_t$, the Lie derivative
+$\lie{\partial_t}\gamma_{ij} = \partial_t\gamma_{ij}$.  The Lie
+derivative of a metric along a vector field satisfies the standard
+identity $\lie{\beta}\gamma_{ij} = D_i\beta_j + D_j\beta_i$, where
+$\beta_i = \gamma_{ij}\,\beta^j$ is the shift with its index lowered by
+the spatial metric.  Substituting into \cref{eq:adm-extrinsic-def}
+yields the evolution equation for the spatial metric:
+%
+\begin{equation}
+  \partial_t \gamma_{ij}
+  = -2\,\lapse\,\extrinsic
+    + D_i\beta_j + D_j\beta_i \,.
+  \label{eq:adm-metric-evolution}
+\end{equation}
+%
+This is one half of the ADM evolution system.  It tells us how the
+spatial geometry changes from one slice to the next: the first term
+records the genuine stretching due to the extrinsic curvature
+(weighted by the lapse), while the shift terms account for the
+coordinate drift of the spatial grid.  Setting $\shift = 0$ and
+$\lapse = 1$ (geodesic slicing) reduces this to
+$\partial_t\gamma_{ij} = -2\,\extrinsic$ --- the extrinsic curvature is
+half the coordinate-time rate of change of the spatial metric.  The
+companion equation governing $\partial_t \extrinsic$ follows from the
+Gauss--Codazzi decomposition and is derived in \cref{sec:adm-equations}.
+\implnote{In the codebase, \cref{eq:adm-metric-evolution} is used
+both to initialise $\extrinsic$ from an analytic time derivative of
+$\spatialmetric$ and to advance $\spatialmetric$ during evolution.}
+
+\paragraph{Mean curvature.}
+
+In many situations --- singularity avoidance, constraint equations,
+gauge choices --- a single scalar summary of whether the slice is
+expanding or contracting matters more than the full tensor.  Tracing the
+extrinsic curvature with the inverse spatial metric defines the mean
+curvature
+%
+\begin{equation}
+  \meanextrinsic = \inversespatialmetric\,\extrinsic \,,
+  \label{eq:adm-mean-curvature}
+\end{equation}
+%
+a scalar that measures the fractional rate of change of the spatial
+volume element along the normal.  Tracing the definition
+\cref{eq:adm-extrinsic-def} with $\inversespatialmetric$ and using the
+Jacobi identity for the Lie derivative of a determinant
+($\gamma^{ij}\,\lie{n}\gamma_{ij} = \lie{n}\ln\gamma$) gives
+$\meanextrinsic = -\lie{n}\ln\sqrt{\gamma}$, where
+$\gamma = \det(\gamma_{ij})$.  Positive $\meanextrinsic$ means the
+spatial volume is contracting as the slicing moves forward; negative
+$\meanextrinsic$ indicates expansion.  Taking the trace of
+\cref{eq:adm-metric-evolution} (using the Jacobi formula
+$\gamma^{ij}\,\partial_t\gamma_{ij} = \partial_t\ln\gamma$ and
+metric compatibility $D_i\gamma^{jk} = 0$) gives the volume evolution
+%
+\begin{equation}
+  \partial_t \ln\sqrt{\gamma}
+  = -\lapse\,\meanextrinsic + D_i\beta^i \,,
+  \label{eq:adm-volume-evolution}
+\end{equation}
+%
+separating the physical contraction (from $\meanextrinsic$) and the
+coordinate compression (from the divergence of the shift).  The mean
+curvature appears prominently in the Hamiltonian constraint of
+\cref{sec:adm-equations} and is the key scalar controlled by
+gauge conditions such as maximal slicing ($\meanextrinsic = 0$).
+\physnote{A maximal slice ($\meanextrinsic = 0$) has stationary spatial
+volume.  Maximal slicing avoids the singularity-crashing behaviour of
+geodesic slicing because the collapsing geometry produces large
+$\meanextrinsic$, which the gauge condition then counteracts by
+increasing the lapse (\cref{sec:bssn-gauge}).}
+
+\paragraph{Codebase decomposition.}
+
+The \texttt{ADMSpacetime} typeclass introduced in
+\cref{sec:adm-lapse-shift} includes extrinsic curvature alongside the
+three kinematic fields.  The spatial Christoffel symbols are also
+provided, since the evolution equations require spatial covariant
+derivatives:
+%
+\begin{lstlisting}[language=Haskell]
+  extrinsicCurvature :: s -> Point s -> Sym3 'Covariant
+  spatialChristoffel :: s -> Point s -> Christoffel3
+\end{lstlisting}
+%
+The return type \texttt{Sym3 'Covariant} enforces at the type level that
+$\extrinsic$ is a symmetric, purely covariant three-tensor, consistent
+with the properties derived above.  For an analytic spacetime the method
+returns a closed-form expression; for a numerical evolution it returns
+current grid values.

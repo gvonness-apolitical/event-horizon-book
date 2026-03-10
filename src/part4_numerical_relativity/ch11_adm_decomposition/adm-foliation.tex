@@ -1,0 +1,186 @@
+% sec:adm-foliation — Foliation of Spacetime
+\section{Foliation of Spacetime}
+\label{sec:adm-foliation}
+
+Einstein's field equations (\cref{sec:gr-efe}) describe spacetime as a
+single four-dimensional entity --- they are covariant, making no
+distinction between space and time.  A numerical solver, by contrast,
+needs initial data on a spatial surface and a rule for marching that data
+forward.  The bridge between the two viewpoints is the \emph{foliation}: a
+decomposition of the four-dimensional manifold into a one-parameter family
+of three-dimensional spatial slices, each representing the state of the
+gravitational field at one instant of a chosen time parameter.  Three
+objects control the decomposition: a time function whose level sets define
+the slices, a unit normal vector that threads them together, and an
+induced metric that measures distances within each slice.
+\histnote{The 3+1 decomposition was developed by Arnowitt, Deser, and
+Misner \cite{ADM1962} in the context of canonical quantum gravity.  Its
+reformulation as an initial-value problem for numerical work was
+crystallised by York \cite{York1979}.}
+
+\paragraph{The time function.}
+
+The construction begins with a smooth scalar field $t$ on the spacetime
+manifold $\mathcal{M}$.  Each level set
+$\Sigma_t = \{p \in \mathcal{M} : t(p) = \text{const}\}$ is a
+three-dimensional hypersurface.  For these slices to represent genuine
+spatial surfaces, the gradient must be timelike everywhere:
+%
+\begin{equation}
+  \inversemetric \,(\cd{\mu} t)\,(\cd{\nu} t) < 0 \,.
+  \label{eq:adm-time-function}
+\end{equation}
+%
+When this condition holds, the normal to each slice is timelike, so by the
+signature of the Lorentzian metric its orthogonal complement is spacelike
+--- every vector tangent to $\Sigma_t$ has positive norm, making
+$\Sigma_t$ a suitable surface on which to pose initial data.  The family
+$\{\Sigma_t\}$ fills the spacetime with
+non-intersecting leaves: every event lies on exactly one slice, and the
+parameter $t$ labels which one.
+\warnnote{Not every spacetime admits a global foliation.  The existence of
+a smooth time function satisfying \cref{eq:adm-time-function} requires
+global hyperbolicity --- a condition met by every physically reasonable
+spacetime used in numerical relativity, but violated by, for example,
+the maximal Kerr extension through the Cauchy horizon
+(\cref{sec:kerr-horizons}).}
+
+\paragraph{The unit normal.}
+
+The gradient $\cd{\mu} t$ is perpendicular to each slice $\Sigma_t$ by
+construction --- any vector $V^\mu$ tangent to the slice satisfies
+$V^\mu\,\cd{\mu} t = 0$ because $t$ is constant along $\Sigma_t$.  But
+the gradient need not have unit norm.  Normalising it produces the unit
+normal covector
+%
+\begin{equation}
+  n_\mu = -\lapse\,\cd{\mu} t \,,
+  \label{eq:adm-normal-covector}
+\end{equation}
+%
+where the positive scalar
+%
+\begin{equation}
+  \lapse \equiv \bigl(-\inversemetric\,(\cd{\mu} t)\,(\cd{\nu} t)
+    \bigr)^{-1/2}
+  \label{eq:adm-lapse-normalisation}
+\end{equation}
+%
+ensures the normalisation $n_\mu\,n^\mu = -1$.  Substituting
+\cref{eq:adm-normal-covector} into $n_\mu\,n^\mu$ gives
+$n_\mu\,n^\mu = \lapse^2\,\inversemetric\,(\cd{\mu} t)(\cd{\nu} t)
+= \lapse^2 \cdot (-\lapse^{-2}) = -1$ --- the normalisation is built in
+by design.  With the $(-,+,+,+)$ signature, raising the index on the
+timelike covector $\cd{\mu} t$ reverses its time orientation; the explicit
+minus sign in \cref{eq:adm-normal-covector} compensates, making $n^\mu$
+future-directed.
+
+The scalar $\lapse$ has a direct physical meaning.  An observer who moves
+along $n^\mu$ --- perpendicular to each slice, with zero spatial velocity
+--- ages by
+%
+\begin{equation}
+  \d\tau = \lapse\,\d t
+  \label{eq:adm-proper-time}
+\end{equation}
+%
+between neighbouring slices.  The quantity $\lapse$ is the \emph{lapse
+function}: it ``lapses'' proper time between slices, translating the
+coordinate label $t$ into the physical clock reading $\tau$.
+\cref{sec:adm-lapse-shift} develops $\lapse$ as one of two gauge variables
+that encode the freedom in threading coordinates through the foliation.
+\physnote{The observer who moves along $n^\mu$ is the \emph{Eulerian
+observer} of numerical relativity --- the fiducial reference frame for
+interpreting ADM quantities.  The extrinsic curvature, for instance,
+measures how the spatial slice curves as seen by this observer.}
+
+\paragraph{The spatial projection.}
+
+To do geometry within a slice we need a systematic way to extract the
+spatial part of any spacetime quantity --- discarding its component along
+the normal while preserving the rest.  The \emph{spatial projection
+operator} performs this split:
+%
+\begin{equation}
+  \gamma^\mu{}_\nu = \delta^\mu{}_\nu + n^\mu\,n_\nu \,.
+  \label{eq:adm-projector}
+\end{equation}
+%
+Applied to any vector, $\gamma^\mu{}_\nu\,V^\nu$ returns the part tangent
+to $\Sigma_t$ and annihilates the component along $n^\mu$.  Two properties
+confirm that this is a genuine projection.  First, it is orthogonal to the
+normal:
+%
+\begin{equation}
+  \gamma^\mu{}_\nu\,n^\nu
+  = n^\mu + n^\mu\,\underbrace{n_\nu\,n^\nu}_{-1} = 0 \,.
+  \label{eq:adm-projector-orthogonal}
+\end{equation}
+%
+Second, it is idempotent --- projecting twice gives the same result as
+projecting once:
+%
+\begin{equation}
+  \gamma^\mu{}_\alpha\,\gamma^\alpha{}_\nu
+  = \delta^\mu{}_\nu + 2\,n^\mu\,n_\nu
+    + n^\mu\,\underbrace{n_\alpha\,n^\alpha}_{-1}\,n_\nu
+  = \gamma^\mu{}_\nu \,.
+  \label{eq:adm-projector-idempotent}
+\end{equation}
+%
+Together these properties guarantee that $\gamma^\mu{}_\nu$ cleanly
+separates every vector into a spatial part and a normal part with no
+residual mixing: the spatial component lives entirely within $\Sigma_t$,
+and projecting it again changes nothing.
+
+\begin{figure}[htbp]
+  \centering
+  \input{../figures/adm-foliation}
+  \caption[Foliation of spacetime into spacelike hypersurfaces]{%
+    Foliation of spacetime into spacelike hypersurfaces.
+    Two neighbouring slices $\Sigma_t$ and $\Sigma_{t+\d t}$ are
+    separated by a proper-time interval $\alpha\,\d t$ along the unit
+    normal $n^\mu$.  A tangent vector $V^\mu$ lies within $\Sigma_t$,
+    satisfying $n_\mu V^\mu = 0$.  The lapse function $\alpha$ varies
+    across the slice, so the proper-time gap between slices is not
+    uniform --- the geometry stretches time differently at different
+    spatial locations.}
+  \label{fig:adm-foliation}
+\end{figure}
+
+\paragraph{The induced metric.}
+
+The fully covariant form of the projector serves double duty as the
+\emph{induced metric} (or first fundamental form) on $\Sigma_t$:
+%
+\begin{equation}
+  \gamma_{\mu\nu} = \metric + n_\mu\,n_\nu \,.
+  \label{eq:adm-induced-metric}
+\end{equation}
+%
+For two vectors $U^\mu$ and $V^\mu$ both tangent to the slice,
+$n_\mu\,U^\mu = 0$ and $n_\nu\,V^\nu = 0$, so
+$\gamma_{\mu\nu}\,U^\mu\,V^\nu = \metric\,U^\mu\,V^\nu$ --- the induced
+metric agrees with the full spacetime metric on spatial vectors.
+In coordinates $(t, x^i)$ adapted to the foliation, the spatial components
+$\gamma_{ij}$ form a non-degenerate three-metric $\spatialmetric$ that
+carries
+all the information about the slice's intrinsic geometry: its own
+Christoffel symbols, Riemann tensor, and curvature invariants are built
+from $\gamma_{ij}$ and its spatial derivatives exactly as the spacetime
+quantities are built from $\metric$ (\cref{sec:dg-curvature}).
+\xrefnote{The induced metric captures the slice's \emph{intrinsic}
+geometry --- what a being confined to $\Sigma_t$ could measure.  The
+\emph{extrinsic} curvature $\extrinsic$
+(\cref{sec:adm-extrinsic-curvature}) captures how the slice bends within
+the ambient spacetime.  Together, $\spatialmetric$ and $\extrinsic$
+constitute the initial data for the ADM evolution.}
+
+The foliation, the unit normal, and the induced metric are the geometric
+foundation for the 3+1 decomposition.  The spacetime metric $\metric$ has
+been split into $\gamma_{\mu\nu}$ (geometry within each slice) and $n_\mu$
+(geometry between slices).  What remains is to specify how coordinates are
+laid across this structure --- how much proper time elapses between slices
+(the lapse $\lapse$) and how the spatial coordinates shift from one slice
+to the next (the shift $\shift$).  These are the gauge variables of the
+next section.

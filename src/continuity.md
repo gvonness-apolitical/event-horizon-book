@@ -340,6 +340,51 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | eq:vandermonde | `sec:spec-vandermonde` | Vandermonde matrix definition: $V_{ij} = P_j(x_i)$ |
 | eq:filter-matrix | `sec:spec-vandermonde` | Filter matrix: $F = V \operatorname{diag}(\sigma) V^{-1}$ |
 | eq:exponential-filter | `sec:spec-vandermonde` | Exponential filter: $\sigma(k) = \exp(-\alpha(k/N)^s)$ |
+| $\Sigma_t$ | `sec:adm-foliation` | Spatial hypersurface (leaf of foliation) at coordinate time $t$; level set of time function |
+| $n_\mu$ / $n^\mu$ | `sec:adm-foliation` | Unit normal covector/vector to foliation hypersurface; $n_\mu n^\mu = -1$, future-directed. Note: distinct from $n^i = x^i/r$ (Euclidean radial unit vector, `sec:schw-kerr-schild`); context distinguishes |
+| $\lapse$ (`\lapse`) | `sec:adm-foliation` | Lapse function; $\d\tau = \lapse\,\d t$; first physical use. Note: glyph collides with filter attenuation $\alpha$ (`sec:spec-vandermonde`) and affine rescaling $\alpha$ (`sec:geo-null`); context distinguishes |
+| $\gamma^\mu{}_\nu$ | `sec:adm-foliation` | Spatial projection operator; $\gamma^\mu{}_\nu = \delta^\mu{}_\nu + n^\mu n_\nu$; degenerate rank-3 tensor on 4D spacetime |
+| $\gamma_{\mu\nu}$ (4D) | `sec:adm-foliation` | Induced metric / first fundamental form on $\Sigma_t$; $\gamma_{\mu\nu} = g_{\mu\nu} + n_\mu n_\nu$; restricts to $\spatialmetric$ on spatial indices |
+| eq:adm-time-function | `sec:adm-foliation` | Timelike gradient condition: $g^{\mu\nu}(\nabla_\mu t)(\nabla_\nu t) < 0$ |
+| eq:adm-normal-covector | `sec:adm-foliation` | Unit normal: $n_\mu = -\alpha\,\nabla_\mu t$ |
+| eq:adm-lapse-normalisation | `sec:adm-foliation` | Lapse definition: $\alpha = (-g^{\mu\nu}\nabla_\mu t\,\nabla_\nu t)^{-1/2}$ |
+| eq:adm-proper-time | `sec:adm-foliation` | $\d\tau = \alpha\,\d t$; proper time between neighbouring slices |
+| eq:adm-projector | `sec:adm-foliation` | Spatial projector: $\gamma^\mu{}_\nu = \delta^\mu{}_\nu + n^\mu n_\nu$ |
+| eq:adm-projector-orthogonal | `sec:adm-foliation` | Projector orthogonality: $\gamma^\mu{}_\nu n^\nu = 0$ |
+| eq:adm-projector-idempotent | `sec:adm-foliation` | Projector idempotency: $\gamma^\mu{}_\alpha\gamma^\alpha{}_\nu = \gamma^\mu{}_\nu$ |
+| eq:adm-induced-metric | `sec:adm-foliation` | Induced metric: $\gamma_{\mu\nu} = g_{\mu\nu} + n_\mu n_\nu$ |
+| $(\partial/\partial t)^\mu$ | `sec:adm-lapse-shift` | Coordinate time vector; connects same spatial labels across slices; decomposes as $\alpha n^\mu + \beta^\mu$ |
+| $\beta^\mu$ / $\shift$ | `sec:adm-lapse-shift` | Shift vector; tangent to $\Sigma_t$; $n_\mu \beta^\mu = 0$; spatial components $\beta^i$ encode coordinate drift between slices |
+| $\beta_i = \gamma_{ij}\beta^j$ | `sec:adm-lapse-shift` | Shift covector; index lowered by spatial metric |
+| eq:adm-time-vector | `sec:adm-lapse-shift` | Time vector decomposition: $(\partial/\partial t)^\mu = \alpha n^\mu + \beta^\mu$ |
+| eq:adm-shift-tangent | `sec:adm-lapse-shift` | Shift tangency condition: $n_\mu \beta^\mu = 0$ |
+| eq:adm-metric-components | `sec:adm-lapse-shift` | ADM metric components: $g_{00} = -\alpha^2 + \beta_k\beta^k$, $g_{0i} = \beta_i$, $g_{ij} = \gamma_{ij}$ |
+| eq:adm-line-element | `sec:adm-lapse-shift` | ADM line element (completed-square form) |
+| eq:adm-inverse-metric | `sec:adm-lapse-shift` | Inverse metric in ADM variables: $g^{00} = -1/\alpha^2$, $g^{0i} = \beta^i/\alpha^2$, $g^{ij} = \gamma^{ij} - \beta^i\beta^j/\alpha^2$ |
+| eq:adm-determinant | `sec:adm-lapse-shift` | Determinant factorisation: $\sqrt{-g} = \alpha\sqrt{\gamma}$ |
+| $K_{\mu\nu}$ | `sec:adm-extrinsic-curvature` | 4D extrinsic curvature tensor; $K_{\mu\nu} = -\frac{1}{2}\lie{n}\gamma_{\mu\nu} = -\gamma^\alpha{}_\mu\,\nabla_\alpha n_\nu$; symmetric, purely spatial ($K_{\mu\nu}n^\nu = 0$); restricts to $\extrinsic$ on spatial indices |
+| $a_\mu$ | `sec:adm-extrinsic-curvature` | Acceleration of Eulerian observer; $a_\mu = D_\mu \ln\alpha$; purely spatial ($a_\mu n^\mu = 0$) |
+| $D_i$ / $D_\mu$ | `sec:adm-extrinsic-curvature` | Spatial covariant derivative compatible with $\spatialmetric$; $D_\mu f = \gamma^\nu{}_\mu \nabla_\nu f$ for scalars; built from $\spatialchristoffel{i}{j}{k}$ |
+| $\gamma = \det(\gamma_{ij})$ | `sec:adm-extrinsic-curvature` | Determinant of spatial metric; $\sqrt{-g} = \alpha\sqrt{\gamma}$ (from eq:adm-determinant) |
+| eq:adm-extrinsic-def | `sec:adm-extrinsic-curvature` | Lie derivative definition: $K_{\mu\nu} = -\frac{1}{2}\lie{n}\gamma_{\mu\nu}$ |
+| eq:adm-lie-gamma-expand | `sec:adm-extrinsic-curvature` | Expanded Lie derivative: $\lie{n}\gamma_{\mu\nu} = \nabla_\mu n_\nu + \nabla_\nu n_\mu + a_\mu n_\nu + n_\mu a_\nu$ |
+| eq:adm-acceleration | `sec:adm-extrinsic-curvature` | Eulerian acceleration: $a_\mu = D_\mu \ln\alpha$ |
+| eq:adm-extrinsic-covariant | `sec:adm-extrinsic-curvature` | Covariant derivative form: $K_{\mu\nu} = -\gamma^\alpha{}_\mu\,\nabla_\alpha n_\nu$ |
+| eq:adm-normal-adapted | `sec:adm-extrinsic-curvature` | Normal in adapted coordinates: $n^\mu = (1/\alpha)(1, -\beta^i)$ |
+| eq:adm-metric-evolution | `sec:adm-extrinsic-curvature` | Spatial metric evolution: $\partial_t \gamma_{ij} = -2\alpha K_{ij} + D_i\beta_j + D_j\beta_i$ |
+| eq:adm-mean-curvature | `sec:adm-extrinsic-curvature` | Mean curvature: $K = \gamma^{ij}K_{ij}$ |
+| eq:adm-volume-evolution | `sec:adm-extrinsic-curvature` | Volume evolution: $\partial_t \ln\sqrt{\gamma} = -\alpha K + D_i\beta^i$ |
+| ${}^{(3)}\!R_{\mu\nu\rho\sigma}$ | `sec:adm-equations` | Spatial Riemann tensor; built from $\spatialmetric$ and $\spatialchristoffel{i}{j}{k}$ alone |
+| $\rho$ (Eulerian energy density) | `sec:adm-equations` | $\rho = T_{\mu\nu}n^\mu n^\nu$; energy density measured by Eulerian observers. Note: glyph collides with $\rho$ (energy density `sec:gr-stress-energy`), convergence ratio (`sec:fd-convergence`), Cartesian radial (`sec:kerr-wormhole`); context distinguishes |
+| $S_i$ | `sec:adm-equations` | Momentum density measured by Eulerian observers; $S_i = -\gamma_{i\mu}T^{\mu\nu}n_\nu$ |
+| $S_{ij}$ | `sec:adm-equations` | Spatial stress tensor; $S_{ij} = \gamma_{i\mu}\gamma_{j\nu}T^{\mu\nu}$. Note: glyph collision with stiffness matrix (`sec:spec-lgl`); context distinguishes |
+| $S^i$ | `sec:adm-equations` | Contravariant momentum density |
+| eq:adm-gauss | `sec:adm-equations` | Gauss equation: projected Riemann = spatial Riemann + $K$-squared terms |
+| eq:adm-codazzi | `sec:adm-equations` | Codazzi equation: mixed Riemann projection = antisymmetrised $DK$ |
+| eq:adm-ricci | `sec:adm-equations` | Ricci equation: double-normal Riemann projection = $-\lie{n}K - D_iD_j\alpha/\alpha + K^2$ |
+| eq:adm-hamiltonian | `sec:adm-equations` | Hamiltonian constraint: ${}^{(3)}R + K^2 - K_{ij}K^{ij} = 16\pi\rho$ |
+| eq:adm-momentum | `sec:adm-equations` | Momentum constraint: $D_j(K^{ij} - \gamma^{ij}K) = 8\pi S^i$ |
+| eq:adm-kij-evolution | `sec:adm-equations` | $K_{ij}$ evolution equation |
 
 ## Analogy Registry
 
@@ -391,6 +436,13 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Orthogonal polynomial absorbs half the integrand (Gauss exactness) | `sec:spec-legendre` | Choosing zeros of $P_n$ as quadrature nodes halves the problem — orthogonality kills the $P_n \cdot s$ term, leaving only the remainder $r$ to integrate. Maps: division-with-remainder argument. Breaks: only works when nodes are exactly the zeros of the orthogonal polynomial; approximate nodes lose the exactness. |
 | Mass lumping defines the inner product (not approximates it) | `sec:spec-lgl` | Lumped mass matrix is exact by cardinal property; it defines the DG discrete inner product, which is spectrally close to the $L^2$ inner product. Maps: reframes "approximation" as "definition". Breaks: the defined inner product differs from the exact one for the highest mode; error noticeable only at very low $N$. |
 | Modal filtering as spectral-element Kreiss–Oliger dissipation | `sec:spec-vandermonde` | Both add controlled damping to high-frequency modes to stabilise the scheme near under-resolved features. Maps: exponential filter targets the modal spectrum directly; KO targets the grid wavenumber via FD operators. Breaks: KO is a spatial derivative operator applied at every step; modal filtering is a transform-multiply-transform operation applied selectively near punctures. |
+| Eulerian observer (foliation normal) | `sec:adm-foliation` | Observer moving along $n^\mu$ (perpendicular to slices); fiducial reference frame for ADM quantities. Maps: measures proper time $\d\tau = \alpha\,\d t$ between slices; extrinsic curvature is slice bending as seen by this observer. Breaks: not a freely falling observer in general (accelerated unless $\nabla_i \alpha = 0$). |
+| Coordinate grid sliding (shift vector) | `sec:adm-lapse-shift` | Shift vector encodes lateral drift of the coordinate grid between slices; Eulerian observer at $x^i$ arrives at $x^i - \beta^i\,\d t$ on next slice. Maps: coordinate grid translates relative to physics. Breaks: the shift is not a physical velocity; it is a gauge artefact of the coordinate choice. |
+| Completed square (ADM line element) | `sec:adm-lapse-shift` | Line element separates temporal and spatial contributions; temporal piece = proper-time lapse, spatial piece = distance after coordinate drift. Maps: algebraic structure parallels standard quadratic completion. Breaks: the "square" involves a 3-metric, not a scalar. |
+| Flat paper vs cylinder (intrinsic vs extrinsic curvature) | `sec:adm-extrinsic-curvature` | Same intrinsic geometry (vanishing Gaussian curvature), different embeddings. Maps: motivates why $\spatialmetric$ alone is insufficient — $\extrinsic$ encodes embedding information. Breaks: cylinder has scalar extrinsic curvature; $K_{ij}$ is a 6-component tensor with direction-dependent bending. |
+| Second fundamental form (differential geometry) | `sec:adm-extrinsic-curvature` | $K_{ij}$ is the gravitational analogue of the classical second fundamental form. Maps: both measure how an embedded surface bends within the ambient space. Breaks: the classical form is typically for codimension-1 embeddings in Riemannian space; GR adds Lorentzian signature and gauge freedom. |
+| Maxwell constraint--evolution split | `sec:adm-equations` | ADM system parallels Maxwell's $\nabla\cdot\mathbf{E}=\rho$ (constraint) + Faraday (evolution) split. Maps: both have constraints on initial data that propagate automatically. Breaks: Maxwell constraints are linear; ADM constraints are nonlinear. Maxwell constrains only the field; ADM constrains both $\gamma_{ij}$ and $K_{ij}$ jointly. |
+| Theorema Egregium (Gauss equation) | `sec:adm-equations` | Gauss equation generalises Gauss's Theorema Egregium to hypersurfaces. Maps: intrinsic curvature computable from internal measurements. Breaks: higher-dimensional, Lorentzian signature, extrinsic curvature corrections present. |
 
 ## Forward / Backward References
 
@@ -494,6 +546,17 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | Legendre polynomials and recurrence | `sec:spec-chebyshev` | `sec:spec-legendre` ✓ |
 | LGL differentiation matrix and Vandermonde matrices | `sec:spec-legendre` | `sec:spec-lgl` ✓ |
 | Vandermonde matrix for modal-nodal conversion and filtering | `sec:spec-lgl` | `sec:spec-vandermonde` ✓ |
+| ADM initial-value decomposition (constraint vs evolution eqs) | `sec:gr-efe` | `sec:adm-foliation` (partial ✓); full treatment in `sec:adm-equations` (TBD) |
+| Lapse and shift as gauge variables | `sec:adm-foliation` | `sec:adm-lapse-shift` ✓ |
+| Extrinsic curvature as complement to induced metric | `sec:adm-foliation` | `sec:adm-extrinsic-curvature` ✓ |
+| Curvature built from spatial metric (callback to dg-curvature) | `sec:adm-foliation` | `sec:dg-curvature` (backward ref ✓) |
+| Extrinsic curvature as initial data complement | `sec:adm-lapse-shift` | `sec:adm-extrinsic-curvature` ✓ |
+| Gauge conditions for singularity avoidance | `sec:adm-lapse-shift` | `sec:bssn-gauge` (TBD) |
+| Corotating shift for binary punctures | `sec:adm-lapse-shift` | `sec:bssn-gauge` (TBD) |
+| Evolution equation for $\partial_t K_{ij}$ from Gauss--Codazzi | `sec:adm-extrinsic-curvature` | `sec:adm-equations` ✓ (eq:adm-kij-evolution) |
+| Hamiltonian constraint involving $K$ | `sec:adm-extrinsic-curvature` | `sec:adm-equations` ✓ (eq:adm-hamiltonian) |
+| Maximal slicing gauge condition ($K = 0$) | `sec:adm-extrinsic-curvature` | `sec:bssn-gauge` (TBD) |
+| Global hyperbolicity / Cauchy horizon example | `sec:adm-foliation` | `sec:kerr-horizons` (backward ref ✓) |
 
 ## Key Decisions
 
@@ -679,3 +742,24 @@ Updated manually after each `/draft-section` invocation using the continuity not
 | $\order{10}$ replaced with "of order $10$" | Big-O notation $\mathcal{O}(10)$ is meaningless (constant independent of parameters); mathematician MAJOR issue | `sec:spec-vandermonde` |
 | Unisolvence sentence added after eq:vandermonde | Invertibility of $V$ was stated but not justified; added appeal to unisolvence theorem and cross-reference to `sec:spec-interpolation` | `sec:spec-vandermonde` |
 | Orthogonality argument removed from conditioning paragraph | Legendre orthogonality does not imply good conditioning of $V$ (that depends on node distribution, not basis orthogonality); kept node-distribution argument only | `sec:spec-vandermonde` |
+| $n_\mu$ glyph collision with $n^i$ documented | $n_\mu$/$n^\mu$ = foliation unit normal; $n^i = x^i/r$ = Euclidean radial vector (`sec:schw-kerr-schild`); different context, no ambiguity | `sec:adm-foliation` |
+| $\gamma_{\mu\nu}$ (4D) vs $\gamma_{ij}$ (3D) distinction | 4D induced metric $\gamma_{\mu\nu}$ is degenerate (null eigenvector $n^\mu$); 3D spatial metric $\gamma_{ij}$ is non-degenerate; adapted coordinates $(t,x^i)$ bridge the two | `sec:adm-foliation` |
+| No \coderef in sec:adm-foliation | Section is geometric; codebase ADMSpacetime typeclass introduced in `sec:adm-lapse-shift` where lapse/shift/spatial metric appear as code entities | `sec:adm-foliation` |
+| Normalisation verification rewritten | Original inline verification had garbled index notation; replaced with clean $\alpha^2 \cdot (-\alpha^{-2}) = -1$ per physicist+mathematician consensus | `sec:adm-foliation` |
+| Orthogonal complement argument for spacelikeness | Explicit: timelike normal → spacelike orthogonal complement by Lorentzian signature; not just "positive norm" assertion | `sec:adm-foliation` |
+| Adapted coordinates for 4D→3D restriction | Sentence added: "In coordinates $(t,x^i)$ adapted to the foliation, the spatial components $\gamma_{ij}$ form a non-degenerate three-metric" | `sec:adm-foliation` |
+| Shift minus-sign explanation | Explicit derivation of $x^i - \beta^i\,\d t$ sign: coordinate grid shifts by $+\beta^i\,\d t$, so observer labels change by $-\beta^i\,\d t$; per physicist review | `sec:adm-lapse-shift` |
+| $(0,i)$ inverse metric verification included | Mathematician requested verification beyond $(0,0)$ case; $(0,i)$ check shows cross-terms cancel | `sec:adm-lapse-shift` |
+| Schur complement non-degeneracy noted | $\gamma_{ij}$ Riemannian (hence non-degenerate) stated explicitly as prerequisite for Schur complement; per mathematician review | `sec:adm-lapse-shift` |
+| ADMSpacetime typeclass in codebase paragraph | Shows Haskell interface mirroring 3-field decomposition; phantom variance types enforce index placement at compile time | `sec:adm-lapse-shift` |
+| Double projection then reduce to single | $K_{\mu\nu} = -\gamma^\alpha{}_\mu \gamma^\beta{}_\nu \nabla_\alpha n_\beta$ shown first; second projector proven redundant via $n^\beta \nabla_\alpha n_\beta = 0$; avoids circularity in "Purely spatial" paragraph | `sec:adm-extrinsic-curvature` |
+| Symmetry from hypersurface orthogonality | Single-projector form is non-manifestly symmetric; symmetry follows from Frobenius condition $\nabla_{[\mu}n_{\nu]} = -n_{[\mu}a_{\nu]}$; remark added after eq:adm-extrinsic-covariant | `sec:adm-extrinsic-curvature` |
+| Acceleration derivation shown (not just stated) | Reviewer consensus: "a computation shows" insufficient; key steps (differentiate $n_\mu = -\alpha\nabla_\mu t$, use $n^\alpha\nabla_\alpha t = -1/\alpha$) included in derivation | `sec:adm-extrinsic-curvature` |
+| Sign convention matches Baumgarte/Alcubierre | $K_{\mu\nu} = -\gamma^\alpha{}_\mu \nabla_\alpha n_\nu$ with minus sign; warnnote flags Wald's opposite convention | `sec:adm-extrinsic-curvature` |
+| Paper/cylinder analogy completed per tone.md §4 | Analogy states: map (same intrinsic, different embedding), payoff (motivates $K_{ij}$), breakdown (cylinder has scalar curvature; $K_{ij}$ is 6-component tensor) | `sec:adm-extrinsic-curvature` |
+| Jacobi formula invoked for trace identities | $K = -\lie{n}\ln\sqrt{\gamma}$ and $\partial_t\ln\sqrt{\gamma}$ both derived via Jacobi identity for Lie derivative of determinant; per mathematician review | `sec:adm-extrinsic-curvature` |
+| Codazzi equation: normal on 2nd Riemann slot | Standard B&S/Alcubierre convention; normal on 4th slot gives different index arrangement on RHS; per physicist+mathematician consensus | `sec:adm-equations` |
+| Ricci equation: negative signs on $\lie{n}K$ and $D_iD_j\alpha/\alpha$ | Matches B&S eq. (2.74); draft initially had positive signs; per physicist review | `sec:adm-equations` |
+| $K_{ij}$ evolution derivation: result stated, not derived step-by-step | Full derivation is lengthy; difficulty acknowledged honestly per pedagogy review | `sec:adm-equations` |
+| Maxwell analogy completed per tone.md §4 | Breakdown added: Maxwell linear vs ADM nonlinear; Maxwell constrains field only vs ADM constrains both $\gamma_{ij}$ and $K_{ij}$ | `sec:adm-equations` |
+| Newtonian-limit physnote made schematic | Exact coefficient ${}^{(3)}R \to c\,\nabla^2\Phi$ is gauge-dependent; statement kept qualitative per physicist review | `sec:adm-equations` |

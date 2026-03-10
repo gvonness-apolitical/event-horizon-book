@@ -1,0 +1,129 @@
+% adm-foliation.tex — Foliation of spacetime into spacelike hypersurfaces
+% Inputable TikZ fragment for fig:adm-foliation
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Schematic spacetime diagram showing two neighbouring spatial slices
+% Sigma_t and Sigma_{t+dt}, the unit normal n^mu, the proper-time gap
+% alpha dt, and a tangent vector V^mu.  The gap between slices varies
+% across the surface to show that alpha is spatially non-uniform.
+%
+% Corners of each sheet (perspective parallelogram):
+%   Front-to-back perspective offset: dx = -0.7, dy = +1.5
+%   Lower: FL=(0.5,0) FR=(7.0,0.20) BR=(6.3,1.70) BL=(-0.2,1.50)
+%   Upper: FL=(0.5,2.50) FR=(7.0,3.40) BR=(6.3,4.90) BL=(-0.2,4.00)
+%   Gap ranges from ~2.5 (left) to ~3.2 (right).
+%
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Lower sheet (Σ_t) ─────────────────────────────────────────────
+
+  % Fill
+  \fill[EHMarginGray, opacity=0.06]
+    plot[smooth, tension=0.6] coordinates {
+      (0.5, 0.0) (2.5, -0.08) (4.5, 0.06) (7.0, 0.20)}
+    -- (6.3, 1.70) -- (-0.2, 1.50) -- cycle;
+
+  % Front edge (closest to viewer)
+  \draw[EHMarginGray, semithick]
+    plot[smooth, tension=0.6] coordinates {
+      (0.5, 0.0) (2.5, -0.08) (4.5, 0.06) (7.0, 0.20)};
+
+  % Back edge
+  \draw[EHMarginGray, thin, opacity=0.4]
+    (-0.2, 1.50) -- (6.3, 1.70);
+
+  % Side edges
+  \draw[EHMarginGray, thin, opacity=0.4]
+    (0.5, 0.0) -- (-0.2, 1.50)  (7.0, 0.20) -- (6.3, 1.70);
+
+  % Coordinate gridlines — transverse (depth 1/3, 2/3)
+  \draw[EHMarginGray, very thin, opacity=0.15]
+    (0.27, 0.50) -- (6.77, 0.70)
+    (0.03, 1.00) -- (6.53, 1.20);
+
+  % Coordinate gridlines — longitudinal (width 1/4, 1/2, 3/4)
+  \draw[EHMarginGray, very thin, opacity=0.15]
+    (2.13, 0.05) -- (1.43, 1.55)
+    (3.75, 0.10) -- (3.05, 1.60)
+    (5.38, 0.15) -- (4.68, 1.65);
+
+  % Label
+  \node[font=\small, text=EHMarginGray, anchor=west]
+    at (7.15, 0.20) {$\Sigma_t$};
+
+
+  % ── Upper sheet (Σ_{t+dt}) ────────────────────────────────────────
+
+  \fill[EHMarginGray, opacity=0.06]
+    plot[smooth, tension=0.6] coordinates {
+      (0.5, 2.50) (2.5, 2.44) (4.5, 2.96) (7.0, 3.40)}
+    -- (6.3, 4.90) -- (-0.2, 4.00) -- cycle;
+
+  \draw[EHMarginGray, semithick]
+    plot[smooth, tension=0.6] coordinates {
+      (0.5, 2.50) (2.5, 2.44) (4.5, 2.96) (7.0, 3.40)};
+
+  \draw[EHMarginGray, thin, opacity=0.4]
+    (-0.2, 4.00) -- (6.3, 4.90);
+
+  \draw[EHMarginGray, thin, opacity=0.4]
+    (0.5, 2.50) -- (-0.2, 4.00)  (7.0, 3.40) -- (6.3, 4.90);
+
+  % Gridlines — transverse
+  \draw[EHMarginGray, very thin, opacity=0.15]
+    (0.27, 3.00) -- (6.77, 3.90)
+    (0.03, 3.50) -- (6.53, 4.40);
+
+  % Gridlines — longitudinal
+  \draw[EHMarginGray, very thin, opacity=0.15]
+    (2.13, 2.73) -- (1.43, 4.23)
+    (3.75, 2.95) -- (3.05, 4.45)
+    (5.38, 3.18) -- (4.68, 4.68);
+
+  \node[font=\small, text=EHMarginGray, anchor=west]
+    at (7.15, 3.40) {$\Sigma_{t+\mathrm{d}t}$};
+
+
+  % ── Point P on lower sheet ────────────────────────────────────────
+  \coordinate (P) at (3.3, 0.60);
+  \fill (P) circle (1.5pt);
+  \node[font=\scriptsize, anchor=north east, inner sep=2pt]
+    at (P) {$P$};
+
+
+  % ── Unit normal n^μ (EHJetBlue) ───────────────────────────────────
+  %
+  % Vertical from P to upper sheet.  At x = 3.3, the upper-sheet
+  % surface (same depth fraction) sits at approximately y ≈ 3.38.
+  \draw[->, EHJetBlue, very thick, shorten >=2pt]
+    (P) -- (3.3, 3.38);
+  \node[font=\scriptsize, text=EHJetBlue, anchor=east, inner sep=2pt]
+    at (3.25, 3.15) {$n^\mu$};
+
+
+  % ── Proper-time gap α dt (EHAccretionGold) ────────────────────────
+  %
+  % Measurement bracket to the right of the normal arrow.
+  \draw[EHAccretionGold, thin] (3.50, 0.60) -- (3.70, 0.60);
+  \draw[EHAccretionGold, thin] (3.50, 3.38) -- (3.70, 3.38);
+  \draw[EHAccretionGold, thin, <->] (3.60, 0.60) -- (3.60, 3.38);
+  \node[font=\scriptsize, text=EHAccretionGold, anchor=west, inner sep=1pt]
+    at (3.75, 1.99) {$\alpha\,\mathrm{d}t$};
+
+
+  % ── Tangent vector V^μ (EHAccretionGold) ──────────────────────────
+  \draw[->, EHAccretionGold, very thick]
+    (P) -- ++(1.5, 0.06);
+  \node[font=\scriptsize, text=EHAccretionGold, anchor=south west, inner sep=1pt]
+    at (4.65, 0.68) {$V^\mu$};
+
+
+  % ── Right-angle marker at P ───────────────────────────────────────
+  %
+  % Small square between n^μ (vertical) and V^μ (horizontal).
+  \draw[thin] (3.3, 0.72) -- (3.42, 0.72) -- (3.42, 0.60);
+
+\end{tikzpicture}

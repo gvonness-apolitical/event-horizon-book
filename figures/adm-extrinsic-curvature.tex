@@ -1,0 +1,111 @@
+% adm-extrinsic-curvature.tex — Convergence/divergence of normals
+% Inputable TikZ fragment for fig:adm-extrinsic-curvature
+% Requires: tikz with calc, arrows.meta (loaded by ehbook.cls)
+%
+% Cross-section of a curved spatial slice Sigma_t with unit normals
+% at several points.  Left trough (concave upward): normals converge
+% toward the future, K > 0.  Right peak (concave downward): normals
+% diverge, K < 0.
+%
+% Normal vectors are hand-computed perpendiculars to the curve.
+% At the trough (x≈2.5) the tangent is horizontal, so the normal
+% is vertical; on either side the tangent tilts, rotating the normal
+% toward the centre of curvature (convergence) or away from it
+% (divergence).
+
+\begin{tikzpicture}[
+    >={Stealth[length=5pt]},
+    font=\footnotesize,
+  ]
+
+  % ── Future direction indicator ──────────────────────────────────
+  \draw[->, EHMarginGray, thin]
+    (-0.2, 0.8) -- (-0.2, 3.2);
+  \node[font=\scriptsize, text=EHMarginGray, rotate=90, anchor=south]
+    at (-0.45, 2.0) {future};
+
+
+  % ── Curved spatial slice Σ_t ────────────────────────────────────
+  %
+  % S-shaped cross section:
+  %   Trough at x ≈ 2.5  →  concave up  →  K > 0  (normals converge)
+  %   Peak   at x ≈ 5.5  →  concave down →  K < 0  (normals diverge)
+
+  \draw[EHMarginGray, semithick]
+    plot[smooth, tension=0.6] coordinates {
+      (0.5, 2.50) (1.5, 1.70) (2.5, 1.20)
+      (3.5, 1.80) (4.0, 2.50)
+      (4.5, 3.20) (5.5, 3.80) (6.5, 3.20) (7.5, 2.50)};
+
+  \node[font=\small, text=EHMarginGray, anchor=west]
+    at (7.70, 2.50) {$\Sigma_t$};
+
+
+  % ── Concave region normals (K > 0, converging) ─────────────────
+  %
+  % Three normals tilt inward toward the centre of curvature
+  % (above the trough), so their tips are closer together than
+  % their bases.
+
+  % Normal at x = 1.5 — tilts right
+  \coordinate (N1) at (1.50, 1.70);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N1) -- ++(0.38, 0.85);
+
+  % Normal at x = 2.5 (trough) — points straight up
+  \coordinate (N2) at (2.50, 1.20);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N2) -- ++(0.00, 0.93);
+
+  % Normal at x = 3.5 — tilts left
+  \coordinate (N3) at (3.50, 1.80);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N3) -- ++(-0.35, 0.86);
+
+  % Label one normal
+  \node[font=\scriptsize, text=EHJetBlue, anchor=south west, inner sep=2pt]
+    at (2.55, 1.88) {$n^\mu$};
+
+
+  % ── Convex region normals (K < 0, diverging) ───────────────────
+  %
+  % Three normals tilt outward away from the centre of curvature
+  % (below the peak), so their tips are further apart than their
+  % bases.
+
+  % Normal at x = 4.5 — tilts left
+  \coordinate (N4) at (4.50, 3.20);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N4) -- ++(-0.38, 0.85);
+
+  % Normal at x = 5.5 (peak) — points straight up
+  \coordinate (N5) at (5.50, 3.80);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N5) -- ++(0.00, 0.93);
+
+  % Normal at x = 6.5 — tilts right
+  \coordinate (N6) at (6.50, 3.20);
+  \draw[->, EHJetBlue, very thick, shorten >=1pt]
+    (N6) -- ++(0.38, 0.85);
+
+
+  % ── Base-point markers (drawn last, on top) ────────────────────
+  \foreach \n in {N1,N2,N3,N4,N5,N6}
+    \fill (\n) circle (1.2pt);
+
+
+  % ── Region annotations ─────────────────────────────────────────
+  %
+  % K > 0 label below the trough (in the concave bowl)
+  \node[font=\small, text=EHAccretionGold]
+    at (2.50, 0.55) {$K > 0$};
+  \node[font=\scriptsize, text=EHMarginGray]
+    at (2.50, 0.18) {normals converge};
+
+  % K < 0 label above the peak (where normals fan out)
+  \node[font=\small, text=EHAccretionGold]
+    at (5.50, 5.05) {$K < 0$};
+  \node[font=\scriptsize, text=EHMarginGray]
+    at (5.50, 5.40) {normals diverge};
+
+\end{tikzpicture}
